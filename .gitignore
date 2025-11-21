@@ -1,0 +1,78 @@
+##############################
+# Java / Spring Boot
+##############################
+*.class
+*.jar
+*.war
+*.ear
+
+/build/
+/out/
+
+##############################
+# Gradle
+##############################
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+##############################
+# Maven (혹시 있을 경우)
+##############################
+.mvn/
+target/
+
+##############################
+# IDE / Editor
+##############################
+
+# Eclipse / STS
+.project
+.classpath
+.settings/
+.metadata/
+.bin/
+RELEASE-NOTES.txt
+
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VSCode
+.vscode/
+
+##############################
+# OS files
+##############################
+.DS_Store
+Thumbs.db
+
+##############################
+# Logs
+##############################
+*.log
+
+##############################
+# Temporary files
+##############################
+*.tmp
+*.cache
+*.swp
+*~
+
+##############################
+# Environment & Secrets
+##############################
+.env
+.env.local
+.env.*.local
+application-local.yml
+application-local.properties
+
+##############################
+# Node / Frontend (추후 FE 추가 대비)
+##############################
+node_modules/
+dist/
