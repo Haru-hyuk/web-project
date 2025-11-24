@@ -24,18 +24,21 @@ public class AuthController {
         return ResponseEntity.ok("회원가입이 완료되었습니다.");
     }
 
-    /** 로그인 → Access + Refresh 발급 & DB 저장 */
+    /** 로그인 */
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         TokenResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
-    /** Refresh Token으로 Access Token 재발급 */
+    /** Refresh Token → AccessToken 재발급 */
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refresh(@RequestBody Map<String, String> req) {
-        String refreshToken = req.get("refreshToken");
-        return ResponseEntity.ok(authService.reissue(refreshToken));
+    public ResponseEntity<TokenResponse> refresh(@RequestBody Map<String, String> request) {
+
+        String refreshToken = request.get("refreshToken");
+
+        TokenResponse response = authService.refresh(refreshToken);
+
+        return ResponseEntity.ok(response);
     }
 }
-
