@@ -48,8 +48,18 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()       // ★ 추가해야 함
+
+                        /** 🔥 여기만 명확하게 해 주면 끝임 */
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/signup",
+                                "/api/auth/refresh",
+                                "/api/auth/logout"
+                        ).permitAll()
+
+                        // Swagger 허용
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
                         .anyRequest().authenticated()
                 );
 
@@ -58,3 +68,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+

@@ -17,28 +17,58 @@ public class AuthController {
 
     private final AuthService authService;
 
-    /** 회원가입 */
+    /** ===========================
+     *        회원가입
+     *  =========================== */
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody SignupRequest request) {
         authService.signup(request);
         return ResponseEntity.ok("회원가입이 완료되었습니다.");
     }
 
-    /** 로그인 */
+
+    /** ===========================
+     *         로그인
+     *  =========================== */
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         TokenResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
-    /** Refresh Token → AccessToken 재발급 */
+
+    /** ===========================
+     *     RefreshToken → 재발급
+     *  =========================== */
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refresh(@RequestBody Map<String, String> request) {
+
+        if (!request.containsKey("refreshToken")) {
+            throw new RuntimeException("refreshToken 값이 누락되었습니다.");
+        }
 
         String refreshToken = request.get("refreshToken");
 
         TokenResponse response = authService.refresh(refreshToken);
 
         return ResponseEntity.ok(response);
+    }
+
+
+    /** ===========================
+     *            로그아웃
+     *  =========================== */
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestBody Map<String, String> request) {
+
+        if (!request.containsKey("email")) {
+            throw new RuntimeException("email 값이 필요합니다.");
+        }
+
+        String email = request.get("email");
+
+        authService.logout(email);
+
+        return ResponseEntity.ok("로그아웃 되었습니다.");
     }
 }

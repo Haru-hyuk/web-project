@@ -2,6 +2,7 @@ package com.wordweb.config.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,28 +20,31 @@ public class JwtTokenProvider {
     // Refresh Token: 2주
     private final long REFRESH_TOKEN_VALID_TIME = 1000L * 60 * 60 * 24 * 14;
 
-    public JwtTokenProvider() {
-        // HS256용 SecretKey (프로젝트 시작 시 1회 생성)
-        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+    /** =======================================
+     *  생성자 — 외부에서 Secret Key 주입받기
+     *  application.yml: jwt.secret 에 설정
+     * ======================================== */
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
 
-    /* ===========================================
-     *  1. Request Header에서 JWT 추출 (resolveToken)
-     * =========================================== */
+    /** =======================================
+     *  Request Header에서 JWT 추출
+     * ======================================== */
     public String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
-
         if (bearer != null && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);  // Bearer 제거 후 토큰 반환
+            return bearer.substring(7);
         }
         return null;
     }
 
 
-    /* ===========================================
-     *  2. Access Token 발급
-     * =========================================== */
+    /** =======================================
+     *         AccessToken 발급
+     * ======================================== */
     public String generateAccessToken(String email) {
         Date now = new Date();
 
@@ -48,14 +52,14 @@ public class JwtTokenProvider {
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALID_TIME))
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
 
-    /* ===========================================
-     *  3. Refresh Token 발급
-     * =========================================== */
+    /** =======================================
+     *        RefreshToken 발급
+     * ======================================== */
     public String generateRefreshToken(String email) {
         Date now = new Date();
 
@@ -63,28 +67,34 @@ public class JwtTokenProvider {
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_VALID_TIME))
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
 
-    /* ===========================================
-     *  4. JWT에서 이메일(Subject) 추출
-     * =========================================== */
-    public String getEmailFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
+    /** =======================================
+     *     JWT → Claims 추출 (공통 로직)
+     * ======================================== */
+    private Claims parseClaims(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
-        return claims.getSubject();
     }
 
 
-    /* ===========================================
-     *  5. JWT 유효성 검사
-     * =========================================== */
+    /** =======================================
+     *    JWT에서 이메일(Subject) 추출
+     * ======================================== */
+    public String getEmailFromToken(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+
+    /** =======================================
+     *            JWT 유효성 검증
+     * ======================================== */
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -93,6 +103,7 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token);
 
             return true;
+
         } catch (ExpiredJwtException e) {
             System.out.println("JWT 만료됨");
         } catch (JwtException | IllegalArgumentException e) {

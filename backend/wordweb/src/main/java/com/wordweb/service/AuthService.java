@@ -53,7 +53,7 @@ public class AuthService {
 
 
     /** ===========================
-     *          로그인
+     *           로그인
      *  =========================== */
     @Transactional
     public TokenResponse login(LoginRequest request) {
@@ -65,44 +65,66 @@ public class AuthService {
             throw new RuntimeException("비밀번호가 올바르지 않습니다.");
         }
 
-        // JWT 발급
+        // 1) AccessToken 발급
         String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail());
+
+        // 2) RefreshToken 발급
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
 
-        // Refresh Token 저장 또는 업데이트
-        refreshTokenRepository.save(
-                RefreshToken.builder()
-                        .userEmail(user.getEmail())
-                        .refreshToken(refreshToken)
-                        .build()
-        );
+        // 3) 기존 RefreshToken 삭제 후 새로 저장
+        refreshTokenRepository.deleteById(user.getEmail());
+
+        RefreshToken tokenEntity = RefreshToken.builder()
+                .userEmail(user.getEmail())
+                .refreshToken(refreshToken)
+                .build();
+
+        refreshTokenRepository.save(tokenEntity);
 
         return new TokenResponse(accessToken, refreshToken);
     }
 
 
     /** ===========================
-     *       AccessToken 재발급
+     *       Refresh Token 재발급
      *  =========================== */
     @Transactional
     public TokenResponse refresh(String refreshToken) {
 
+        // 1) 토큰 자체 유효성 검사
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new RuntimeException("유효하지 않은 Refresh Token입니다.");
         }
 
+        // 2) email 추출
         String email = jwtTokenProvider.getEmailFromToken(refreshToken);
 
-        RefreshToken saved = refreshTokenRepository.findById(email)
+        // 3) DB에 저장된 Refresh Token 조회
+        RefreshToken savedToken = refreshTokenRepository.findById(email)
                 .orElseThrow(() -> new RuntimeException("저장된 Refresh Token이 없습니다."));
 
-        if (!saved.getRefreshToken().equals(refreshToken)) {
+        // 4) 토큰 일치 여부 확인
+        if (!savedToken.getRefreshToken().equals(refreshToken)) {
             throw new RuntimeException("Refresh Token이 일치하지 않습니다.");
         }
 
-        // 새 Access Token 발급
+        // 5) Access Token 재발급
         String newAccessToken = jwtTokenProvider.generateAccessToken(email);
 
-        return new TokenResponse(newAccessToken, refreshToken);
+        // 6) (옵션) RefreshToken도 재발급
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(email);
+        savedToken.setRefreshToken(newRefreshToken);
+        refreshTokenRepository.save(savedToken);
+
+        return new TokenResponse(newAccessToken, newRefreshToken);
+    }
+
+
+    /** ===========================
+     *            로그아웃
+     *  =========================== */
+    @Transactional
+    public void logout(String email) {
+        refreshTokenRepository.deleteById(email);
     }
 }
