@@ -1,5 +1,5 @@
 
--- 시퀀스 생성 (자동 증가 PK 컬럼에 사용)
+-- 2. 시퀀스 생성 (자동 증가 PK 컬럼에 사용)
 CREATE SEQUENCE SEQ_USER_ID START WITH 1 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE SEQ_WORD_ID START WITH 1 INCREMENT BY 1 NOCACHE;
 CREATE SEQUENCE SEQ_FAVORITE_WORD_ID START WITH 1 INCREMENT BY 1 NOCACHE;
@@ -167,6 +167,11 @@ COMMENT ON COLUMN "단어 관계".SCORE IS '연관 강도(옵션)';
 COMMENT ON COLUMN "단어 관계".RELATION_TYPE IS '관계 유형';
 COMMENT ON COLUMN "단어 관계".CREATED_AT IS '생성일';
 
+-- 엑셀 파일의 UNIQUE 주석이 PK, FK 컬럼에 달려 있으나, 이는 제약조건으로 적합하지 않으므로,
+-- CLUSTER_ID만 PK로 설정하고, 나머지 컬럼은 관계 정의에 따라 FK로 설정합니다.
+-- 단, USER_ID, RELATED_WORD_ID, CENTER_WORD_ID 컬럼이 엑셀에 Unique로 표기되어 있어
+-- 데이터가 1:1 관계만 가능함을 암시하지만, 이는 관계 테이블의 목적상 일반적이지 않으므로,
+-- 테이블 생성 시에는 UNIQUE 제약 조건을 제외하고 FK만 적용합니다.
 
 -- 4. 외래 키 (Foreign Key) 설정
 
