@@ -1,238 +1,135 @@
-📘 WordWeb – AI 기반 영어 학습 플랫폼
+🚀 WordWeb Backend — Progress Summary
 
-AI가 단어를 분류하고, 오답으로 스토리를 생성해주는 맞춤형 어학 학습 서비스
+(2025.11.24 기준)
 
-🌟 프로젝트 소개
+본 문서는 WordWeb 서비스 백엔드 개발 현황을 정리한 것입니다.
+Spring Boot 기반 인증/인가, DB 세팅, AI 스토리 기능 준비까지 완료된 상태입니다.
 
-WordWeb은 사용자가 학습 과정에서 틀린 단어를 자동으로 분석하여
-AI 기반으로 분야별 자동 분류, 오답 기반 스토리 생성,
-개인 맞춤형 학습 경험을 제공하는 영어 학습 플랫폼입니다.
+✅ 1. 개발 환경 구성 완료
+Backend 기술 스택
 
-사용자가 학습 과정에서 틀린 단어들을 AI가 스토리로 재구성해주며,
-단순 암기를 넘어 맥락 기반 학습을 경험할 수 있습니다.
+Spring Boot 4.0
 
-🔥 주요 기능
-🔹 1) AI 단어 분야 자동 분류
+Java 17
 
-분야가 없는 단어를 Batch로 불러와
-
-AI가 “정해진 카테고리 목록” 내에서 자동 분류
-
-명확한 화이트리스트 기반 분류로 정확도 확보
-
-🔹 2) AI 기반 오답 스토리 생성
-
-사용자가 틀렸지만 스토리에 사용되지 않은 단어 5~10개 수집
-
-AI가 해당 단어를 자연스럽게 포함한 영문/한글 스토리 생성
-
-STORY 테이블에 저장
-
-사용된 단어는 “사용됨(Y)”으로 업데이트
-
-🔹 3) 맞춤형 개인 학습 관리
-
-일일 학습 목표 설정
-
-학습 상태(learned/pending) 기록
-
-정답/오답 자동 저장
-
-정답률/오답률/주간 학습량 분석
-
-🔹 4) 단어 즐겨찾기 / 추천 기능
-
-즐겨찾기 등록·해제
-
-선호 분야 기반 학습 추천어 제공(추가 예정)
-
-🔹 5) 대시보드
-
-주간 학습 통계
-
-총 학습량 시각화
-
-오답률 그래프
-
-스토리 히스토리
-
-🧱 기술 스택
-🟦 Frontend
-
-React + Vite
-
-React Router
-
-Zustand / Redux
-
-Axios
-
-Tailwind or Custom CSS
-
-🟩 Backend
-
-Spring Boot 3
-
-Spring Security (JWT)
+Spring Security (JWT 기반)
 
 Spring Data JPA
 
-OpenAI API (GPT-4.1 / GPT-4o-mini)
+Oracle Database 23c FREE
 
-🟧 Database
+Lombok / Hibernate / HikariCP
 
-Oracle Database (On-Premise 또는 AWS RDS)
+Postman API 테스트 환경 구축
 
-☁ Infrastructure
+AI 기능 → OpenAI → DeepSeek 등 확장 가능 구조
 
-AWS EC2 (Backend)
+✅ 2. 데이터베이스 구성 완료
+연결
 
-AWS RDS (Oracle)
+Oracle FREEPDB1 연결 완료
 
-AWS S3 + CloudFront (Frontend Hosting)
+application.yml 설정 완료
 
-Docker (선택)
+HikariCP로 connection pool 정상 동작
 
-Nginx (Reverse Proxy)
+테이블
+1) USERS
+컬럼	설명
+USER_ID (PK)	회원 고유 키
+EMAIL	이메일
+USER_PW	비밀번호(BCrypt 암호화)
+NICKNAME	닉네임
+USER_NAME	이름
+USER_BIRTH	생년월일
+PREFERENCE	관심 분야
+GOAL	학습 목표
+DAILY_WORD_GOAL	일일 학습 목표
+CREATED_AT	생성일
+UPDATED_AT	업데이트일
+2) REFRESH_TOKEN
+컬럼	설명
+USER_EMAIL (PK)	이메일
+REFRESH_TOKEN	발급된 리프레시 토큰
+✅ 3. 인증/인가(JWT) 시스템 구축
+구성 요소
 
-🏗 시스템 아키텍처 개요
+JwtTokenProvider (발급/검증)
 
+JwtAuthenticationFilter (요청 필터링)
 
-[React Frontend (S3 + CloudFront)]
-                 │
-                 ▼
-[Spring Boot API Server (EC2)]
-                 │
-                 ▼
-[Oracle DB (RDS)]
-                 │
-                 ▼
-[OpenAI API]
-(단어 분류 / 스토리 생성)
+JwtAuthenticationEntryPoint (401 처리)
 
-📆 WordWeb 프로젝트 – 1주일 작업 계획
+JwtAccessDeniedHandler (403 처리)
 
-FE 2명 · BE 2명 팀 구성 기준
+SecurityConfig (permitAll / 인증 설정)
 
-📂 Overview
+.env → JWT_SECRET 환경변수 시스템 적용
 
-본 문서는 WordWeb 프로젝트의 첫 주 개발 일정과 팀별 역할 분담을 정리한 문서로,
-각 파트가 어떤 작업을 진행해야 하는지 명확하게 제시합니다.
+지원 기능
 
-🟦 Frontend Team (FE 2명)
-🎯 이번 주 목표
+✔ 회원가입
+✔ 로그인
+✔ AccessToken + RefreshToken 발급
+✔ 토큰 저장
+✔ 로그인 후 보호 API 접근
+✔ JWT 만료/유효성 예외 처리 완료
 
-React 개발환경 구축
+✅ 4. 주요 API 개발 완료
+1) 회원가입
+POST /api/auth/signup
 
-주요 페이지 UI 골격 제작
 
-API 연동 구조 설계
+비밀번호 BCrypt 암호화
 
-📌 FE 공통 작업
+USERS DB 저장
 
-Vite 기반 React 프로젝트 생성
+중복 이메일 예외 처리
 
-React Router 초기 세팅
+2) 로그인
+POST /api/auth/login
 
-Axios 인터셉터 구현 (JWT 대비)
 
-👤 FE 1 — UI 구조 & 공통 컴포넌트 담당
+이메일/비밀번호 검증
 
-전체 라우팅 구조 설계
+AccessToken + RefreshToken 발급
 
-상단 네비게이션 / 레이아웃 제작
+REFRESH_TOKEN 테이블 저장
 
-회원가입 & 로그인 페이지 UI 제작
+3) Refresh Token 재발급
+POST /api/auth/refresh
 
-공용 컴포넌트(버튼/카드) 제작
 
-기본 스타일 가이드 구성
+리프레시 토큰 유효성 확인
 
-👤 FE 2 — 화면 Flow & API 준비 담당
+새 AccessToken 재발급
 
-전체 UI Flow 문서화 → docs/ 업로드
+4) 로그아웃
+POST /api/auth/logout
 
-페이지별 API 연동 목록 작성
 
-온보딩 / 대시보드 / 학습 페이지 UI 초안 설계
+해당 이메일의 refresh-token 삭제
 
-Zustand 또는 Redux 상태관리 구조 구축
+✅ 5. 예외처리 글로벌 Handler 구축
 
-API 요청 wrapper 구현
+GlobalExceptionHandler
 
-✅ FE 주간 목표 요약
+JWT 오류 처리
 
-FE 개발환경 구성 완료
+IllegalArgumentException 처리
 
-핵심 페이지 UI 골격 구축
+RuntimeException 처리
 
-로그인/회원가입 UI 개발
+서버 내부 오류 처리
 
-학습/단어/오답 페이지 구조 설계
+✅ 6. Postman 테스트 전체 성공
 
-🟩 Backend Team (BE 2명)
-🎯 이번 주 목표
+회원가입 → 성공
 
-Spring Boot 환경 세팅
+로그인 → 토큰 발급 정상
 
-Entity 매핑
+Refresh → 정상
 
-JWT 기반 인증 구현
+보호 API 접근 시 JWT 없으면 401
 
-학습·단어 관련 API 구축
-
-AI 스토리 파이프라인 구조 설계
-
-📌 BE 공통 작업
-
-Spring Boot 프로젝트 생성
-
-Oracle + JPA 환경 설정
-
-Swagger(OpenAPI) 적용
-
-👤 BE 1 — Auth & User 도메인
-
-회원가입 API
-
-로그인 API (JWT 발급)
-
-BCrypt 비밀번호 암호화
-
-Access/Refresh Token 구조
-
-Spring Security 기본 설정
-
-User 조회/수정 API 개발
-
-👤 BE 2 — Word/Story/AI 파이프라인
-
-JPA Entity 7종 생성
-
-User, Word, UserWord, WrongWord, Story, FavoriteWord, ClusterWord
-
-단어 조회/필터링 API
-
-학습 상태 업데이트 API
-
-정답/오답 처리 API
-
-오답 기반 스토리 생성 파이프라인 뼈대 구현
-(AI 호출은 다음 주)
-
-✅ BE 주간 목표 요약
-
-JWT 인증 구현
-
-Entity 매핑 100% 완료
-
-단어/학습 API 구축
-
-스토리 생성 로직 설계
-
-Swagger API 문서화
-
-📄 마무리
-
-본 문서는 WordWeb 프로젝트의 첫 주 개발 방향성과 역할 분담을 명확히 정리한 문서입니다.
-프로젝트 진행에 따라 유연하게 업데이트되며, 팀 전체의 공통 기준으로 사용됩니다.
+BODY/Headers 세팅 문제 해결
