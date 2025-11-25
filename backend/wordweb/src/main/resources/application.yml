@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521/FREE
-    username: wordweb
+    url: jdbc:oracle:thin:@localhost:1521/FREEPDB1
+    username: WORDWEB
     password: 1234
-    driver-class-name: oracle.jdbc.driver.OracleDriver
+    driver-class-name: oracle.jdbc.OracleDriver
 
   jpa:
     hibernate:
@@ -14,11 +14,9 @@ spring:
         format_sql: true
     database-platform: org.hibernate.dialect.OracleDialect
 
-# JWT 설정
 jwt:
-  secret: ${JWT_SECRET}   # 환경변수로 넣기 (필수)
+  secret: ${JWT_SECRET}
 
-# DeepSeek 설정
 deepseek:
-  api-key: ${DEEPSEEK_API_KEY}   # 환경변수로 넣기
+  api-key: ${DEEPSEEK_API_KEY}
   url: https://api.deepseek.com/v1/chat/completions

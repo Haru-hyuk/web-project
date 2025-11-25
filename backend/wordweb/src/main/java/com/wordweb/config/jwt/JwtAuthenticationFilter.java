@@ -23,7 +23,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        return uri.startsWith("/api/auth/"); // 로그인/재발급/회원가입/로그아웃 제외
+
+        // 🔥 Swagger 제외했던 부분 삭제 → 원래대로 인증 제외는 /api/auth/**만
+        return uri.startsWith("/api/auth/");
     }
 
     @Override

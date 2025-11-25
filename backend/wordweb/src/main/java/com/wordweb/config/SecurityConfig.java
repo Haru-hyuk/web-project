@@ -39,9 +39,6 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    /** =======================================
-     *   🔥 Spring Security 6 CORS 설정
-     *  ======================================= */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -55,15 +52,12 @@ public class SecurityConfig {
         return source;
     }
 
-    /** =======================================
-     *   Security Filter Chain
-     *  ======================================= */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // ← Spring Security 6 방식
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
                 .sessionManagement(session ->
@@ -75,7 +69,6 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

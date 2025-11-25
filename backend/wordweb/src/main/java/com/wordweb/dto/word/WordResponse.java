@@ -1,15 +1,11 @@
 package com.wordweb.dto.word;
 
 import com.wordweb.entity.Word;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class WordResponse {
 
     private Long wordId;
@@ -20,15 +16,20 @@ public class WordResponse {
     private String category;
     private String level;
 
-    public static WordResponse from(Word w) {
+    private boolean isFavorite;     // 즐겨찾기 여부
+    private String learningStatus;  // NONE / IN_PROGRESS / DONE
+
+    public static WordResponse from(Word word, boolean isFavorite, String learningStatus) {
         return WordResponse.builder()
-                .wordId(w.getWordId())
-                .word(w.getWord())
-                .meaning(w.getMeaning())
-                .partOfSpeech(w.getPartOfSpeech())
-                .exampleSentence(w.getExampleSentence())
-                .category(w.getCategory())
-                .level(w.getLevel())
+                .wordId(word.getWordId())
+                .word(word.getWord())
+                .meaning(word.getMeaning())
+                .partOfSpeech(word.getPartOfSpeech())
+                .exampleSentence(word.getExampleSentence())
+                .category(word.getCategory())
+                .level(word.getLevel())
+                .isFavorite(isFavorite)
+                .learningStatus(learningStatus)
                 .build();
     }
 }
