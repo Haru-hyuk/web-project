@@ -99,3 +99,244 @@ DeepSeek 응답 구조 변화 대비 파싱 처리
 DeepSeek API Key → application.yml에서 주입
 Postman으로 API 테스트 완료
 모든 주요 DTO, 엔티티, 서비스 구조화 완료
+
+## 3. API 명세
+
+## **1. Auth (회원 가입 / 로그인)**
+
+---
+
+### **POST /api/auth/signup**
+
+회원가입
+
+**Request**
+
+```json
+{
+  "email": "test@test.com",
+  "password": "1234",
+  "nickname": "hyuk",
+  "userName": "최종혁",
+  "userBirth": "2000-01-01"
+}
+
+```
+
+**Response**
+
+```json
+{
+  "success": true,
+  "message": "Signup completed"
+}
+
+```
+
+---
+
+### **POST /api/auth/login**
+
+로그인 + JWT 발급
+
+**Request**
+
+```json
+{
+  "email": "test@test.com",
+  "password": "1234"
+}
+
+```
+
+**Response**
+
+```json
+{
+  "token": "JWT_TOKEN_VALUE",
+  "email": "test@test.com",
+  "nickname": "hyuk"
+}
+
+```
+
+---
+
+## **2. User 정보**
+
+(로그인 후 Authorization Bearer 필요)
+
+---
+
+### **GET /api/user/me**
+
+내 정보 조회
+
+**Headers**
+
+```
+Authorization: Bearer <JWT_TOKEN>
+
+```
+
+**Response**
+
+```json
+{
+  "userId": 1,
+  "email": "test@test.com",
+  "nickname": "hyuk",
+  "userName": "최종혁",
+  "preference": "reading",
+  "goal": "daily_study",
+  "dailyWordGoal": 10
+}
+
+```
+
+---
+
+## **3. Favorite Words (즐겨찾기)**
+
+---
+
+### **POST /api/favorite/add**
+
+단어 즐겨찾기 추가
+
+**Request**
+
+```json
+{
+  "wordId": 101
+}
+
+```
+
+**Response**
+
+```json
+{
+  "id": 33,
+  "wordId": 101,
+  "word": "serendipity",
+  "meaning": "운 좋게 발견하는 능력",
+  "partOfSpeech": "noun",
+  "exampleSentence": "She found the book by pure serendipity.",
+  "category": "common",
+  "level": "intermediate"
+}
+
+```
+
+---
+
+### **GET /api/favorite/list**
+
+사용자 즐겨찾기 리스트
+
+**Response**
+
+```json
+[
+  {
+    "id": 33,
+    "wordId": 101,
+    "word": "serendipity",
+    "meaning": "...",
+    "partOfSpeech": "noun",
+    "exampleSentence": "...",
+    "category": "common",
+    "level": "intermediate"
+  }
+]
+
+```
+
+---
+
+## **4. Word (단어 정보)**
+
+---
+
+### **GET /api/word/{wordId}**
+
+단어 상세 조회
+
+**Response**
+
+```json
+{
+  "wordId": 101,
+  "word": "serendipity",
+  "meaning": "...",
+  "exampleSentence": "...",
+  "partOfSpeech": "noun",
+  "category": "common",
+  "level": "intermediate"
+}
+
+```
+
+---
+
+## **5. AI Story Generator (DeepSeek 기반)**
+
+---
+
+### **POST /api/story/ai**
+
+영단어 기반 영어/한국어 스토리 생성
+
+**Request**
+
+```json
+{
+  "words": ["paradigm", "eloquent", "sustainability"],
+  "difficulty": "intermediate",
+  "style": "narrative"
+}
+
+```
+
+**Response**
+
+```json
+{
+  "success": true,
+  "storyEn": "A short English story...",
+  "storyKo": "짧은 한국어 번역...",
+  "usedWords": [
+    "paradigm",
+    "eloquent",
+    "sustainability"
+  ]
+}
+
+```
+
+---
+
+# 공통 인증 방식
+
+대부분의 API는 JWT 필요.
+
+### Headers
+
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+
+```
+
+---
+
+# 오류 응답 형식
+
+```json
+{
+  "success": false,
+  "message": "Invalid request"
+}
+
+```
