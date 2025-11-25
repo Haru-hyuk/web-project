@@ -100,7 +100,7 @@ DeepSeek API Key → application.yml에서 주입
 Postman으로 API 테스트 완료
 모든 주요 DTO, 엔티티, 서비스 구조화 완료
 
-## 3. API 명세
+##  API 명세
 
 ## **1. Auth (회원 가입 / 로그인)**
 
