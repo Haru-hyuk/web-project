@@ -1,0 +1,751 @@
+[
+  {
+    "word": "about",
+    "meaning": "움직이다; 휘젓다.",
+    "part_of_speech": "adjective",
+    "example_sentence": "After my bout with Guillan-Barre Syndrome, it took me 6 months to be up and about again.",
+    "synonyms": [
+      "active",
+      "apropos",
+      "around",
+      "as for",
+      "astir",
+      "mobile"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "search",
+    "meaning": "무언가를 찾으려는 시도.",
+    "part_of_speech": "noun",
+    "example_sentence": "With only five minutes until we were meant to leave, the search for the keys started in earnest.",
+    "synonyms": [
+      "comb",
+      "look for",
+      "scour",
+      "seek"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "other",
+    "meaning": "다른 사람, 다른 사람 (사람 등) 은 더 자주 다른 사람으로 렌더링됩니다.",
+    "part_of_speech": "noun",
+    "example_sentence": "I'm afraid little Robbie does not always play well with others.",
+    "synonyms": [
+      "additional",
+      "alternate",
+      "another",
+      "different",
+      "disparate",
+      "dissimilar",
+      "distinctive",
+      "distinguishable",
+      "diverse",
+      "foreign",
+      "unalike",
+      "unlike"
+    ],
+    "antonyms": [
+      "same"
+    ]
+  },
+  {
+    "word": "which",
+    "meaning": "(심문) 언급되거나 암시된 것 중 하나 또는 하나.",
+    "part_of_speech": "pronoun",
+    "example_sentence": "By now, you must surely know which is which.",
+    "synonyms": [],
+    "antonyms": []
+  },
+  {
+    "word": "business",
+    "meaning": "특정 상업적 기업 또는 사업장.",
+    "part_of_speech": "noun",
+    "example_sentence": "I was left my father's business.",
+    "synonyms": [],
+    "antonyms": []
+  },
+  {
+    "word": "first",
+    "meaning": "첫 번째 위치에 있는 사람 또는 사물.",
+    "part_of_speech": "noun",
+    "example_sentence": "He was the first to complete the course.",
+    "synonyms": [],
+    "antonyms": []
+  },
+  {
+    "word": "services",
+    "meaning": "누군가를 돕는 행위.",
+    "part_of_speech": "noun",
+    "example_sentence": "I say I did him a service by ending our relationship – now he can freely pursue his career.",
+    "synonyms": [
+      "attend",
+      "be with",
+      "go to bed with",
+      "sleep with",
+      "wait on"
+    ],
+    "antonyms": [
+      "capital",
+      "good"
+    ]
+  },
+  {
+    "word": "these",
+    "meaning": "표시되는 물건, 물품 등.",
+    "part_of_speech": "pronoun",
+    "example_sentence": "This isn't the item that I ordered.",
+    "synonyms": [],
+    "antonyms": []
+  },
+  {
+    "word": "click",
+    "meaning": "스위치, 잠금 장치 또는 래치 또는 손가락을 엄지손가락에 대고 누른 다음 손을 치는 것과 같이 작고 단단한 무언가의 충격에 의해 생성되는 짧고 날카로운, 특히 시끄럽지 않은 상대적으로 높은 음의 소리.",
+    "part_of_speech": "noun",
+    "example_sentence": "I turned the key, the lock gave a click and the door opened;  a click of one’s fingers",
+    "synonyms": [],
+    "antonyms": []
+  },
+  {
+    "word": "service",
+    "meaning": "누군가를 돕는 행위.",
+    "part_of_speech": "noun",
+    "example_sentence": "I say I did him a service by ending our relationship – now he can freely pursue his career.",
+    "synonyms": [
+      "attend",
+      "be with",
+      "go to bed with",
+      "sleep with",
+      "wait on"
+    ],
+    "antonyms": [
+      "capital",
+      "good"
+    ]
+  },
+  {
+    "word": "people",
+    "meaning": "복수의 사람; 일반적으로 또는 집단적으로 고려되는 인간의 몸; 두 명 이상의 사람으로 구성된 그룹으로 사용됩니다.",
+    "part_of_speech": "noun",
+    "example_sentence": "There were so many people at the restaurant last night.",
+    "synonyms": [
+      "citizenry",
+      "collective",
+      "commoners",
+      "community",
+      "congregation",
+      "fans",
+      "folk",
+      "folks",
+      "groupies",
+      "kin",
+      "kith",
+      "lede",
+      "leod",
+      "peeps",
+      "populace",
+      "supporters"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "email",
+    "meaning": "일반적으로 네트워크를 통해 한 컴퓨터에서 다른 컴퓨터로 메시지를 전송하는 시스템입니다.",
+    "part_of_speech": "noun",
+    "example_sentence": "He sent me his details via email.",
+    "synonyms": [],
+    "antonyms": [
+      "snail mail"
+    ]
+  },
+  {
+    "word": "health",
+    "meaning": "신체적 또는 심리적 질병, 질병 또는 오작동으로부터 자유로운 상태; 건강.",
+    "part_of_speech": "noun",
+    "example_sentence": "Her mental health is really affected by stressful environments.",
+    "synonyms": [],
+    "antonyms": []
+  },
+  {
+    "word": "world",
+    "meaning": "(\"the\" 와 함께) 인간 집단적 존재; 일반적으로 존재.",
+    "part_of_speech": "noun",
+    "example_sentence": "There will always be lovers, till the world’s end.",
+    "synonyms": [
+      "Earth",
+      "Sol III",
+      "circle",
+      "globe",
+      "planet"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "products",
+    "meaning": "판매용으로 제공되는 상품.",
+    "part_of_speech": "noun",
+    "example_sentence": "That store offers a variety of products.  We've got to sell a lot of product by the end of the month.",
+    "synonyms": [
+      "goods",
+      "merchandise",
+      "wares"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "music",
+    "meaning": "보통 분위기를 전달하기 위해 멜로디, 하모니, 템포 등을 사용하여 시간에 맞춰 조직된 일련의 사운드.",
+    "part_of_speech": "noun",
+    "example_sentence": "I keep listening to this music because it's a masterpiece.",
+    "synonyms": [
+      "melody",
+      "vibe"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "should",
+    "meaning": "(modal, auxiliary verb, defective) 1인칭 단수형 또는 복수형으로 간단한 미래 시제를 나타내기 위해 동사 앞에 사용합니다.",
+    "part_of_speech": "verb",
+    "example_sentence": "I hope that we shall win the game.",
+    "synonyms": [
+      "ought"
+    ],
+    "antonyms": [
+      "shouldn't"
+    ]
+  },
+  {
+    "word": "product",
+    "meaning": "판매용으로 제공되는 상품.",
+    "part_of_speech": "noun",
+    "example_sentence": "That store offers a variety of products.  We've got to sell a lot of product by the end of the month.",
+    "synonyms": [
+      "goods",
+      "merchandise",
+      "wares"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "system",
+    "meaning": "조직된 것들의 집합; 구성원들 사이의 관계로 구성된 전체.",
+    "part_of_speech": "noun",
+    "example_sentence": "There are eight planets in the solar system.",
+    "synonyms": [
+      "arrangement",
+      "complex",
+      "composition",
+      "organization",
+      "set up",
+      "structure"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "policy",
+    "meaning": "특히 정부 또는 기타 권위 기관이 공식적으로 표현한 바람직하거나 필요한 것으로 생각되는 행동, 행동 등의 원칙.",
+    "part_of_speech": "noun",
+    "example_sentence": "The Communist Party has a policy of returning power to the workers.",
+    "synonyms": [],
+    "antonyms": []
+  },
+  {
+    "word": "number",
+    "meaning": "수량을 설명하는 데 사용되는 추상 엔터티입니다.",
+    "part_of_speech": "noun",
+    "example_sentence": "Zero, one, −1, 2.5, and pi are all numbers.",
+    "synonyms": [
+      "numeral",
+      "rime",
+      "scalar"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "please",
+    "meaning": "행복하게 하거나 만족하게 하기 위해, 즐거움을 주기 위해.",
+    "part_of_speech": "verb",
+    "example_sentence": "Her presentation pleased the executives.",
+    "synonyms": [
+      "desire",
+      "satisfy",
+      "will"
+    ],
+    "antonyms": [
+      "annoy",
+      "disgust",
+      "displease",
+      "irritate"
+    ]
+  },
+  {
+    "word": "support",
+    "meaning": "(때때로 귀속됨) 이를 뒷받침하는 무언가.",
+    "part_of_speech": "noun",
+    "example_sentence": "Don't move that beam! It's a support for the whole platform.",
+    "synonyms": [
+      "stut",
+      "underprop",
+      "uphold"
+    ],
+    "antonyms": [
+      "kernel",
+      "oppose"
+    ]
+  },
+  {
+    "word": "message",
+    "meaning": "의사소통 또는 전달된 내용, 전달된 개념 또는 정보.",
+    "part_of_speech": "noun",
+    "example_sentence": "We've just received an urgent message from the President.",
+    "synonyms": [
+      "text"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "where",
+    "meaning": "어떤 일이 일어나는 장소.",
+    "part_of_speech": "noun",
+    "example_sentence": "A good article will cover the who, the what, the when, the where, the why and the how.",
+    "synonyms": [],
+    "antonyms": []
+  },
+  {
+    "word": "rights",
+    "meaning": "정의, 법률 또는 이성을 준수하는 것.",
+    "part_of_speech": "noun",
+    "example_sentence": "We're on the side of right in this contest.",
+    "synonyms": [
+      "3 o'clock",
+      "starboard"
+    ],
+    "antonyms": [
+      "duty",
+      "left",
+      "obligation"
+    ]
+  },
+  {
+    "word": "public",
+    "meaning": "특정 그룹의 구성원과 관계없이 일반적으로 사람들.",
+    "part_of_speech": "noun",
+    "example_sentence": "Members of the public may not proceed beyond this point.",
+    "synonyms": [],
+    "antonyms": [
+      "private"
+    ]
+  },
+  {
+    "word": "books",
+    "meaning": "인쇄 또는 서면 자료, 그림 등을 포함하는 한쪽 가장자리에 경첩을 달기 위해 함께 묶인 용지 모음.",
+    "part_of_speech": "noun",
+    "example_sentence": "He was frustrated because he couldn't find anything about dinosaurs in the book.",
+    "synonyms": [
+      "account",
+      "bomb",
+      "booklet",
+      "hurtle",
+      "libretto",
+      "make a note of",
+      "note down",
+      "record",
+      "reserve",
+      "rocket",
+      "shoot",
+      "speed",
+      "tome",
+      "volume",
+      "whiz",
+      "write down"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "school",
+    "meaning": "(집단) 물고기 집단 또는 돌고래, 돌고래 또는 고래와 같은 해양 포유류 집단.",
+    "part_of_speech": "noun",
+    "example_sentence": "The divers encountered a huge school of mackerel.",
+    "synonyms": [
+      "shoal"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "links",
+    "meaning": "다른 문서를 표시하거나 작업을 트리거하도록 활성화할 수 있는 전자 문서의 일부 텍스트 또는 그래픽.",
+    "part_of_speech": "noun",
+    "example_sentence": "Click the hyperlink to go to the next page.",
+    "synonyms": [
+      "affix",
+      "attach",
+      "connection",
+      "join",
+      "link",
+      "put together"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "review",
+    "meaning": "새로운 통찰력을 얻기 위해 텍스트 또는 유물을 두 번째 또는 그 이후에 읽습니다.",
+    "part_of_speech": "noun",
+    "example_sentence": "I need to make a review of the book before I can understand it.",
+    "synonyms": [
+      "revue"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "years",
+    "meaning": "태양의 한 회전을 완료하는 데 걸리는 시간인 태양년 (기준점에 따라 365.24일에서 365.26일 사이).",
+    "part_of_speech": "noun",
+    "example_sentence": "we moved to this town a year ago;  I quit smoking exactly one year ago",
+    "synonyms": [
+      "Gaussian year",
+      "ages",
+      "anomalistic year",
+      "calendar year",
+      "civil year",
+      "donkey’s",
+      "donkey’s years",
+      "fiscal year",
+      "for ever",
+      "legal year",
+      "liturgical year",
+      "school year",
+      "sidereal year",
+      "tropical year",
+      "twelvemonth",
+      "yonks"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "privacy",
+    "meaning": "다른 사람의 존재, 시야 또는 지식에서 벗어난 상태.",
+    "part_of_speech": "noun",
+    "example_sentence": "I need my privacy, so please stay out of my room.",
+    "synonyms": [],
+    "antonyms": []
+  },
+  {
+    "word": "items",
+    "meaning": "뚜렷한 물리적 개체.",
+    "part_of_speech": "noun",
+    "example_sentence": "Tweezers are great for manipulating small items.",
+    "synonyms": [
+      "article",
+      "couple",
+      "object",
+      "subject",
+      "thing",
+      "topic"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "group",
+    "meaning": "서로 어떤 관계에 있는 여러 가지 사물이나 사람.",
+    "part_of_speech": "noun",
+    "example_sentence": "A group of people gathered in front of the Parliament to demonstrate against the Prime Minister's proposals.",
+    "synonyms": [
+      "amass",
+      "assemble",
+      "band",
+      "begather",
+      "categorise",
+      "categorize",
+      "classify",
+      "collect",
+      "collect up",
+      "collection",
+      "ensemble",
+      "foregather",
+      "gather",
+      "gather up",
+      "set",
+      "throng"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "general",
+    "meaning": "일반적인 사실 또는 명제; 일반성.",
+    "part_of_speech": "noun",
+    "example_sentence": "We have dealt with the generals; now let us turn to the particulars.",
+    "synonyms": [
+      "broad",
+      "generic",
+      "typical"
+    ],
+    "antonyms": [
+      "abnormal",
+      "particular",
+      "specific",
+      "uncommon"
+    ]
+  },
+  {
+    "word": "research",
+    "meaning": "사실, 원칙, 이론, 적용 등을 추구하거나 수정하기 위한 부지런한 조사 또는 검사, 진실을 추구하기 위한 노력 또는 지속적인 탐색.",
+    "part_of_speech": "noun",
+    "example_sentence": "The research station that houses Wang and his team is outside Lijiang, a city of about 1.2 million people.",
+    "synonyms": [
+      "examination",
+      "exploration",
+      "inquiry",
+      "investigation",
+      "scrutiny",
+      "study"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "reviews",
+    "meaning": "새로운 통찰력을 얻기 위해 텍스트 또는 유물을 두 번째 또는 그 이후에 읽습니다.",
+    "part_of_speech": "noun",
+    "example_sentence": "I need to make a review of the book before I can understand it.",
+    "synonyms": [
+      "revue"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "program",
+    "meaning": "체계적인 활동 세트.",
+    "part_of_speech": "noun",
+    "example_sentence": "Our program for today’s exercise class includes swimming and jogging.",
+    "synonyms": [
+      "application",
+      "computer program",
+      "playbill",
+      "show"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "could",
+    "meaning": "(auxiliary verb, defective) To know how to; to be able to.",
+    "part_of_speech": "verb",
+    "example_sentence": "She can speak English, French, and German.   I can play football.   Can you remember your fifth birthday?",
+    "synonyms": [
+      "be able to",
+      "cognize",
+      "grok",
+      "ken",
+      "may"
+    ],
+    "antonyms": [
+      "can't",
+      "cannot",
+      "can’t"
+    ]
+  },
+  {
+    "word": "great",
+    "meaning": "중대한 중요성, 성취 또는 호평을 받은 사람.",
+    "part_of_speech": "noun",
+    "example_sentence": "Newton and Einstein are two of the greats of the history of science.",
+    "synonyms": [
+      "gr8",
+      "grt"
+    ],
+    "antonyms": [
+      "mediocre",
+      "ordinary",
+      "tiny"
+    ]
+  },
+  {
+    "word": "united",
+    "meaning": "하나로 모으기.",
+    "part_of_speech": "verb",
+    "example_sentence": "I hope this song can unite people from all different cultures.",
+    "synonyms": [
+      "bewed",
+      "join"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "store",
+    "meaning": "물품을 축적하거나 일상적으로 보관할 수 있는 장소.",
+    "part_of_speech": "noun",
+    "example_sentence": "This building used to be a store for old tires.",
+    "synonyms": [
+      "boutique",
+      "memory",
+      "shop",
+      "stock",
+      "supply"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "travel",
+    "meaning": "여행 행위; 장소에서 장소로 통로.",
+    "part_of_speech": "noun",
+    "example_sentence": "space travel",
+    "synonyms": [
+      "fare",
+      "journey",
+      "movement",
+      "passage",
+      "progression",
+      "reyse",
+      "stroke",
+      "tour",
+      "traffic",
+      "trip",
+      "voyage"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "comments",
+    "meaning": "발언 또는 서면 발언.",
+    "part_of_speech": "noun",
+    "example_sentence": "I have no comment on that.",
+    "synonyms": [],
+    "antonyms": []
+  },
+  {
+    "word": "report",
+    "meaning": "(보고서 작성자를 지칭함) 및 (주제를 지칭함) 에 의해 가장 일반적으로 적용되는 특정 사건에 대한 설명 또는 특정 사건에 대한 설명.",
+    "part_of_speech": "noun",
+    "example_sentence": "A report by the telecommunications ministry on the phone network revealed a severe capacity problem.",
+    "synonyms": [
+      "subordinate"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "details",
+    "meaning": "캐주얼한 눈치를 피할 수 있을 만큼 작은 것.",
+    "part_of_speech": "noun",
+    "example_sentence": "Note this fine detail in the lower left corner.",
+    "synonyms": [
+      "contingent",
+      "detach",
+      "detachment",
+      "minutia",
+      "particular",
+      "portion",
+      "section",
+      "specify",
+      "technicality",
+      "trifle",
+      "triviality"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "terms",
+    "meaning": "한계, 말단, 경계, 경계 등 모든 것의 범위를 제한하는 것.",
+    "part_of_speech": "noun",
+    "example_sentence": "Alright, look...we can spend the holidays with your parents, but this time it will be on my terms.",
+    "synonyms": [
+      "axe",
+      "fire",
+      "sack"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "before",
+    "meaning": "더 이른 시간에.",
+    "part_of_speech": "adverb",
+    "example_sentence": "I've never done this before.",
+    "synonyms": [
+      "ahead",
+      "ahead of",
+      "by",
+      "ere",
+      "in front",
+      "in front of",
+      "lest",
+      "no later than",
+      "previous to",
+      "previously",
+      "prior to"
+    ],
+    "antonyms": [
+      "after",
+      "behind",
+      "later"
+    ]
+  },
+  {
+    "word": "right",
+    "meaning": "굽지 않고 곧게 펴십시오.",
+    "part_of_speech": "adjective",
+    "example_sentence": "a right line",
+    "synonyms": [
+      "conservative",
+      "correct",
+      "dexter",
+      "dextral",
+      "just",
+      "right-hand",
+      "right-wing"
+    ],
+    "antonyms": [
+      "bowed",
+      "crooked",
+      "curved",
+      "left",
+      "wrong"
+    ]
+  },
+  {
+    "word": "local",
+    "meaning": "주어진 장소 근처에 사는 사람.",
+    "part_of_speech": "noun",
+    "example_sentence": "It's easy to tell the locals from the tourists.",
+    "synonyms": [
+      "stopper",
+      "topical"
+    ],
+    "antonyms": [
+      "express",
+      "fast",
+      "global"
+    ]
+  },
+  {
+    "word": "those",
+    "meaning": "(시연) 맥락에서 표시되거나 이해된 것, 사람, 아이디어, 품질, 사건, 행동 또는 시간, 특히 \"이것\" 으로 지정된 것보다 지리적으로, 시간적으로 또는 정신적으로 더 멀리 떨어져 있거나 구별을 표현하는 경우.",
+    "part_of_speech": "pronoun",
+    "example_sentence": "He went home, and after that I never saw him again.",
+    "synonyms": [],
+    "antonyms": [
+      "here",
+      "there",
+      "this",
+      "yon",
+      "yonder"
+    ]
+  },
+  {
+    "word": "results",
+    "meaning": "결과, 사물의 과정이나 조건이 이끄는 결론이나 끝, 또는 프로세스나 작업에 의해 얻어지는 결과 또는 결과.",
+    "part_of_speech": "noun",
+    "example_sentence": "the result of a course of action;  the result of a mathematical operation",
+    "synonyms": [
+      "arise",
+      "follow"
+    ],
+    "antonyms": []
+  },
+  {
+    "word": "national",
+    "meaning": "국가의 주체.",
+    "part_of_speech": "noun",
+    "example_sentence": "The diplomats were advised not to interact with any foreign nationals except on official duty.",
+    "synonyms": [],
+    "antonyms": []
+  }
+]
