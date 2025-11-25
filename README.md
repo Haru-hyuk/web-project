@@ -1,135 +1,101 @@
-WordWeb Backend — Progress Summary
+ WordWeb Backend – 기능 요약
 
-(2025.11.24 기준)
+본 프로젝트는 영어 학습 플랫폼 WordWeb의 백엔드 서버로,
+회원 관리, 단어 관리, 즐겨찾기, 그리고 DeepSeek 기반 AI 스토리 생성 기능을 제공합니다.
 
-본 문서는 WordWeb 서비스 백엔드 개발 현황을 정리한 것입니다.
-Spring Boot 기반 인증/인가, DB 세팅, AI 스토리 기능 준비까지 완료된 상태입니다.
-
-✅ 1. 개발 환경 구성 완료
-Backend 기술 스택
+🚀 기술 스택
 
 Spring Boot 4.0
-
 Java 17
-
-Spring Security (JWT 기반)
-
+Spring Security + JWT
 Spring Data JPA
+Oracle Database
+Lombok
+OkHttp (DeepSeek API 연동)
 
-Oracle Database 23c FREE
+ 구현된 기능
+ 1. 회원가입 / 로그인 / JWT 인증
+이메일 기반 회원가입
+비밀번호 암호화 (BCrypt)
+로그인 시 JWT 토큰 발급
+인증 필요한 API → JWT 검증 후 접근 허용
+사용자 정보 조회 가능
 
-Lombok / Hibernate / HikariCP
+ 2. User 엔티티 및 회원 정보 관리
+User 테이블 필드 구성:
+userId
+email
+password
+nickname
+userName
+userBirth
+preference
+goal
+dailyWordGoal
+createdAt
+JPA 매핑 완료 및 CRUD 기반 구조 준비됨.
 
-Postman API 테스트 환경 구축
+ 3. 즐겨찾기(FavoriteWord) 기능
+사용자별 단어 즐겨찾기 저장
+FavoriteWord 엔티티 구성
+Word 엔티티와 연관 매핑
+FavoriteWordResponse DTO로 단어 전체 정보 반환
+반환 데이터:
+단어/뜻/품사
+예문
+카테고리
+레벨
 
-AI 기능 → OpenAI → DeepSeek 등 확장 가능 구조
+ 4. 단어(Word) 엔티티 구조 구축
+Word 엔티티 포함 필드:
+wordId
+word
+meaning
+partOfSpeech
+exampleSentence
+category
+level
+사전 데이터 저장 및 활용을 위한 기반 설계 완료.
 
-✅ 2. 데이터베이스 구성 완료
-연결
+ 5. AI 스토리 생성 기능 (DeepSeek 연동)
+영단어 목록을 기반으로 영어 + 한국어 스토리 자동 생성 기능.
 
-Oracle FREEPDB1 연결 완료
+✔ 입력
+{
+  "words": ["paradigm", "eloquent", "sustainability"],
+  "difficulty": "intermediate",
+  "style": "narrative"
+}
 
-application.yml 설정 완료
+✔ 수행 기능
 
-HikariCP로 connection pool 정상 동작
+AI 프롬프트 자동 생성
+DeepSeek ChatCompletion API 호출
+영어 스토리 / 한국어 번역 자동 분리
+모든 단어 사용 여부 자동 검증
+사용되지 않은 단어가 있을 경우 최대 3회 재시도
 
-테이블
-1) USERS
-컬럼	설명
-USER_ID (PK)	회원 고유 키
-EMAIL	이메일
-USER_PW	비밀번호(BCrypt 암호화)
-NICKNAME	닉네임
-USER_NAME	이름
-USER_BIRTH	생년월일
-PREFERENCE	관심 분야
-GOAL	학습 목표
-DAILY_WORD_GOAL	일일 학습 목표
-CREATED_AT	생성일
-UPDATED_AT	업데이트일
-2) REFRESH_TOKEN
-컬럼	설명
-USER_EMAIL (PK)	이메일
-REFRESH_TOKEN	발급된 리프레시 토큰
-✅ 3. 인증/인가(JWT) 시스템 구축
-구성 요소
+usedWords 목록 반환
 
-JwtTokenProvider (발급/검증)
+✔ 반환 구조
+{
+  "storyEn": "...",
+  "storyKo": "...",
+  "success": true,
+  "usedWords": [
+    "paradigm",
+    "eloquent",
+    "sustainability"
+  ]
+}
 
-JwtAuthenticationFilter (요청 필터링)
+✔ 안정성 기능
 
-JwtAuthenticationEntryPoint (401 처리)
+OkHttpClient 타임아웃 확장 (최대 120초)
+DeepSeek 응답 구조 변화 대비 파싱 처리
+재시도 로직 내장
 
-JwtAccessDeniedHandler (403 처리)
-
-SecurityConfig (permitAll / 인증 설정)
-
-.env → JWT_SECRET 환경변수 시스템 적용
-
-지원 기능
-
-✔ 회원가입
-✔ 로그인
-✔ AccessToken + RefreshToken 발급
-✔ 토큰 저장
-✔ 로그인 후 보호 API 접근
-✔ JWT 만료/유효성 예외 처리 완료
-
-✅ 4. 주요 API 개발 완료
-1) 회원가입
-POST /api/auth/signup
-
-
-비밀번호 BCrypt 암호화
-
-USERS DB 저장
-
-중복 이메일 예외 처리
-
-2) 로그인
-POST /api/auth/login
-
-
-이메일/비밀번호 검증
-
-AccessToken + RefreshToken 발급
-
-REFRESH_TOKEN 테이블 저장
-
-3) Refresh Token 재발급
-POST /api/auth/refresh
-
-
-리프레시 토큰 유효성 확인
-
-새 AccessToken 재발급
-
-4) 로그아웃
-POST /api/auth/logout
-
-
-해당 이메일의 refresh-token 삭제
-
-✅ 5. 예외처리 글로벌 Handler 구축
-
-GlobalExceptionHandler
-
-JWT 오류 처리
-
-IllegalArgumentException 처리
-
-RuntimeException 처리
-
-서버 내부 오류 처리
-
-✅ 6. Postman 테스트 전체 성공
-
-회원가입 → 성공
-
-로그인 → 토큰 발급 정상
-
-Refresh → 정상
-
-보호 API 접근 시 JWT 없으면 401
-
-BODY/Headers 세팅 문제 해결
+6. 개발 및 설정 요소
+DeepSeek API Key → application.yml에서 주입
+Postman으로 API 테스트 완료
+모든 주요 DTO, 엔티티, 서비스 구조화 완료
