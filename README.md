@@ -1,4 +1,4 @@
-🚀 WordWeb Backend — Progress Summary
+WordWeb Backend — Progress Summary
 
 (2025.11.24 기준)
 
