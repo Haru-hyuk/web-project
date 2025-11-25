@@ -13,9 +13,10 @@ import java.sql.Timestamp;
 @Builder
 public class WrongWord {
 
-    @Id
-    @Column(name = "WRONG_WORD_ID")
-    private Long wrongWordId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "WRONG_WORD_ID")
+	private Long wrongWordId;
 
     @ManyToOne
     @JoinColumn(name = "WORD_ID", nullable = false)

@@ -13,9 +13,10 @@ import java.sql.Timestamp;
 @Builder
 public class UserWord {
 
-    @Id
-    @Column(name = "USER_WORD_ID")
-    private Long userWordId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "USER_WORD_ID")
+	private Long userWordId;
 
     @ManyToOne
     @JoinColumn(name = "WORD_ID", nullable = false)

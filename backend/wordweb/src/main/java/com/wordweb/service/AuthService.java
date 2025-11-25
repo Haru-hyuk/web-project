@@ -26,10 +26,7 @@ public class AuthService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-
-    /** ===========================
-     *        회원가입
-     *  =========================== */
+    /** 회원가입 */
     @Transactional
     public void signup(SignupRequest request) {
 
@@ -51,10 +48,7 @@ public class AuthService {
         userRepository.save(user);
     }
 
-
-    /** ===========================
-     *           로그인
-     *  =========================== */
+    /** 로그인 */
     @Transactional
     public TokenResponse login(LoginRequest request) {
 
@@ -65,13 +59,9 @@ public class AuthService {
             throw new RuntimeException("비밀번호가 올바르지 않습니다.");
         }
 
-        // 1) AccessToken 발급
         String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail());
-
-        // 2) RefreshToken 발급
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
 
-        // 3) 기존 RefreshToken 삭제 후 새로 저장
         refreshTokenRepository.deleteById(user.getEmail());
 
         RefreshToken tokenEntity = RefreshToken.builder()
@@ -84,45 +74,35 @@ public class AuthService {
         return new TokenResponse(accessToken, refreshToken);
     }
 
-
-    /** ===========================
-     *       Refresh Token 재발급
-     *  =========================== */
+    /** Refresh Token 재발급 */
     @Transactional
     public TokenResponse refresh(String refreshToken) {
 
-        // 1) 토큰 자체 유효성 검사
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new RuntimeException("유효하지 않은 Refresh Token입니다.");
+        try {
+            jwtTokenProvider.validateTokenOrThrow(refreshToken);
+        } catch (Exception e) {
+            throw new RuntimeException("Refresh Token이 만료되었습니다.");
         }
 
-        // 2) email 추출
         String email = jwtTokenProvider.getEmailFromToken(refreshToken);
 
-        // 3) DB에 저장된 Refresh Token 조회
-        RefreshToken savedToken = refreshTokenRepository.findById(email)
+        RefreshToken saved = refreshTokenRepository.findById(email)
                 .orElseThrow(() -> new RuntimeException("저장된 Refresh Token이 없습니다."));
 
-        // 4) 토큰 일치 여부 확인
-        if (!savedToken.getRefreshToken().equals(refreshToken)) {
+        if (!saved.getRefreshToken().equals(refreshToken)) {
             throw new RuntimeException("Refresh Token이 일치하지 않습니다.");
         }
 
-        // 5) Access Token 재발급
-        String newAccessToken = jwtTokenProvider.generateAccessToken(email);
+        String newAccess = jwtTokenProvider.generateAccessToken(email);
+        String newRefresh = jwtTokenProvider.generateRefreshToken(email);
 
-        // 6) (옵션) RefreshToken도 재발급
-        String newRefreshToken = jwtTokenProvider.generateRefreshToken(email);
-        savedToken.setRefreshToken(newRefreshToken);
-        refreshTokenRepository.save(savedToken);
+        saved.setRefreshToken(newRefresh);
+        refreshTokenRepository.save(saved);
 
-        return new TokenResponse(newAccessToken, newRefreshToken);
+        return new TokenResponse(newAccess, newRefresh);
     }
 
-
-    /** ===========================
-     *            로그아웃
-     *  =========================== */
+    /** 로그아웃 */
     @Transactional
     public void logout(String email) {
         refreshTokenRepository.deleteById(email);

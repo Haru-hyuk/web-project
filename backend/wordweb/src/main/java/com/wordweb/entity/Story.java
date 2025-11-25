@@ -36,4 +36,3 @@ public class Story {
     @Column(name = "CREATED_AT")
     private Timestamp createdAt;
 }
-

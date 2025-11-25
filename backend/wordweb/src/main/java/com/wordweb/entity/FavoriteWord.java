@@ -13,9 +13,11 @@ import java.sql.Timestamp;
 @Builder
 public class FavoriteWord {
 
-    @Id
-    @Column(name = "FAVORITE_WORD_ID")
-    private Long favoriteWordId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "FAVORITE_WORD_ID")
+	private Long favoriteWordId;
+
 
     @ManyToOne
     @JoinColumn(name = "USER_ID", nullable = false)
