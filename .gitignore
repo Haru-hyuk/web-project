@@ -5,6 +5,8 @@
 *.jar
 *.war
 *.ear
+*.env
+.env
 
 /build/
 /out/
