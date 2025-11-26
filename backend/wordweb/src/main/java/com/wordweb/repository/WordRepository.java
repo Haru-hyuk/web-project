@@ -21,8 +21,8 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     Page<Word> findByCategory(String category, Pageable pageable);
 
     /** 레벨 필터 */
-    Page<Word> findByLevel(String level, Pageable pageable);
+    Page<Word> findByLevel(Integer level, Pageable pageable);
 
     /** 카테고리 + 레벨 복합 필터 */
-    Page<Word> findByCategoryAndLevel(String category, String level, Pageable pageable);
+    Page<Word> findByCategoryAndLevel(String category, Integer level, Pageable pageable);
 }

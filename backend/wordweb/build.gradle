@@ -36,6 +36,9 @@ dependencies {
     runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
 
     implementation 'org.json:json:20210307'
+	
+	//MAIL
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
     // OPENAI / DeepSeek API Client
     implementation 'com.theokanning.openai-gpt3-java:client:0.16.0'

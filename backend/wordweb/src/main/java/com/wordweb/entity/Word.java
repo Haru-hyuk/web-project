@@ -33,7 +33,7 @@ public class Word {
     private String category;
 
     @Column(name = "LEVEL")
-    private String level;
+    private Integer level;
 
     @Column(name = "CREATED_AT")
     private Timestamp createdAt;

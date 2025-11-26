@@ -14,7 +14,7 @@ public class WordResponse {
     private String partOfSpeech;
     private String exampleSentence;
     private String category;
-    private String level;
+    private Integer level;
 
     private boolean isFavorite;     // 즐겨찾기 여부
     private String learningStatus;  // NONE / IN_PROGRESS / DONE
