@@ -3,6 +3,7 @@ package com.wordweb.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "WORD_PROGRESS")
@@ -33,4 +34,19 @@ public class WordProgress {
 
     @Column(name = "UPDATED_AT", nullable = false)
     private Timestamp updatedAt;
+
+    // 🔥 대시보드용: 학습 날짜
+    @Column(name = "STUDY_DATE", nullable = false)
+    private LocalDate studyDate;
+
+    // 자동으로 날짜 넣기 위한 헬퍼
+    @PrePersist
+    public void onCreate() {
+        if (this.studyDate == null) {
+            this.studyDate = LocalDate.now();
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = new Timestamp(System.currentTimeMillis());
+        }
+    }
 }

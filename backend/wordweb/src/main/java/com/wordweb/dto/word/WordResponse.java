@@ -14,10 +14,10 @@ public class WordResponse {
     private String partOfSpeech;
     private String exampleSentence;
     private String category;
-    private String level;
+    private Integer level;   // ← 변경한 부분!
 
-    private boolean isFavorite;     // 즐겨찾기 여부
-    private String learningStatus;  // NONE / IN_PROGRESS / DONE
+    private boolean isFavorite;
+    private String learningStatus;
 
     public static WordResponse from(Word word, boolean isFavorite, String learningStatus) {
         return WordResponse.builder()
@@ -27,9 +27,10 @@ public class WordResponse {
                 .partOfSpeech(word.getPartOfSpeech())
                 .exampleSentence(word.getExampleSentence())
                 .category(word.getCategory())
-                .level(word.getLevel())
+                .level(word.getLevel())   // 이제 정상 작동
                 .isFavorite(isFavorite)
                 .learningStatus(learningStatus)
                 .build();
     }
 }
+

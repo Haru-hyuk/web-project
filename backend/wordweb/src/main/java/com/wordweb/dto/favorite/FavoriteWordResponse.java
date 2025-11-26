@@ -15,7 +15,7 @@ public class FavoriteWordResponse {
     private String partOfSpeech;     // 품사
     private String exampleSentence;  // 예문
     private String category;         // 카테고리
-    private String level;            // 레벨
+    private Integer level;            // 레벨
 
     public static FavoriteWordResponse from(FavoriteWord fw) {
         return FavoriteWordResponse.builder()

@@ -1,9 +1,7 @@
 package com.wordweb.service;
 
 import com.wordweb.config.jwt.JwtTokenProvider;
-import com.wordweb.dto.auth.LoginRequest;
-import com.wordweb.dto.auth.SignupRequest;
-import com.wordweb.dto.auth.TokenResponse;
+import com.wordweb.dto.auth.*;
 import com.wordweb.entity.RefreshToken;
 import com.wordweb.entity.User;
 import com.wordweb.repository.RefreshTokenRepository;
@@ -23,6 +21,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final MailService mailService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -62,6 +61,7 @@ public class AuthService {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getEmail());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
 
+        // 기존 Refresh Token 제거 후 새로 저장
         refreshTokenRepository.deleteById(user.getEmail());
 
         RefreshToken tokenEntity = RefreshToken.builder()
@@ -106,5 +106,30 @@ public class AuthService {
     @Transactional
     public void logout(String email) {
         refreshTokenRepository.deleteById(email);
+    }
+
+    /** 이메일 찾기 */
+    public FindEmailResponse findEmail(FindEmailRequest req) {
+
+        User user = userRepository
+                .findByUserNameAndUserBirth(req.getUserName(), req.getUserBirth())
+                .orElseThrow(() -> new RuntimeException("등록된 계정을 찾을 수 없습니다."));
+
+        return new FindEmailResponse(user.getEmail());
+    }
+
+    /** 비밀번호 재설정 */
+    @Transactional
+    public void resetPassword(ResetPasswordRequest req) {
+
+        User user = userRepository.findByUserNameAndEmail(req.getUserName(), req.getEmail())
+                .orElseThrow(() -> new RuntimeException("일치하는 계정이 없습니다."));
+
+        // 임시 비밀번호 생성 + 이메일 발송
+        String tempPassword = mailService.sendTempPassword(req.getEmail());
+
+        // 암호화 후 저장
+        user.setPassword(passwordEncoder.encode(tempPassword));
+        userRepository.save(user);
     }
 }

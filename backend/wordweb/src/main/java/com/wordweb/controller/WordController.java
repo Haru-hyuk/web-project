@@ -44,7 +44,7 @@ public class WordController {
     ) {
         return ResponseEntity.ok(wordService.searchWords(keyword, page, size));
     }
-    
+
     /** 카테고리 필터 */
     @GetMapping("/category")
     public ResponseEntity<Page<WordResponse>> filterByCategory(
@@ -58,18 +58,18 @@ public class WordController {
     /** 레벨 필터 */
     @GetMapping("/level")
     public ResponseEntity<Page<WordResponse>> filterByLevel(
-            @RequestParam String value,
+            @RequestParam Integer level,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
-        return ResponseEntity.ok(wordService.filterByLevel(value, page, size));
+        return ResponseEntity.ok(wordService.filterByLevel(level, page, size));
     }
 
     /** 카테고리 + 레벨 복합 필터 */
     @GetMapping("/filter")
     public ResponseEntity<Page<WordResponse>> filterCategoryAndLevel(
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) String level,
+            @RequestParam(required = false) Integer level,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
@@ -77,5 +77,4 @@ public class WordController {
                 wordService.filterByCategoryAndLevel(category, level, page, size)
         );
     }
-
 }

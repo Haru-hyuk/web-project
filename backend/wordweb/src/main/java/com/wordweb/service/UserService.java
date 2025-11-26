@@ -16,11 +16,11 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
 
     /** 현재 로그인 유저 조회 */
     private User getLoginUser() {
-        String email = SecurityUtil.getLoginUserEmail();
+        String email = SecurityUtil.getCurrentUserEmail();  // ✔ 메소드 통일
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
     }
@@ -41,6 +41,7 @@ public class UserService {
         if (request.getDailyWordGoal() != null) user.setDailyWordGoal(request.getDailyWordGoal());
         if (request.getUserBirth() != null) user.setUserBirth(request.getUserBirth());
 
+        // 📌 save() 필요 없음(JPA dirty checking)
         return UserResponse.from(user);
     }
 
@@ -52,6 +53,11 @@ public class UserService {
         // 현재 비밀번호 확인
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new RuntimeException("현재 비밀번호가 올바르지 않습니다.");
+        }
+
+        // 변경 비밀번호 = 새 비밀번호 확인
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new RuntimeException("새 비밀번호가 서로 일치하지 않습니다.");
         }
 
         // 새로운 비밀번호 암호화 후 저장

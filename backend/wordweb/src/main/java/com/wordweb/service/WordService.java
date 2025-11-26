@@ -122,17 +122,17 @@ public class WordService {
     }
 
     /** 레벨 필터 */
-    public Page<WordResponse> filterByLevel(String level, int page, int size) {
+    public Page<WordResponse> filterByLevel(Integer level, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("word").ascending());
         Page<Word> words = wordRepository.findByLevel(level, pageable);
 
         User user = getLoginUser();
-
         return words.map(word -> buildWordResponse(user, word));
     }
 
+
     /** 카테고리 + 레벨 필터 */
-    public Page<WordResponse> filterByCategoryAndLevel(String category, String level, int page, int size) {
+    public Page<WordResponse> filterByCategoryAndLevel(String category, Integer level, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("word").ascending());
         Page<Word> words = wordRepository.findByCategoryAndLevel(category, level, pageable);
 
@@ -140,4 +140,6 @@ public class WordService {
 
         return words.map(word -> buildWordResponse(user, word));
     }
+
+
 }
