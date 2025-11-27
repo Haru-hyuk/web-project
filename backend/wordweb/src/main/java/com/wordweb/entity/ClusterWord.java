@@ -14,6 +14,8 @@ import java.sql.Timestamp;
 public class ClusterWord {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cluster_seq_gen")
+    @SequenceGenerator(name = "cluster_seq_gen", sequenceName = "SEQ_CLUSTER_ID", allocationSize = 1)
     @Column(name = "CLUSTER_ID")
     private Long clusterId;
 
@@ -30,7 +32,7 @@ public class ClusterWord {
     private Word centerWord;
 
     @Column(name = "SCORE")
-    private Integer score;
+    private Double score;
 
     @Column(name = "RELATION_TYPE")
     private String relationType;
