@@ -29,6 +29,7 @@ public class AuthService {
     @Transactional
     public void signup(SignupRequest request) {
 
+
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("이미 존재하는 이메일입니다.");
         }
@@ -39,7 +40,9 @@ public class AuthService {
                 .nickname(request.getNickname())
                 .userName(request.getUserName())
                 .userBirth(request.getUserBirth())
-                .dailyWordGoal(20)
+                .preference(request.getPreference())  // 관심분야
+                .goal(request.getGoal())              // 학습목표
+                .dailyWordGoal(request.getDailyWordGoal() != null ? request.getDailyWordGoal() : 20)  // 하루 목표 단어 수
                 .createdAt(Timestamp.from(Instant.now()))
                 .updatedAt(Timestamp.from(Instant.now()))
                 .build();
