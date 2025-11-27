@@ -26,14 +26,21 @@ public class Word {
     @Column(name = "PART_OF_SPEECH")
     private String partOfSpeech;
 
-    @Column(name = "EXAMPLE_SENTENCE")
-    private String exampleSentence;
+    @Column(name = "EXAMPLE_SENTENCE_EN")
+    private String exampleSentenceEn;
+
+    @Column(name = "EXAMPLE_SENTENCE_KO")
+    private String exampleSentenceKo;
 
     @Column(name = "CATEGORY")
     private String category;
 
     @Column(name = "LEVEL")
     private Integer level;
+
+    @Lob
+    @Column(name = "EMBEDDING")
+    private String embedding;
 
     @Column(name = "CREATED_AT")
     private Timestamp createdAt;
