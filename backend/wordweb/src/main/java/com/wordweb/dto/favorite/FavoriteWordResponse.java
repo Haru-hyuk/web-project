@@ -8,14 +8,14 @@ import lombok.Getter;
 @Builder
 public class FavoriteWordResponse {
 
-    private Long id;                 // 즐겨찾기 PK
-    private Long wordId;             // 단어 PK
-    private String word;             // 단어
-    private String meaning;          // 뜻
-    private String partOfSpeech;     // 품사
-    private String exampleSentence;  // 예문
-    private String category;         // 카테고리
-    private Integer level;            // 레벨
+    private Long id;
+    private Long wordId;
+    private String word;
+    private String meaning;
+    private String partOfSpeech;
+    private String exampleSentence;
+    private String category;
+    private Integer wordLevel;   // ★ 변경됨
 
     public static FavoriteWordResponse from(FavoriteWord fw) {
         return FavoriteWordResponse.builder()
@@ -26,7 +26,7 @@ public class FavoriteWordResponse {
                 .partOfSpeech(fw.getWord().getPartOfSpeech())
                 .exampleSentence(fw.getWord().getExampleSentence())
                 .category(fw.getWord().getCategory())
-                .level(fw.getWord().getLevel())
+                .wordLevel(fw.getWord().getWordLevel()) // ★ 수정됨
                 .build();
     }
 }

@@ -26,14 +26,14 @@ public class Word {
     @Column(name = "PART_OF_SPEECH")
     private String partOfSpeech;
 
-    @Column(name = "EXAMPLE_SENTENCE")
+    @Column(name = "EXAMPLE_SENTENCE")	
     private String exampleSentence;
 
     @Column(name = "CATEGORY")
     private String category;
 
-    @Column(name = "LEVEL")
-    private Integer level;
+    @Column(name = "WORD_LEVEL")
+    private Integer wordLevel;   // ★ 변경된 필드명
 
     @Column(name = "CREATED_AT")
     private Timestamp createdAt;

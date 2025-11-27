@@ -26,120 +26,84 @@ public class WordService {
     private final UserRepository userRepository;
     private final Random random = new Random();
 
-    /** 현재 로그인 유저 가져오기 */
     private User getLoginUser() {
         try {
             String email = SecurityUtil.getLoginUserEmail();
             return userRepository.findByEmail(email).orElse(null);
         } catch (Exception e) {
-            return null; // 비로그인 허용
+            return null;
         }
     }
 
-    /** 즐겨찾기 여부 체크 */
     private boolean isFavorite(User user, Word word) {
-        if (user == null) return false;
-        return favoriteWordRepository.existsByUserAndWord(user, word);
+        return user != null && favoriteWordRepository.existsByUserAndWord(user, word);
     }
 
-    /** 학습 상태 조회 */
     private String getLearningStatus(User user, Word word) {
         if (user == null) return "NONE";
-
         return wordProgressRepository.findByUserAndWord(user, word)
                 .map(WordProgress::getStatus)
                 .orElse("NONE");
     }
 
-    /** WordResponse 생성 도우미 */
     private WordResponse buildWordResponse(User user, Word word) {
-        boolean isFavorite = isFavorite(user, word);
-        String learningStatus = getLearningStatus(user, word);
-
-        return WordResponse.from(word, isFavorite, learningStatus);
+        return WordResponse.from(
+                word,
+                isFavorite(user, word),
+                getLearningStatus(user, word)
+        );
     }
 
-    /** 단어 1개 조회 */
     public WordResponse getWord(Long id) {
         Word word = wordRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
-
-        User user = getLoginUser();
-
-        return buildWordResponse(user, word);
+        return buildWordResponse(getLoginUser(), word);
     }
 
-    /** 오늘의 단어 랜덤 1개 */
     public WordResponse getTodayWord() {
         List<Word> list = wordRepository.findAll();
         if (list.isEmpty()) throw new RuntimeException("단어 데이터가 없습니다.");
 
         Word randomWord = list.get(random.nextInt(list.size()));
-        User user = getLoginUser();
-
-        return buildWordResponse(user, randomWord);
+        return buildWordResponse(getLoginUser(), randomWord);
     }
 
-    /** 전체 단어 조회 */
     public Page<WordResponse> getWordList(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word").ascending());
-        Page<Word> words = wordRepository.findAll(pageable);
-
-        User user = getLoginUser();
-
-        return words.map(word -> buildWordResponse(user, word));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
+        return wordRepository.findAll(pageable)
+                .map(word -> buildWordResponse(getLoginUser(), word));
     }
 
-    /** 검색 */
     public Page<WordResponse> searchWords(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word").ascending());
-        Page<Word> words = wordRepository.findByWordContainingIgnoreCase(keyword, pageable);
-
-        User user = getLoginUser();
-
-        return words.map(word -> buildWordResponse(user, word));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
+        return wordRepository.findByWordContainingIgnoreCase(keyword, pageable)
+                .map(word -> buildWordResponse(getLoginUser(), word));
     }
 
-    /** 품사 + 검색 */
     public Page<WordResponse> searchWordsWithPart(String keyword, String part, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word").ascending());
-        Page<Word> words =
-                wordRepository.findByWordContainingIgnoreCaseAndPartOfSpeech(keyword, part, pageable);
-
-        User user = getLoginUser();
-
-        return words.map(word -> buildWordResponse(user, word));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
+        return wordRepository.findByWordContainingIgnoreCaseAndPartOfSpeech(keyword, part, pageable)
+                .map(word -> buildWordResponse(getLoginUser(), word));
     }
 
-    /** 카테고리 필터 */
     public Page<WordResponse> filterByCategory(String category, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word").ascending());
-        Page<Word> words = wordRepository.findByCategory(category, pageable);
-
-        User user = getLoginUser();
-
-        return words.map(word -> buildWordResponse(user, word));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
+        return wordRepository.findByCategory(category, pageable)
+                .map(word -> buildWordResponse(getLoginUser(), word));
     }
 
-    /** 레벨 필터 */
+ // ✔ level → wordLevel 로 수정
     public Page<WordResponse> filterByLevel(Integer level, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word").ascending());
-        Page<Word> words = wordRepository.findByLevel(level, pageable);
-
-        User user = getLoginUser();
-        return words.map(word -> buildWordResponse(user, word));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
+        return wordRepository.findByWordLevel(level, pageable)
+                .map(word -> buildWordResponse(getLoginUser(), word));
     }
 
-
-    /** 카테고리 + 레벨 필터 */
+    // ✔ level → wordLevel 로 수정
     public Page<WordResponse> filterByCategoryAndLevel(String category, Integer level, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word").ascending());
-        Page<Word> words = wordRepository.findByCategoryAndLevel(category, level, pageable);
-
-        User user = getLoginUser();
-
-        return words.map(word -> buildWordResponse(user, word));
+        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
+        return wordRepository.findByCategoryAndWordLevel(category, level, pageable)
+                .map(word -> buildWordResponse(getLoginUser(), word));
     }
-
 
 }

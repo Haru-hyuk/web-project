@@ -14,7 +14,7 @@ public class WordResponse {
     private String partOfSpeech;
     private String exampleSentence;
     private String category;
-    private Integer level;   // ← 변경한 부분!
+    private Integer wordLevel; // ★ 변경됨
 
     private boolean isFavorite;
     private String learningStatus;
@@ -27,10 +27,9 @@ public class WordResponse {
                 .partOfSpeech(word.getPartOfSpeech())
                 .exampleSentence(word.getExampleSentence())
                 .category(word.getCategory())
-                .level(word.getLevel())   // 이제 정상 작동
+                .wordLevel(word.getWordLevel())  // ★ 수정됨
                 .isFavorite(isFavorite)
                 .learningStatus(learningStatus)
                 .build();
     }
 }
-
