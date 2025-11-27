@@ -1,0 +1,18 @@
+# 데이터베이스 설정 파일 (보안)
+db_config.py
+
+# Python 캐시
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
