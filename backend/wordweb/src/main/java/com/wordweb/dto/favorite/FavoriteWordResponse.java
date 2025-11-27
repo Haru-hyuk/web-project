@@ -24,7 +24,7 @@ public class FavoriteWordResponse {
                 .word(fw.getWord().getWord())
                 .meaning(fw.getWord().getMeaning())
                 .partOfSpeech(fw.getWord().getPartOfSpeech())
-                .exampleSentence(fw.getWord().getExampleSentence())
+                .exampleSentence(fw.getWord().getExampleSentenceEn())
                 .category(fw.getWord().getCategory())
                 .level(fw.getWord().getLevel())
                 .build();

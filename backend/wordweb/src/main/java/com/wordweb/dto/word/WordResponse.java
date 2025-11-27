@@ -25,7 +25,7 @@ public class WordResponse {
                 .word(word.getWord())
                 .meaning(word.getMeaning())
                 .partOfSpeech(word.getPartOfSpeech())
-                .exampleSentence(word.getExampleSentence())
+                .exampleSentence(word.getExampleSentenceEn())
                 .category(word.getCategory())
                 .level(word.getLevel())
                 .isFavorite(isFavorite)
