@@ -39,7 +39,7 @@ public class Word {
     @Column(name = "CATEGORY")
     private String category;
 
-    @Column(name = "LEVEL")
+    @Column(name = "WORD_LEVEL")
     private Integer level;
 
     @Lob

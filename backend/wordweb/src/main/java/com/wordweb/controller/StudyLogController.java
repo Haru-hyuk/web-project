@@ -31,3 +31,4 @@ public class StudyLogController {
         return ResponseEntity.ok(studyLogService.getStatus(wordId));
     }
 }
+	
