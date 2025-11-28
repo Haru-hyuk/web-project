@@ -6,21 +6,34 @@ import lombok.*;
 @Entity
 @Table(name = "STORY_WORD_LIST")
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
+@IdClass(StoryWordListId.class)
 public class StoryWordList {
 
     @Id
-    @Column(name = "ID")
-    private Long id;
+    @Column(name = "STORY_ID")
+    private Long storyId;
 
-    @ManyToOne
-    @JoinColumn(name = "STORY_ID", nullable = false)
-    private Story story;
+    @Id
+    @Column(name = "WRONG_WORD_ID")
+    private Long wrongWordId;
 
-    @ManyToOne
-    @JoinColumn(name = "WRONG_WORD_ID", nullable = false)
-    private WrongWord wrongWord;
+    /** Story 연결 */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "STORY_ID", insertable = false, updatable = false)
+    private WrongAnswerStory story;
+
+    /** WrongAnswerLog 연결 */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "WRONG_WORD_ID", insertable = false, updatable = false)
+    private WrongAnswerLog wrongAnswerLog;
+
+    /** 생성 메서드 */
+    public static StoryWordList create(Long storyId, Long wrongWordId) {
+        StoryWordList list = new StoryWordList();
+        list.storyId = storyId;
+        list.wrongWordId = wrongWordId;
+        return list;
+    }
 }

@@ -7,15 +7,20 @@ import lombok.*;
 @Table(name = "REFRESH_TOKEN")
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class RefreshToken {
 
     @Id
-    @Column(name = "USER_EMAIL")
+    @Column(name = "USER_EMAIL", nullable = false)
     private String userEmail;
 
-    @Column(name = "REFRESH_TOKEN")
+    @Column(name = "REFRESH_TOKEN", nullable = false)
     private String refreshToken;
+
+    /** refresh token 갱신 메서드 */
+    public void updateToken(String newToken) {
+        this.refreshToken = newToken;
+    }
 }

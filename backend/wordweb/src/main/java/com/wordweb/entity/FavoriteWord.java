@@ -2,32 +2,39 @@ package com.wordweb.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "FAVORITE_WORD")
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class FavoriteWord {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "FAVORITE_WORD_ID")
-	private Long favoriteWordId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "favorite_seq")
+    @SequenceGenerator(name = "favorite_seq", sequenceName = "SEQ_FAVORITE_WORD_ID", allocationSize = 1)
+    @Column(name = "FAVORITE_WORD_ID")
+    private Long favoriteWordId;
 
-
-    @ManyToOne
-    @JoinColumn(name = "USER_ID", nullable = false)
-    private User user;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "WORD_ID", nullable = false)
     private Word word;
 
-    @Column(name = "CREATED_AT")
-    private Timestamp createdAt;
-}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "USER_ID", nullable = false)
+    private User user;
 
+    @Column(name = "CREATED_AT")
+    private LocalDateTime createdAt;
+
+    /** 정적 팩토리 메서드로 생성 */
+    public static FavoriteWord create(User user, Word word) {
+        return FavoriteWord.builder()
+                .user(user)
+                .word(word)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+}

@@ -12,23 +12,27 @@ public class WordResponse {
     private String word;
     private String meaning;
     private String partOfSpeech;
-    private String exampleSentence;
-    private String category;
-    private Integer wordLevel; // ★ 변경됨
 
-    private boolean isFavorite;
+    private String exampleSentenceEn;   // 영어 예문
+    private String exampleSentenceKo;   // 한국어 예문
+
+    private String category;
+    private Integer level;              // 엔티티의 LEVEL 필드와 일치
+
+    private boolean favorite;
     private String learningStatus;
 
-    public static WordResponse from(Word word, boolean isFavorite, String learningStatus) {
+    public static WordResponse from(Word word, boolean favorite, String learningStatus) {
         return WordResponse.builder()
                 .wordId(word.getWordId())
                 .word(word.getWord())
                 .meaning(word.getMeaning())
                 .partOfSpeech(word.getPartOfSpeech())
-                .exampleSentence(word.getExampleSentence())
+                .exampleSentenceEn(word.getExampleSentenceEn())
+                .exampleSentenceKo(word.getExampleSentenceKo())
                 .category(word.getCategory())
-                .wordLevel(word.getWordLevel())  // ★ 수정됨
-                .isFavorite(isFavorite)
+                .level(word.getLevel())  // ✔ level로 변경
+                .favorite(favorite)
                 .learningStatus(learningStatus)
                 .build();
     }

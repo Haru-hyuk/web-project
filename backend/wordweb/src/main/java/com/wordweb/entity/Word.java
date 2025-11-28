@@ -14,6 +14,8 @@ import java.sql.Timestamp;
 public class Word {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "word_seq")
+    @SequenceGenerator(name = "word_seq", sequenceName = "SEQ_WORD_ID", allocationSize = 1)
     @Column(name = "WORD_ID")
     private Long wordId;
 
@@ -26,14 +28,23 @@ public class Word {
     @Column(name = "PART_OF_SPEECH")
     private String partOfSpeech;
 
-    @Column(name = "EXAMPLE_SENTENCE")	
-    private String exampleSentence;
+    @Lob
+    @Column(name = "EXAMPLE_SENTENCE_EN")
+    private String exampleSentenceEn;
+
+    @Lob
+    @Column(name = "EXAMPLE_SENTENCE_KO")
+    private String exampleSentenceKo;
 
     @Column(name = "CATEGORY")
     private String category;
 
-    @Column(name = "WORD_LEVEL")
-    private Integer wordLevel;   // ★ 변경된 필드명
+    @Column(name = "LEVEL")
+    private Integer level;
+
+    @Lob
+    @Column(name = "EMBEDDING")
+    private String embedding;
 
     @Column(name = "CREATED_AT")
     private Timestamp createdAt;

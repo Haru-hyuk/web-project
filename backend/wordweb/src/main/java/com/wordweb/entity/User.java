@@ -2,22 +2,25 @@ package com.wordweb.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "USERS")   
+@Table(name = "USERS")
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class User {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "USER_ID")
-	private Long userId;
+    /* ============================
+         PK & 기본 정보
+       ============================ */
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+    @SequenceGenerator(name = "user_seq", sequenceName = "SEQ_USER_ID", allocationSize = 1)
+    @Column(name = "USER_ID")
+    private Long userId;
 
     @Column(name = "EMAIL", nullable = false, unique = true)
     private String email;
@@ -25,7 +28,7 @@ public class User {
     @Column(name = "USER_PW", nullable = false)
     private String password;
 
-    @Column(name = "NICKNAME", nullable = false)
+    @Column(name = "NICKNAME", nullable = false, unique = true)
     private String nickname;
 
     @Column(name = "USER_NAME", nullable = false)
@@ -33,6 +36,11 @@ public class User {
 
     @Column(name = "USER_BIRTH", nullable = false)
     private String userBirth;
+
+
+    /* ============================
+         프로필 설정
+       ============================ */
 
     @Column(name = "PREFERENCE")
     private String preference;
@@ -43,9 +51,57 @@ public class User {
     @Column(name = "DAILY_WORD_GOAL")
     private Integer dailyWordGoal;
 
-    @Column(name = "CREATED_AT")
-    private Timestamp createdAt;
+
+    /* ============================
+         생성/수정 시간
+       ============================ */
+
+    @Column(name = "CREATED_AT", updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "UPDATED_AT")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt;
+
+
+    /* ============================
+         JPA 라이프사이클
+       ============================ */
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+
+    /* ============================
+         도메인 기능 (변경 메서드)
+       ============================ */
+
+    /** 비밀번호 변경 */
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    /** 닉네임 변경 */
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    /** 프로필 변경 (취향, 목표, 단어 학습 목표) */
+    public void updateProfile(String preference, String goal, Integer dailyWordGoal) {
+        if (preference != null) this.preference = preference;
+        if (goal != null) this.goal = goal;
+        if (dailyWordGoal != null) this.dailyWordGoal = dailyWordGoal;
+    }
+
+    /** 생년월일 변경 */
+    public void changeBirth(String userBirth) {
+        this.userBirth = userBirth;
+    }
 }

@@ -3,10 +3,9 @@ package com.wordweb.service;
 import com.wordweb.dto.word.WordResponse;
 import com.wordweb.entity.User;
 import com.wordweb.entity.Word;
-import com.wordweb.entity.WordProgress;
 import com.wordweb.repository.FavoriteWordRepository;
+import com.wordweb.repository.StudyLogRepository;
 import com.wordweb.repository.UserRepository;
-import com.wordweb.repository.WordProgressRepository;
 import com.wordweb.repository.WordRepository;
 import com.wordweb.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -22,31 +21,36 @@ public class WordService {
 
     private final WordRepository wordRepository;
     private final FavoriteWordRepository favoriteWordRepository;
-    private final WordProgressRepository wordProgressRepository;
+    private final StudyLogRepository studyLogRepository;
     private final UserRepository userRepository;
+
     private final Random random = new Random();
 
+    /** 현재 로그인 유저 조회 */
     private User getLoginUser() {
         try {
-            String email = SecurityUtil.getLoginUserEmail();
+            String email = SecurityUtil.getCurrentUserEmail();
             return userRepository.findByEmail(email).orElse(null);
         } catch (Exception e) {
             return null;
         }
     }
 
+    /** 즐겨찾기 여부 */
     private boolean isFavorite(User user, Word word) {
         return user != null && favoriteWordRepository.existsByUserAndWord(user, word);
     }
 
+    /** 학습 상태 조회 */
     private String getLearningStatus(User user, Word word) {
         if (user == null) return "NONE";
-        return wordProgressRepository.findByUserAndWord(user, word)
-                .map(WordProgress::getStatus)
+        return studyLogRepository.findByUserAndWord(user, word)
+                .map(log -> log.getStatus())
                 .orElse("NONE");
     }
 
-    private WordResponse buildWordResponse(User user, Word word) {
+    /** WordResponse 생성 */
+    private WordResponse toResponse(User user, Word word) {
         return WordResponse.from(
                 word,
                 isFavorite(user, word),
@@ -54,56 +58,82 @@ public class WordService {
         );
     }
 
+    /** 단어 상세 조회 */
     public WordResponse getWord(Long id) {
+        User user = getLoginUser();
+
         Word word = wordRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
-        return buildWordResponse(getLoginUser(), word);
+
+        return toResponse(user, word);
     }
 
+    /** 오늘의 랜덤 단어 */
     public WordResponse getTodayWord() {
-        List<Word> list = wordRepository.findAll();
-        if (list.isEmpty()) throw new RuntimeException("단어 데이터가 없습니다.");
+        User user = getLoginUser();
 
-        Word randomWord = list.get(random.nextInt(list.size()));
-        return buildWordResponse(getLoginUser(), randomWord);
+        List<Word> words = wordRepository.findAll();
+        if (words.isEmpty()) throw new RuntimeException("단어 데이터가 없습니다.");
+
+        Word randomWord = words.get(random.nextInt(words.size()));
+        return toResponse(user, randomWord);
     }
 
-    public Page<WordResponse> getWordList(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
+    /** 전체 단어 리스트 (Pageable) */
+    public Page<WordResponse> getWordList(Pageable pageable) {
+        User user = getLoginUser();
+
         return wordRepository.findAll(pageable)
-                .map(word -> buildWordResponse(getLoginUser(), word));
+                .map(word -> toResponse(user, word));
     }
 
-    public Page<WordResponse> searchWords(String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
+    /** 검색 (keyword + pageable) */
+    public Page<WordResponse> searchWords(String keyword, Pageable pageable) {
+        User user = getLoginUser();
+
         return wordRepository.findByWordContainingIgnoreCase(keyword, pageable)
-                .map(word -> buildWordResponse(getLoginUser(), word));
+                .map(word -> toResponse(user, word));
     }
 
-    public Page<WordResponse> searchWordsWithPart(String keyword, String part, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
-        return wordRepository.findByWordContainingIgnoreCaseAndPartOfSpeech(keyword, part, pageable)
-                .map(word -> buildWordResponse(getLoginUser(), word));
-    }
+    /** 필터 검색 (category, level, partOfSpeech 조합) */
+    public Page<WordResponse> filterWords(
+            String category,
+            Integer level,
+            String partOfSpeech,
+            Pageable pageable
+    ) {
+        User user = getLoginUser();
 
-    public Page<WordResponse> filterByCategory(String category, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
-        return wordRepository.findByCategory(category, pageable)
-                .map(word -> buildWordResponse(getLoginUser(), word));
-    }
+        Page<Word> result;
 
- // ✔ level → wordLevel 로 수정
-    public Page<WordResponse> filterByLevel(Integer level, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
-        return wordRepository.findByWordLevel(level, pageable)
-                .map(word -> buildWordResponse(getLoginUser(), word));
-    }
+        // 아무 필터도 없으면 전체 조회
+        if (category == null && level == null && partOfSpeech == null) {
+            return getWordList(pageable);
+        }
 
-    // ✔ level → wordLevel 로 수정
-    public Page<WordResponse> filterByCategoryAndLevel(String category, Integer level, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("word"));
-        return wordRepository.findByCategoryAndWordLevel(category, level, pageable)
-                .map(word -> buildWordResponse(getLoginUser(), word));
-    }
+        // 조합 필터
+        if (category != null && level != null && partOfSpeech != null) {
+            result = wordRepository.findByCategoryAndLevelAndPartOfSpeech(category, level, partOfSpeech, pageable);
 
+        } else if (category != null && level != null) {
+            result = wordRepository.findByCategoryAndLevel(category, level, pageable);
+
+        } else if (category != null && partOfSpeech != null) {
+            result = wordRepository.findByCategoryAndPartOfSpeech(category, partOfSpeech, pageable);
+
+        } else if (level != null && partOfSpeech != null) {
+            result = wordRepository.findByLevelAndPartOfSpeech(level, partOfSpeech, pageable);
+
+        } else if (category != null) {
+            result = wordRepository.findByCategory(category, pageable);
+
+        } else if (level != null) {
+            result = wordRepository.findByLevel(level, pageable);
+
+        } else {
+            result = wordRepository.findByPartOfSpeech(partOfSpeech, pageable);
+        }
+
+        return result.map(word -> toResponse(user, word));
+    }
 }

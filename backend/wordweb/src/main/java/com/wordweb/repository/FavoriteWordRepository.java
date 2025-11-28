@@ -9,12 +9,12 @@ import java.util.List;
 
 public interface FavoriteWordRepository extends JpaRepository<FavoriteWord, Long> {
 
-    // 이미 즐겨찾기 여부 확인
+    /** 유저 + 단어 조합으로 즐겨찾기 여부 확인 */
     boolean existsByUserAndWord(User user, Word word);
 
-    // 즐겨찾기 목록 조회
+    /** 유저 즐겨찾기 전체 조회 */
     List<FavoriteWord> findByUser(User user);
 
-    // 즐겨찾기 삭제
-    void deleteByUserEmailAndWordWordId(String email, Long wordId);
+    /** 즐겨찾기 삭제 */
+    void deleteByUserAndWord(User user, Word word);
 }
