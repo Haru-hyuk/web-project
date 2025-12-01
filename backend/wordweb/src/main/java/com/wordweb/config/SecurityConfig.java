@@ -69,6 +69,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/words/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

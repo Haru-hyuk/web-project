@@ -1,6 +1,7 @@
 package com.wordweb.controller;
 
 import com.wordweb.dto.word.WordResponse;
+import com.wordweb.repository.WordRepository;
 import com.wordweb.service.WordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,9 +16,10 @@ import org.springframework.web.bind.annotation.*;
 public class WordController {
 
     private final WordService wordService;
+    private final WordRepository wordRepository; // 추가!!!
 
     /** 단어 상세 조회 */
-    @GetMapping("/{wordId}")
+    @GetMapping("/detail/{wordId}")
     public ResponseEntity<WordResponse> getWord(@PathVariable Long wordId) {
         return ResponseEntity.ok(wordService.getWord(wordId));
     }
@@ -45,7 +47,7 @@ public class WordController {
         return ResponseEntity.ok(wordService.searchWords(keyword, pageable));
     }
 
-    /** 필터 검색 (category, level, partOfSpeech 조합 검색) */
+    /** 필터 검색 */
     @GetMapping("/filter")
     public ResponseEntity<Page<WordResponse>> filterWords(
             @RequestParam(required = false) String category,
@@ -56,5 +58,11 @@ public class WordController {
         return ResponseEntity.ok(
                 wordService.filterWords(category, level, partOfSpeech, pageable)
         );
+    }
+
+    /** 테스트: 전체 단어 개수 확인 */
+    @GetMapping("/test-count")
+    public Long testCount() {
+        return wordRepository.count();  // ← 이게 정답
     }
 }

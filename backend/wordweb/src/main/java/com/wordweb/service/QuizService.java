@@ -101,54 +101,56 @@ public class QuizService {
      * 오답 생성 로직:
      * 1) 같은 품사 + 같은 레벨
      * 2) 같은 품사
-     * 3) 전체 단어에서 랜덤
+     * 3) 전체 단어에서 채우기
      */
     private List<String> pickRandomMeanings(Word correctWord, int count) {
 
+        Set<Word> pool = new LinkedHashSet<>();
+
         // 1️⃣ 같은 품사 + 같은 레벨
-        List<Word> pool = wordRepository
+        List<Word> samePosLevel = wordRepository
                 .findByPartOfSpeechAndLevel(
                         correctWord.getPartOfSpeech(),
                         correctWord.getLevel()
-                )
-                .stream()
-                .filter(w -> !w.getWordId().equals(correctWord.getWordId()))
-                .collect(Collectors.toList());
+                );
+        samePosLevel.forEach(pool::add);
 
-        // 2️⃣ 부족하면 같은 품사 채우기
+        // 자기 자신 제거
+        pool.remove(correctWord);
+
+        // 2️⃣ 부족하면 같은 품사 추가
         if (pool.size() < count) {
             List<Word> samePos = wordRepository
-                    .findByPartOfSpeech(correctWord.getPartOfSpeech())
-                    .stream()
-                    .filter(w -> !w.getWordId().equals(correctWord.getWordId()))
-                    .collect(Collectors.toList());
-
-            for (Word w : samePos) {
-                if (!pool.contains(w)) {
-                    pool.add(w);
-                }
-            }
+                    .findByPartOfSpeech(correctWord.getPartOfSpeech());
+            samePos.forEach(pool::add);
         }
 
-        // 3️⃣ 그래도 부족하면 전체에서 채우기
-        if (pool.size() < count) {
-            List<Word> all = wordRepository.findAll()
-                    .stream()
-                    .filter(w -> !w.getWordId().equals(correctWord.getWordId()))
-                    .collect(Collectors.toList());
+        // 자기 자신 제거(2번째 안전 제거)
+        pool.remove(correctWord);
 
-            for (Word w : all) {
-                if (!pool.contains(w)) {
-                    pool.add(w);
-                }
-            }
+        // 3️⃣ 그래도 부족하면 전체 단어에서 채우기
+        if (pool.size() < count) {
+            List<Word> all = wordRepository.findAll();
+            all.forEach(pool::add);
         }
 
-        // 🔥 최종 pool이 여전히 부족하면 오류
+        // 자기 자신 제거(3번째 안전 제거)
+        pool.remove(correctWord);
+
+        // 🔥 최종적으로도 부족하면 예외 (거의 안일어남)
         if (pool.size() < count) {
-            throw new RuntimeExc
+            throw new RuntimeException("오답 선택지를 생성하기에 단어가 부족합니다.");
+        }
 
+        // 랜덤 meaning N개 추출
+        List<Word> finalList = new ArrayList<>(pool);
+        Collections.shuffle(finalList);
 
+        return finalList.stream()
+                .limit(count)
+                .map(Word::getMeaning)
+                .toList();
+    }
 
     /**
      * 퀴즈 결과 저장

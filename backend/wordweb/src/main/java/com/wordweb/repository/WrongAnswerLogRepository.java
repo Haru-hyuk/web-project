@@ -27,4 +27,7 @@ public interface WrongAnswerLogRepository extends JpaRepository<WrongAnswerLog, 
 
     /** 유저 단위로 스토리 미사용 오답 찾기 (string 버전 아님!) */
     List<WrongAnswerLog> findByUserAndIsUsedInStory(User user, Boolean isUsedInStory);
+    
+    long countByUser(User user);
+
 }

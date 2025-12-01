@@ -1,7 +1,6 @@
 package com.wordweb.service;
 
 import com.wordweb.entity.User;
-import com.wordweb.entity.StudyLog;
 import com.wordweb.repository.*;
 import com.wordweb.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,7 @@ public class DashboardService {
     private final WrongAnswerLogRepository wrongAnswerLogRepository;
     private final StudyLogRepository studyLogRepository;
 
-    /** 로그인 유저 */
+    /** 현재 로그인 유저 조회 */
     private User getLoginUser() {
         String email = SecurityUtil.getCurrentUserEmail();
         return userRepository.findByEmail(email)
@@ -32,8 +31,8 @@ public class DashboardService {
     public Map<String, Object> getDailyGoal() {
         User user = getLoginUser();
 
-        int goal = user.getDailyWordGoal(); // 설정된 목표
-        int completedToday = studyLogRepository.countTodayCompleted(user.getUserId()); // 오늘 완료 단어 수
+        int goal = user.getDailyWordGoal();  
+        int completedToday = studyLogRepository.countTodayCompleted(user.getUserId());
 
         return Map.of(
                 "dailyGoal", goal,

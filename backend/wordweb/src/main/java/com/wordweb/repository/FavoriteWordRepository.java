@@ -17,4 +17,6 @@ public interface FavoriteWordRepository extends JpaRepository<FavoriteWord, Long
 
     /** 즐겨찾기 삭제 */
     void deleteByUserAndWord(User user, Word word);
+    
+    long countByUser(User user);
 }

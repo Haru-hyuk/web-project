@@ -21,4 +21,6 @@ public interface CompletedWordRepository extends JpaRepository<CompletedWord, Lo
 
     /** 유저 + 단어 조합으로 하나 조회 */
     Optional<CompletedWord> findByUserAndWord(User user, Word word);
+    
+    long countByUser(User user);
 }

@@ -27,16 +27,32 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
 
     /** ======================
      * Dashboard 용 커스텀 쿼리
+     * Hibernate 7에서 TRUNC(TIMESTAMP) 사용 불가 → BETWEEN 방식 사용
      * ===================== */
 
     /** 오늘 학습 완료 수 */
-    @Query("SELECT COUNT(s) FROM StudyLog s " +
-           "WHERE s.user.userId = :userId AND DATE(s.updatedAt) = CURRENT_DATE")
-    int countTodayCompleted(@Param("userId") Long userId);
+    @Query(value = """
+    	    SELECT COUNT(*) 
+    	    FROM STUDY_LOG 
+    	    WHERE USER_ID = :userId
+    	      AND LAST_STUDY_AT >= TRUNC(SYSDATE)
+    	      AND LAST_STUDY_AT < TRUNC(SYSDATE) + 1
+    	""", nativeQuery = true)
+    	int countTodayCompleted(@Param("userId") Long userId);
 
-    /** 특정 날짜 학습 건수 (주간 학습 그래프용) */
-    @Query("SELECT COUNT(s) FROM StudyLog s " +
-           "WHERE s.user.userId = :userId AND DATE(s.updatedAt) = :targetDate")
-    int countByUserAndDate(@Param("userId") Long userId,
-                           @Param("targetDate") LocalDate targetDate);
+
+    /** 특정 날짜 학습 건수 */
+    @Query(value = """
+    	    SELECT COUNT(*) 
+    	    FROM STUDY_LOG 
+    	    WHERE USER_ID = :userId
+    	      AND LAST_STUDY_AT >= TRUNC(:targetDate)
+    	      AND LAST_STUDY_AT < TRUNC(:targetDate) + 1
+    	""", nativeQuery = true)
+    	int countByUserAndDate(
+    	        @Param("userId") Long userId,
+    	        @Param("targetDate") LocalDate targetDate
+    	);
+
+
 }

@@ -5,6 +5,9 @@ import com.wordweb.dto.ai.AIStoryResponse;
 import com.wordweb.service.AIStoryService;
 import com.wordweb.service.AIStoryService.StoryResult;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,25 +19,20 @@ public class AIStoryController {
     private final AIStoryService aiStoryService;
 
     /**
-     * AI 스토리 생성
+     * AI 스토리 생성 + DB 저장
      * POST /api/ai/story
-     * body 예시:
-     * {
-     *   "words": ["apple", "tree"],
-     *   "difficulty": "easy",
-     *   "style": "funny"
-     * }
      */
     @PostMapping("/story")
     public ResponseEntity<AIStoryResponse> generateStory(@RequestBody AIStoryRequest request) {
 
-        StoryResult result = aiStoryService.generateStory(
-                request.getWords(),
-                request.getDifficulty(),
-                request.getStyle()
-        );
+        // wrongWordIds 기반으로 스토리 생성 + 저장
+    	StoryResult result = aiStoryService.generateAndSaveStory(
+    	        Arrays.asList(request.getWrongWordIds()),  // ← 변환
+    	        request.getDifficulty(),
+    	        request.getStyle()
+    	);
 
-        // 실패
+
         if (!result.isSuccess()) {
             return ResponseEntity.status(500).body(
                     new AIStoryResponse(
@@ -47,7 +45,6 @@ public class AIStoryController {
             );
         }
 
-        // 성공
         return ResponseEntity.ok(
                 new AIStoryResponse(
                         true,

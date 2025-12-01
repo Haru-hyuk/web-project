@@ -24,7 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String uri = request.getRequestURI();
 
-        // 🔥 Swagger 제외했던 부분 삭제 → 원래대로 인증 제외는 /api/auth/**만
+        // 인증 불필요한 API
         return uri.startsWith("/api/auth/");
     }
 
@@ -51,8 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            } catch (io.jsonwebtoken.ExpiredJwtException e) {
-                request.setAttribute("tokenExpired", true);
             } catch (Exception e) {
                 request.setAttribute("jwtException", e);
             }
