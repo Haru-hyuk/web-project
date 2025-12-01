@@ -43,9 +43,9 @@ public class AuthService {
                 .nickname(request.getNickname())
                 .userName(request.getUserName())
                 .userBirth(request.getUserBirth())
-                .preference(null)
-                .goal(null)
-                .dailyWordGoal(20)
+                .preference(request.getPreference())  // 관심분야
+                .goal(request.getGoal())              // 학습목표
+                .dailyWordGoal(request.getDailyWordGoal() != null ? request.getDailyWordGoal() : 20)  // 하루 목표 단어 수
                 .build();
 
         userRepository.save(user);

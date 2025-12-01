@@ -23,4 +23,10 @@ public interface ClusterWordRepository extends JpaRepository<ClusterWord, Long> 
 
     /** 중심 단어 삭제 시 관련 클러스터 전부 삭제할 때 */
     void deleteByCenterWord(Word centerWord);
+
+    /** 유저 + 중심 단어 기준으로 클러스터 삭제 */
+    void deleteByUserAndCenterWord(User user, Word centerWord);
+
+    /** 유저의 모든 클러스터 삭제 */
+    void deleteByUser(User user);
 }
