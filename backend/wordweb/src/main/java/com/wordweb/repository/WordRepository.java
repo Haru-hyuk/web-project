@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface WordRepository extends JpaRepository<Word, Long> {
@@ -42,4 +43,16 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     /** 정확한 단어 매칭 */
     Optional<Word> findByWord(String word);
+
+
+    /* ===========================================================
+         ⭐ 퀴즈 오답 보기용 
+         (페이징 없이 전체 pool 가져오고 shuffle → 3개 뽑기)
+       =========================================================== */
+
+    /** 같은 품사 + 같은 레벨 */
+    List<Word> findByPartOfSpeechAndLevel(String partOfSpeech, Integer level);
+
+    /** 같은 품사 */
+    List<Word> findByPartOfSpeech(String partOfSpeech);
 }
