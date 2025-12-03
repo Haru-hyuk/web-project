@@ -53,6 +53,15 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
     	        @Param("userId") Long userId,
     	        @Param("targetDate") LocalDate targetDate
     	);
+    
+    @Query("""
+    	    SELECT COUNT(s) 
+    	    FROM StudyLog s
+    	    WHERE s.user.userId = :userId
+    	      AND TRUNC(s.lastStudyAt) = TRUNC(:date)
+    	""")
+    	int countByUserAndExactDate(Long userId, LocalDate date);
+
 
 
 }

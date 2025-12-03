@@ -12,4 +12,6 @@ public class DashboardResponse {
 
     private int todayProgress;
     private int percentage;
+    private int streak;
+
 }

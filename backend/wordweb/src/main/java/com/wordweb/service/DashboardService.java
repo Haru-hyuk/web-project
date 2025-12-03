@@ -35,14 +35,17 @@ public class DashboardService {
         int dailyGoal = user.getDailyWordGoal();
         int completedToday = studyLogRepository.countTodayCompleted(user.getUserId());
         int percentage = (int) ((completedToday / (double) dailyGoal) * 100);
+        int streak = getStreak();
 
         return DashboardResponse.builder()
                 .nickname(user.getNickname())
                 .dailyGoal(dailyGoal)
                 .todayProgress(completedToday)
                 .percentage(percentage)
+                .streak(streak)
                 .build();
     }
+
 
     /** 1) 오늘 목표 API */
     public Map<String, Object> getDailyGoal() {
@@ -96,4 +99,26 @@ public class DashboardService {
 
         return result;
     }
+    
+    public int getStreak() {
+        User user = getLoginUser();
+        Long userId = user.getUserId();
+
+        int streak = 0;
+        LocalDate today = LocalDate.now();
+
+        while (true) {
+            LocalDate target = today.minusDays(streak);
+            int count = studyLogRepository.countByUserAndExactDate(userId, target);
+
+            if (count > 0) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+
+        return streak;
+    }
+
 }
