@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 public class CompletedWord {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "completed_seq")
-    @SequenceGenerator(name = "completed_seq", sequenceName = "SEQ_COMPLETED_WORD_ID", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "COMPLETED_WORD_ID")
     private Long completedWordId;
 
@@ -29,7 +28,6 @@ public class CompletedWord {
     @Column(name = "COMPLETED_AT")
     private LocalDateTime completedAt;
 
-    /** 학습 완료 엔티티 생성 */
     public static CompletedWord create(User user, Word word) {
         return CompletedWord.builder()
                 .user(user)

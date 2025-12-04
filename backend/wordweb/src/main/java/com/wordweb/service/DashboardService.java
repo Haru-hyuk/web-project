@@ -134,7 +134,7 @@ public class DashboardService {
         User user = getLoginUser();
 
         return wrongAnswerLogRepository
-                .findByUserOrderByCreatedAtDesc(user, PageRequest.of(0, limit))
+                .findByUserOrderByWrongAtDesc(user, PageRequest.of(0, limit))
                 .stream()
                 .map(log -> {
                     Map<String, Object> map = new HashMap<>();

@@ -14,8 +14,7 @@ import java.sql.Timestamp;
 public class Word {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "word_seq")
-    @SequenceGenerator(name = "word_seq", sequenceName = "SEQ_WORD_ID", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "WORD_ID")
     private Long wordId;
 
@@ -41,7 +40,7 @@ public class Word {
 
     @Column(name = "WORD_LEVEL")
     private Integer level;
-    
+
     @Lob
     @Column(name = "EMBEDDING")
     private String embedding;

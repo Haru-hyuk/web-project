@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 public class WrongAnswerLog {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "wrong_log_seq")
-    @SequenceGenerator(name = "wrong_log_seq", sequenceName = "SEQ_WRONG_WORD_ID", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "WRONG_WORD_ID")
     private Long wrongWordId;
 
@@ -30,10 +29,8 @@ public class WrongAnswerLog {
     private LocalDateTime wrongAt;
 
     @Column(name = "IS_USED_IN_STORY")
-    private Boolean isUsedInStory;  // boolean이 훨씬 직관적
+    private Boolean isUsedInStory;
 
-    /** 최초 생성 (틀린 단어 저장) */
-    /** 최초 생성 (틀린 단어 저장) */
     public static WrongAnswerLog create(User user, Word word) {
         return WrongAnswerLog.builder()
                 .user(user)
@@ -43,8 +40,6 @@ public class WrongAnswerLog {
                 .build();
     }
 
-
-    /** 스토리 생성에 사용되었을 때 Y 처리 */
     public void markUsedInStory() {
         this.isUsedInStory = true;
     }

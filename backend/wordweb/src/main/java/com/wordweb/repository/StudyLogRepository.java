@@ -13,55 +13,57 @@ import java.util.Optional;
 
 public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
 
-    /** 유저 + 단어 조합으로 StudyLog 하나 조회 */
+    /** 유저 + 단어 */
     Optional<StudyLog> findByUserAndWord(User user, Word word);
 
-    /** 유저의 모든 학습 기록 */
+    /** 유저 전체 기록 */
     List<StudyLog> findByUser(User user);
 
-    /** 특정 단어의 학습 기록 전체 */
+    /** 단어 전체 기록 */
     List<StudyLog> findByWord(Word word);
 
-    /** 특정 유저의 학습 상태 기반 조회 (예: learned/pending) */
+    /** 상태 기반 */
     List<StudyLog> findByUserAndStatus(User user, String status);
 
-    /** ======================
-     * Dashboard 용 커스텀 쿼리
-     * Hibernate 7에서 TRUNC(TIMESTAMP) 사용 불가 → BETWEEN 방식 사용
-     * ===================== */
 
-    /** 오늘 학습 완료 수 */
-    @Query(value = """
-    	    SELECT COUNT(*) 
-    	    FROM STUDY_LOG 
-    	    WHERE USER_ID = :userId
-    	      AND LAST_STUDY_AT >= TRUNC(SYSDATE)
-    	      AND LAST_STUDY_AT < TRUNC(SYSDATE) + 1
-    	""", nativeQuery = true)
-    	int countTodayCompleted(@Param("userId") Long userId);
+    // =========================================================
+    //                     DASHBOARD 용 쿼리 (MySQL)
+    // =========================================================
 
 
-    /** 특정 날짜 학습 건수 */
-    @Query(value = """
-    	    SELECT COUNT(*) 
-    	    FROM STUDY_LOG 
-    	    WHERE USER_ID = :userId
-    	      AND LAST_STUDY_AT >= TRUNC(:targetDate)
-    	      AND LAST_STUDY_AT < TRUNC(:targetDate) + 1
-    	""", nativeQuery = true)
-    	int countByUserAndDate(
-    	        @Param("userId") Long userId,
-    	        @Param("targetDate") LocalDate targetDate
-    	);
-    
+    /** ⭐ 오늘 학습 완료 수 (MySQL CURRENT_DATE 사용) */
     @Query("""
-    	    SELECT COUNT(s) 
-    	    FROM StudyLog s
-    	    WHERE s.user.userId = :userId
-    	      AND TRUNC(s.lastStudyAt) = TRUNC(:date)
-    	""")
-    	int countByUserAndExactDate(Long userId, LocalDate date);
+        SELECT COUNT(s)
+        FROM StudyLog s
+        WHERE s.user.userId = :userId
+          AND DATE(s.lastStudyAt) = CURRENT_DATE
+    """)
+    int countTodayCompleted(@Param("userId") Long userId);
 
 
+    /** ⭐ 특정 날짜 학습 건수 */
+    @Query("""
+        SELECT COUNT(s)
+        FROM StudyLog s
+        WHERE s.user.userId = :userId
+          AND DATE(s.lastStudyAt) = :targetDate
+    """)
+    int countByUserAndDate(
+            @Param("userId") Long userId,
+            @Param("targetDate") LocalDate targetDate
+    );
+
+
+    /** ⭐ streak 계산용 (정확한 날짜 일치 여부) */
+    @Query("""
+        SELECT COUNT(s)
+        FROM StudyLog s
+        WHERE s.user.userId = :userId
+          AND DATE(s.lastStudyAt) = :date
+    """)
+    int countByUserAndExactDate(
+            @Param("userId") Long userId,
+            @Param("date") LocalDate date
+    );
 
 }

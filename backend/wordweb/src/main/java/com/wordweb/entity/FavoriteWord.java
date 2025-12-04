@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 public class FavoriteWord {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "favorite_seq")
-    @SequenceGenerator(name = "favorite_seq", sequenceName = "SEQ_FAVORITE_WORD_ID", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "FAVORITE_WORD_ID")
     private Long favoriteWordId;
 
@@ -29,7 +28,6 @@ public class FavoriteWord {
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
-    /** 정적 팩토리 메서드로 생성 */
     public static FavoriteWord create(User user, Word word) {
         return FavoriteWord.builder()
                 .user(user)

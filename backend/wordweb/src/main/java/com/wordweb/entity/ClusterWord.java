@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 public class ClusterWord {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cluster_seq")
-    @SequenceGenerator(name = "cluster_seq", sequenceName = "SEQ_CLUSTER_ID", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CLUSTER_ID")
     private Long clusterId;
 
@@ -34,12 +33,11 @@ public class ClusterWord {
     private Double score;
 
     @Column(name = "RELATION_TYPE")
-    private String relationType;   // 예: synonym, antonym, related
+    private String relationType;
 
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
-    /** 클러스터 데이터 생성 */
     public static ClusterWord create(User user, Word center, Word related, double score, String relationType) {
         return ClusterWord.builder()
                 .user(user)

@@ -28,10 +28,8 @@ public interface WrongAnswerLogRepository extends JpaRepository<WrongAnswerLog, 
 
     long countByUser(User user);
 
-    /** 🔥 최신 오답 n개 (createdAt desc) */
-    Page<WrongAnswerLog> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
-    
-    
+    /** 🔥 최신 오답 n개 (wrongAt desc) */
+    Page<WrongAnswerLog> findByUserOrderByWrongAtDesc(User user, Pageable pageable);
 
     /** 🔥 오답 Top 5 (word 기준) */
     @Query("""
@@ -47,6 +45,4 @@ public interface WrongAnswerLogRepository extends JpaRepository<WrongAnswerLog, 
         ORDER BY COUNT(l) DESC
         """)
     List<Map<String,Object>> findTop5GroupByWord(Long userId);
-    
-    
 }

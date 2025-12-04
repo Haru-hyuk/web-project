@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 public class WrongAnswerStory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "story_seq")
-    @SequenceGenerator(name = "story_seq", sequenceName = "SEQ_STORY_ID", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "STORY_ID")
     private Long storyId;
 
@@ -37,7 +36,6 @@ public class WrongAnswerStory {
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
-    /** 스토리 생성 팩토리 */
     public static WrongAnswerStory create(User user, String title, String storyEn, String storyKo) {
         return WrongAnswerStory.builder()
                 .user(user)
@@ -46,10 +44,5 @@ public class WrongAnswerStory {
                 .storyKo(storyKo)
                 .createdAt(LocalDateTime.now())
                 .build();
-    }
-
-    /** 제목을 나중에 수정해야 한다면(선택) */
-    public void updateTitle(String newTitle) {
-        this.title = newTitle;
     }
 }
