@@ -10,11 +10,13 @@ import com.wordweb.repository.WordRepository;
 import com.wordweb.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true) // 기본: 조회 트랜잭션
 public class FavoriteWordService {
 
     private final FavoriteWordRepository favoriteWordRepository;
@@ -29,6 +31,7 @@ public class FavoriteWordService {
     }
 
     /** 즐겨찾기 추가 */
+    @Transactional // ← 쓰기 작업이므로 readOnly 해제 필요
     public void addFavorite(Long wordId) {
         User user = getLoginUser();
 
@@ -43,6 +46,7 @@ public class FavoriteWordService {
     }
 
     /** 즐겨찾기 삭제 */
+    @Transactional // ← 삭제도 write 작업
     public void removeFavorite(Long wordId) {
         User user = getLoginUser();
 
@@ -52,13 +56,12 @@ public class FavoriteWordService {
         favoriteWordRepository.deleteByUserAndWord(user, word);
     }
 
-    /** 내 즐겨찾기 목록 조회 → DTO로 변환 */
+    /** 내 즐겨찾기 목록 조회 */
     public List<FavoriteWordResponse> getMyFavorites() {
         User user = getLoginUser();
 
-        return favoriteWordRepository.findByUser(user)
-                .stream()
-                .map(FavoriteWordResponse::from) // ← DTO 변환
+        return favoriteWordRepository.findByUser(user).stream()
+                .map(FavoriteWordResponse::from)
                 .toList();
     }
 }
