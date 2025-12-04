@@ -13,10 +13,10 @@ import java.io.Serializable;
 public class StoryWordListId implements Serializable {
 
     private Long storyId;
-    private Long wrongWordId;
+    private Long wordId;   // PK는 storyId + wordId
 
-    public StoryWordListId(Long storyId, Long wrongWordId) {
+    public StoryWordListId(Long storyId, Long wordId) {
         this.storyId = storyId;
-        this.wrongWordId = wrongWordId;
+        this.wordId = wordId;
     }
 }

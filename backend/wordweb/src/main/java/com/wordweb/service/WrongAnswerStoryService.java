@@ -25,7 +25,7 @@ public class WrongAnswerStoryService {
                 .orElseThrow(() -> new RuntimeException("로그인 유저를 찾을 수 없습니다."));
     }
 
-    /** AI 스토리 생성 후 저장 (최종 엔티티 생성) */
+    /** AI 스토리 생성 후 저장 */
     @Transactional
     public WrongAnswerStory createStory(String title, String storyEn, String storyKo, List<Long> wrongLogIds) {
 
@@ -35,15 +35,26 @@ public class WrongAnswerStoryService {
         WrongAnswerStory story = WrongAnswerStory.create(user, title, storyEn, storyKo);
         wrongAnswerStoryRepository.save(story);
 
-        // 2) StoryWordList 연관 엔티티 저장
-        for (Long logId : wrongLogIds) {
-            StoryWordList relation = StoryWordList.create(story.getStoryId(), logId);
+        // 2) StoryWordList 저장 (NEW 구조 대응)
+        for (Long wrongLogId : wrongLogIds) {
+
+            WrongAnswerLog wrongLog = wrongAnswerLogRepository.findById(wrongLogId)
+                    .orElseThrow(() -> new RuntimeException("오답 로그가 존재하지 않습니다. ID=" + wrongLogId));
+
+            Long wordId = wrongLog.getWord().getWordId();   // 실제 단어의 PK 가져오기
+
+            StoryWordList relation = StoryWordList.create(
+                    story.getStoryId(),
+                    wordId,
+                    wrongLogId
+            );
+
             storyWordListRepository.save(relation);
         }
 
-        // 3) WrongAnswerLog = isUsedInStory = true 업데이트
+        // 3) WrongAnswerLog 사용 표시 업데이트
         wrongAnswerLogRepository.findAllById(wrongLogIds)
-                .forEach(log -> log.markUsedInStory());
+                .forEach(WrongAnswerLog::markUsedInStory);
 
         return story;
     }

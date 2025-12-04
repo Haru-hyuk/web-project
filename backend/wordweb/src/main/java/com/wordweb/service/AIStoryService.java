@@ -75,15 +75,24 @@ public class AIStoryService {
                 )
         );
 
-        // 5) STORY_WORD_LIST 저장
+     // 5) STORY_WORD_LIST 저장
         for (Long wrongWordId : wrongWordIds) {
-            if (wrongAnswerLogRepository.existsById(wrongWordId)) {
-                StoryWordList mapping = StoryWordList.create(
-                        story.getStoryId(),
-                        wrongWordId
-                );
-                storyWordListRepository.save(mapping);
-            }
+
+            var wrongLog = wrongAnswerLogRepository.findById(wrongWordId)
+                    .orElse(null);
+            if (wrongLog == null) continue;
+
+            Long wordId = wrongLog.getWord().getWordId();
+
+            StoryWordList mapping = StoryWordList.create(
+                    story.getStoryId(),
+                    wordId,
+                    wrongWordId  // optional
+            );
+
+            storyWordListRepository.save(mapping);
+        
+
         }
 
         return result;

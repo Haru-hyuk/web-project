@@ -16,13 +16,21 @@ public class StoryWordList {
     private Long storyId;
 
     @Id
+    @Column(name = "WORD_ID")
+    private Long wordId;
+
     @Column(name = "WRONG_WORD_ID")
-    private Long wrongWordId;
+    private Long wrongWordId;  // NULL 가능 (optional link)
 
     /** Story 연결 */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "STORY_ID", insertable = false, updatable = false)
     private WrongAnswerStory story;
+
+    /** Word 연결 */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "WORD_ID", insertable = false, updatable = false)
+    private Word word;
 
     /** WrongAnswerLog 연결 */
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,9 +38,10 @@ public class StoryWordList {
     private WrongAnswerLog wrongAnswerLog;
 
     /** 생성 메서드 */
-    public static StoryWordList create(Long storyId, Long wrongWordId) {
+    public static StoryWordList create(Long storyId, Long wordId, Long wrongWordId) {
         StoryWordList list = new StoryWordList();
         list.storyId = storyId;
+        list.wordId = wordId;
         list.wrongWordId = wrongWordId;
         return list;
     }
