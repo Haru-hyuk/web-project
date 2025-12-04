@@ -6,6 +6,9 @@ import com.wordweb.repository.*;
 import com.wordweb.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
 
 import java.time.LocalDate;
 import java.util.*;
@@ -120,5 +123,31 @@ public class DashboardService {
 
         return streak;
     }
+
+    public List<Map<String, Object>> getWrongTop5() {
+        User user = getLoginUser();
+
+        return wrongAnswerLogRepository.findTop5GroupByWord(user.getUserId());
+    }
+    
+    public List<Map<String, Object>> getWrongReview(int limit) {
+        User user = getLoginUser();
+
+        return wrongAnswerLogRepository
+                .findByUserOrderByCreatedAtDesc(user, PageRequest.of(0, limit))
+                .stream()
+                .map(log -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("wordId", log.getWord().getWordId());
+                    map.put("word", log.getWord().getWord());
+                    map.put("meaning", log.getWord().getMeaning());
+                    return map;
+                })
+                .toList();
+    }
+
+
+
+
 
 }
