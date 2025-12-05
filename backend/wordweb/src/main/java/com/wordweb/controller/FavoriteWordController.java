@@ -18,17 +18,17 @@ public class FavoriteWordController {
 
     /** 즐겨찾기 추가 */
     @PostMapping("/{wordId}")
-    public ResponseEntity<Void> addFavorite(@PathVariable Long wordId) {
+    public ResponseEntity<Void> addFavorite(@PathVariable("wordId") Long wordId) {
         favoriteWordService.addFavorite(wordId);
-        return ResponseEntity.created(URI.create("/api/favorites/" + wordId)).build(); // 201
+        return ResponseEntity.created(URI.create("/api/favorites/" + wordId)).build();
     }
 
-    /** 즐겨찾기 삭제 */
     @DeleteMapping("/{wordId}")
-    public ResponseEntity<Void> removeFavorite(@PathVariable Long wordId) {
+    public ResponseEntity<Void> removeFavorite(@PathVariable("wordId") Long wordId) {
         favoriteWordService.removeFavorite(wordId);
-        return ResponseEntity.noContent().build(); // 204
+        return ResponseEntity.noContent().build();
     }
+
 
     /** 즐겨찾기 목록 조회 */
     @GetMapping

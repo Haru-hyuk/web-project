@@ -18,11 +18,12 @@ public class WordController {
     private final WordService wordService;
     private final WordRepository wordRepository; // 추가!!!
 
-    /** 단어 상세 조회 */
+
     @GetMapping("/detail/{wordId}")
-    public ResponseEntity<WordResponse> getWord(@PathVariable Long wordId) {
+    public ResponseEntity<WordResponse> getWord(@PathVariable("wordId") Long wordId) {
         return ResponseEntity.ok(wordService.getWord(wordId));
     }
+
 
     /** 오늘의 단어 */
     @GetMapping("/today")
