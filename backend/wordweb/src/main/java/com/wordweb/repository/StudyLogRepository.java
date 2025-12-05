@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,5 +66,18 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
             @Param("userId") Long userId,
             @Param("date") LocalDate date
     );
+    
+    @Query("""
+    	    SELECT DATE(s.createdAt)
+    	    FROM StudyLog s
+    	    WHERE s.user = :user
+    	      AND s.createdAt BETWEEN :start AND :end
+    	""")
+    	List<LocalDate> findStudyDatesBetween(
+    	        @Param("user") User user,
+    	        @Param("start") LocalDateTime start,
+    	        @Param("end") LocalDateTime end
+    	);
+
 
 }

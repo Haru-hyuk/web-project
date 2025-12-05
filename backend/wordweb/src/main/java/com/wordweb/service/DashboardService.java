@@ -145,6 +145,33 @@ public class DashboardService {
                 })
                 .toList();
     }
+    
+    /** 4) 이번 주 요일별 학습 여부 API */
+    public List<Boolean> getWeeklyStudyStatus() {
+        User user = getLoginUser();
+
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(java.time.DayOfWeek.MONDAY);
+        LocalDate endOfWeek = today.with(java.time.DayOfWeek.SUNDAY);
+
+        // 이번 주 학습한 날짜 목록
+        List<LocalDate> studyDates = studyLogRepository.findStudyDatesBetween(
+                user,
+                startOfWeek.atStartOfDay(),
+                endOfWeek.atTime(23, 59, 59)
+        );
+
+        // 월~일 총 7일 boolean 배열 생성
+        List<Boolean> result = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = startOfWeek.plusDays(i);
+            result.add(studyDates.contains(date));  // true / false
+        }
+
+        return result;
+    }
+
 
 
 

@@ -2,6 +2,10 @@ package com.wordweb.controller;
 
 import com.wordweb.service.DashboardService;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +52,16 @@ public class DashboardController {
             @RequestParam(defaultValue = "10") int limit) {
         return ResponseEntity.ok(dashboardService.getWrongReview(limit));
     }
+    
+    @GetMapping("/week-study")
+    public ResponseEntity<?> getWeeklyStudyStatus() {
+        List<Boolean> weekly = dashboardService.getWeeklyStudyStatus();
+        return ResponseEntity.ok(Map.of(
+                "week", List.of("M","T","W","T","F","S","S"),
+                "checked", weekly
+        ));
+    }
+
 
 }
 	
