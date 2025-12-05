@@ -65,11 +65,11 @@ public class WrongAnswerLogService {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
 
-        // 오답 기록 단일 조회
         WrongAnswerLog log = wrongAnswerLogRepository.findByUserAndWord(user, word)
-                .orElseThrow(() -> new RuntimeException("해당 오답 기록을 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("오답 기록이 존재하지 않습니다."));
 
         wrongAnswerLogRepository.delete(log);
     }
+
 
 }

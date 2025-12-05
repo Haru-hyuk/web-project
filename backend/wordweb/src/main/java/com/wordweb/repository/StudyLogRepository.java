@@ -68,16 +68,17 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
     );
     
     @Query("""
-    	    SELECT DATE(s.createdAt)
+    	    SELECT FUNCTION('DATE', s.lastStudyAt)
     	    FROM StudyLog s
     	    WHERE s.user = :user
-    	      AND s.createdAt BETWEEN :start AND :end
+    	      AND s.lastStudyAt BETWEEN :start AND :end
     	""")
     	List<LocalDate> findStudyDatesBetween(
     	        @Param("user") User user,
     	        @Param("start") LocalDateTime start,
     	        @Param("end") LocalDateTime end
     	);
+
 
 
 }
