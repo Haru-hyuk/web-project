@@ -25,9 +25,11 @@ public class StudyLog {
     @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
+    /** 학습 상태: learned / pending */
     @Column(name = "STATUS", nullable = false)
     private String status;
 
+    /** 마지막 문제 정답 여부: correct / wrong */
     @Column(name = "LAST_RESULT")
     private String lastResult;
 
@@ -40,6 +42,7 @@ public class StudyLog {
     @Column(name = "TOTAL_WRONG")
     private Integer totalWrong;
 
+    /** 최초 생성 */
     public static StudyLog create(User user, Word word) {
         return StudyLog.builder()
                 .user(user)
@@ -52,6 +55,7 @@ public class StudyLog {
                 .build();
     }
 
+    /** 정답 처리 */
     public void markCorrect() {
         this.lastResult = "correct";
         this.lastStudyAt = LocalDateTime.now();
@@ -59,10 +63,23 @@ public class StudyLog {
         this.status = "learned";
     }
 
+    /** 오답 처리 */
     public void markWrong() {
         this.lastResult = "wrong";
         this.lastStudyAt = LocalDateTime.now();
         this.totalWrong += 1;
         this.status = "pending";
+    }
+
+    /** 수동 완료: pending → learned */
+    public void updateStatusToLearned() {
+        this.status = "learned";
+        this.lastStudyAt = LocalDateTime.now();
+    }
+
+    /** 수동 취소: learned → pending */
+    public void updateStatusToPending() {
+        this.status = "pending";
+        this.lastStudyAt = LocalDateTime.now();
     }
 }

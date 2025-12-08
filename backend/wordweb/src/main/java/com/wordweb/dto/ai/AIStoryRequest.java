@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 public class AIStoryRequest {
 
-    // wrongAnswerLog의 ID 목록
-    private Long[] wrongWordIds;
+    // WRONG_ANSWER_LOG 테이블의 PK(WRONG_WORD_ID) 목록
+    private Long[] wrongAnswerLogIds;
 
     private String difficulty;
     private String style;

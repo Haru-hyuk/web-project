@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "WRONG_ANSWER_LOG")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -31,6 +32,8 @@ public class WrongAnswerLog {
     @Column(name = "IS_USED_IN_STORY")
     private Boolean isUsedInStory;
 
+
+    /** 최초 생성 (틀린 단어 저장) */
     public static WrongAnswerLog create(User user, Word word) {
         return WrongAnswerLog.builder()
                 .user(user)
@@ -40,6 +43,8 @@ public class WrongAnswerLog {
                 .build();
     }
 
+
+    /** 스토리 생성에 사용되었을 때 Y 처리 */
     public void markUsedInStory() {
         this.isUsedInStory = true;
     }

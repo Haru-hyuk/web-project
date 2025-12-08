@@ -28,6 +28,7 @@ public class FavoriteWord {
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
+    /** 정적 팩토리 메서드로 생성 */
     public static FavoriteWord create(User user, Word word) {
         return FavoriteWord.builder()
                 .user(user)

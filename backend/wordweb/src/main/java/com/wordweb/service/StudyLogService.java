@@ -8,7 +8,7 @@ import com.wordweb.repository.StudyLogRepository;
 import com.wordweb.repository.UserRepository;
 import com.wordweb.repository.WordRepository;
 import com.wordweb.security.SecurityUtil;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -65,6 +65,38 @@ public class StudyLogService {
         return studyLogRepository.findByUserAndWord(user, word)
                 .map(StudyLog::getStatus)
                 .orElse("pending");
+    }
+
+    /** 수동 완료: pending → learned (정답/오답 횟수 변경 안함) */
+    @Transactional
+    public void updateStatusToLearned(Long wordId) {
+        User user = getLoginUser();
+        Word word = wordRepository.findById(wordId)
+                .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
+
+        StudyLog log = studyLogRepository.findByUserAndWord(user, word)
+                .orElseGet(() -> StudyLog.create(user, word));
+
+        if ("pending".equals(log.getStatus())) {
+            log.updateStatusToLearned();
+            studyLogRepository.save(log);
+        }
+    }
+
+    /** 수동 취소: learned → pending (정답/오답 횟수 변경 안함) */
+    @Transactional
+    public void updateStatusToPending(Long wordId) {
+        User user = getLoginUser();
+        Word word = wordRepository.findById(wordId)
+                .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
+
+        StudyLog log = studyLogRepository.findByUserAndWord(user, word)
+                .orElse(null);
+
+        if (log != null && "learned".equals(log.getStatus())) {
+            log.updateStatusToPending();
+            studyLogRepository.save(log);
+        }
     }
 
 }

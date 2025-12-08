@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class StoryWordListId implements Serializable {
 
     private Long storyId;
-    private Long wordId;   // PK는 storyId + wordId
+    private Long wordId;  // WORD_ID 사용 (히스토리 보존용)
 
     public StoryWordListId(Long storyId, Long wordId) {
         this.storyId = storyId;

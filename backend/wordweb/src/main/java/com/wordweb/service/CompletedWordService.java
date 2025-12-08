@@ -19,6 +19,8 @@ public class CompletedWordService {
     private final CompletedWordRepository completedWordRepository;
     private final UserRepository userRepository;
     private final WordRepository wordRepository;
+    private final WrongAnswerLogService wrongAnswerLogService;
+    private final StudyLogService studyLogService;
 
     /** 로그인 유저 가져오기 */
     private User getLoginUser() {
@@ -27,22 +29,24 @@ public class CompletedWordService {
                 .orElseThrow(() -> new RuntimeException("로그인 유저를 찾을 수 없습니다."));
     }
 
-    /** 단어 학습 완료 처리 */
+    /** 단어장 수동 완료: WRONG_ANSWER_LOG 삭제 + COMPLETED_WORD 추가 + STUDY_LOG 상태 변경 */
+    @org.springframework.transaction.annotation.Transactional
     public void markCompleted(Long wordId) {
         User user = getLoginUser();
-
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
 
-        // 이미 완료된 단어라면 아무것도 하지 않음 (idempotent)
         if (completedWordRepository.existsByUserAndWord(user, word)) {
             return;
         }
 
-        completedWordRepository.save(CompletedWord.create(user, word));
+        wrongAnswerLogService.removeWrongAnswer(wordId);
+        CompletedWord completed = CompletedWord.create(user, word);
+        completedWordRepository.save(completed);
+        studyLogService.updateStatusToLearned(wordId);
     }
 
-    /** 학습 완료 단어 전체 조회 */
+    /** 완료한 단어 목록 조회 */
     public List<CompletedWord> getMyCompletedWords() {
         User user = getLoginUser();
         return completedWordRepository.findByUser(user);
@@ -54,5 +58,17 @@ public class CompletedWordService {
         Word word = wordRepository.findById(wordId)
                 .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
         return completedWordRepository.existsByUserAndWord(user, word);
+    }
+
+    /** 단어장 수동 취소: COMPLETED_WORD 삭제 + STUDY_LOG 상태 변경 (WRONG_ANSWER_LOG 추가 안함) */
+    @org.springframework.transaction.annotation.Transactional
+    public void unmarkCompleted(Long wordId) {
+        User user = getLoginUser();
+        Word word = wordRepository.findById(wordId)
+                .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
+
+        completedWordRepository.findByUserAndWord(user, word)
+                .ifPresent(completedWordRepository::delete);
+        studyLogService.updateStatusToPending(wordId);
     }
 }

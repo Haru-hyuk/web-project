@@ -28,6 +28,7 @@ public class CompletedWord {
     @Column(name = "COMPLETED_AT")
     private LocalDateTime completedAt;
 
+    /** 학습 완료 엔티티 생성 */
     public static CompletedWord create(User user, Word word) {
         return CompletedWord.builder()
                 .user(user)

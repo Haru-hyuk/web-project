@@ -12,6 +12,9 @@ public interface FavoriteWordRepository extends JpaRepository<FavoriteWord, Long
     /** 유저 + 단어 조합으로 즐겨찾기 여부 확인 */
     boolean existsByUserAndWord(User user, Word word);
 
+    /** 유저 + 단어 조합으로 즐겨찾기 엔티티 찾기 */
+    java.util.Optional<FavoriteWord> findByUserAndWord(User user, Word word);
+
     /** 유저 즐겨찾기 전체 조회 */
     List<FavoriteWord> findByUser(User user);
 

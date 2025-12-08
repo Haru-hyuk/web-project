@@ -18,12 +18,11 @@ public class WordController {
     private final WordService wordService;
     private final WordRepository wordRepository; // 추가!!!
 
-
+    /** 단어 상세 조회 */
     @GetMapping("/detail/{wordId}")
-    public ResponseEntity<WordResponse> getWord(@PathVariable("wordId") Long wordId) {
+    public ResponseEntity<WordResponse> getWord(@PathVariable Long wordId) {
         return ResponseEntity.ok(wordService.getWord(wordId));
     }
-
 
     /** 오늘의 단어 */
     @GetMapping("/today")
@@ -61,9 +60,5 @@ public class WordController {
         );
     }
 
-    /** 테스트: 전체 단어 개수 확인 */
-    @GetMapping("/test-count")
-    public Long testCount() {
-        return wordRepository.count();  // ← 이게 정답
-    }
+
 }

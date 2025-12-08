@@ -14,71 +14,71 @@ import java.util.Optional;
 
 public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
 
-    /** 유저 + 단어 */
+    /** 유저 + 단어 조합으로 StudyLog 하나 조회 */
     Optional<StudyLog> findByUserAndWord(User user, Word word);
 
-    /** 유저 전체 기록 */
+    /** 유저의 모든 학습 기록 */
     List<StudyLog> findByUser(User user);
 
-    /** 단어 전체 기록 */
+    /** 특정 단어의 학습 기록 전체 */
     List<StudyLog> findByWord(Word word);
 
-    /** 상태 기반 */
+    /** 특정 유저의 학습 상태 기반 조회 (예: learned/pending) */
     List<StudyLog> findByUserAndStatus(User user, String status);
 
+    /** ======================
+     * Dashboard 용 커스텀 쿼리
+     * MySQL용: DATE() 함수 사용 (Oracle의 TRUNC 대신)
+     * ===================== */
 
-    // =========================================================
-    //                     DASHBOARD 용 쿼리 (MySQL)
-    // =========================================================
-
-
-    /** ⭐ 오늘 학습 완료 수 (MySQL CURRENT_DATE 사용) */
-    @Query("""
-        SELECT COUNT(s)
-        FROM StudyLog s
-        WHERE s.user.userId = :userId
-          AND DATE(s.lastStudyAt) = CURRENT_DATE
-    """)
-    int countTodayCompleted(@Param("userId") Long userId);
-
-
-    /** ⭐ 특정 날짜 학습 건수 */
-    @Query("""
-        SELECT COUNT(s)
-        FROM StudyLog s
-        WHERE s.user.userId = :userId
-          AND DATE(s.lastStudyAt) = :targetDate
-    """)
-    int countByUserAndDate(
-            @Param("userId") Long userId,
-            @Param("targetDate") LocalDate targetDate
-    );
+    /** 오늘 학습 완료 수 */
+    @Query(value = """
+    	    SELECT COUNT(*) 
+    	    FROM STUDY_LOG 
+    	    WHERE USER_ID = :userId
+    	      AND DATE(LAST_STUDY_AT) = CURDATE()
+    	""", nativeQuery = true)
+    	int countTodayCompleted(@Param("userId") Long userId);
 
 
-    /** ⭐ streak 계산용 (정확한 날짜 일치 여부) */
-    @Query("""
-        SELECT COUNT(s)
-        FROM StudyLog s
-        WHERE s.user.userId = :userId
-          AND DATE(s.lastStudyAt) = :date
-    """)
-    int countByUserAndExactDate(
-            @Param("userId") Long userId,
-            @Param("date") LocalDate date
-    );
-    
-    @Query("""
-    	    SELECT FUNCTION('DATE', s.lastStudyAt)
-    	    FROM StudyLog s
-    	    WHERE s.user = :user
-    	      AND s.lastStudyAt BETWEEN :start AND :end
-    	""")
-    	List<LocalDate> findStudyDatesBetween(
-    	        @Param("user") User user,
-    	        @Param("start") LocalDateTime start,
-    	        @Param("end") LocalDateTime end
+    /** 특정 날짜 학습 건수 */
+    @Query(value = """
+    	    SELECT COUNT(*)
+    	    FROM STUDY_LOG
+    	    WHERE USER_ID = :userId
+    	      AND DATE(LAST_STUDY_AT) = DATE(:targetDate)
+    	""", nativeQuery = true)
+    	int countByUserAndDate(
+    	        @Param("userId") Long userId,
+    	        @Param("targetDate") LocalDate targetDate
     	);
 
+    /** 이번 주 날짜 리스트 */
+    @Query(value = """
+            SELECT DISTINCT DATE(LAST_STUDY_AT)
+            FROM STUDY_LOG
+            WHERE USER_ID = :userId
+              AND LAST_STUDY_AT BETWEEN :start AND :end
+        """, nativeQuery = true)
+    List<LocalDate> findStudyDatesBetween(
+            @Param("userId") Long userId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
+    );
 
+    /** 오답 횟수 기준 Top 5 단어 (study_log 기반) */
+    @Query("""
+            SELECT s.word.wordId as wordId,
+                   s.word.word as word,
+                   s.word.meaning as meaning,
+                   SUM(s.totalWrong) as wrongCount
+            FROM StudyLog s
+            WHERE s.user.userId = :userId
+              AND s.totalWrong > 0
+            GROUP BY s.word.wordId, s.word.word, s.word.meaning
+            ORDER BY wrongCount DESC
+            LIMIT 5
+        """)
+    List<Object[]> findTop5ByTotalWrong(@Param("userId") Long userId);
 
 }

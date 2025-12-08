@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.wordweb.entity.StoryWordList;
 import com.wordweb.entity.User;
+import com.wordweb.entity.WrongAnswerLog;
 import com.wordweb.entity.WrongAnswerStory;
 import com.wordweb.repository.StoryWordListRepository;
 import com.wordweb.repository.UserRepository;
@@ -41,67 +42,74 @@ public class AIStoryService {
     private final WrongAnswerLogRepository wrongAnswerLogRepository;
     private final UserRepository userRepository;
 
-    /** ================================================
-     *   전체 프로세스: 스토리 생성 → DB 저장까지 처리
-     * ================================================ */
+    /**
+     * 스토리 생성 및 DB 저장
+     * @return StoryResult with storyId
+     */
     @Transactional
     public StoryResult generateAndSaveStory(List<Long> wrongWordIds, String difficulty, String style) {
 
-        // 1) 오답 로그에서 실제 단어 목록 추출
-        List<String> words = wrongAnswerLogRepository.findAllById(wrongWordIds)
-                .stream()
-                .map(log -> log.getWord().getWord()) // Word 엔티티 안의 텍스트
+        // 오답 로그에서 실제 단어 목록 추출 (FETCH JOIN으로 N+1 문제 해결)
+        List<WrongAnswerLog> wrongLogs = wrongAnswerLogRepository.findAllByIdWithWord(wrongWordIds);
+        List<String> words = wrongLogs.stream()
+                .map(log -> log.getWord().getWord())
                 .toList();
 
-        // 2) AI 스토리 생성
+        // AI 스토리 생성
         StoryResult result = generateStory(words.toArray(new String[0]), difficulty, style);
-
         if (!result.isSuccess()) {
             return result;
         }
 
-        // 3) 현재 로그인 사용자
+        // 현재 로그인 사용자
         String email = SecurityUtil.getLoginUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 4) WrongAnswerStory 저장
+        // WrongAnswerStory 저장 (AI 생성 제목 사용)
         WrongAnswerStory story = wrongAnswerStoryRepository.save(
                 WrongAnswerStory.create(
                         user,
-                        "AI 자동 생성 스토리",
+                        result.getTitle(),  // AI가 생성한 제목 사용
                         result.getStoryEn(),
                         result.getStoryKo()
                 )
         );
 
-     // 5) STORY_WORD_LIST 저장
-        for (Long wrongWordId : wrongWordIds) {
+        // STORY_WORD_LIST 저장 (WORD_ID + WRONG_WORD_ID 둘 다 저장)
+        // 이미 조회한 wrongLogs를 재사용 (추가 DB 조회 없음)
+        for (WrongAnswerLog log : wrongLogs) {
+            // IS_USED_IN_STORY = true 업데이트
+            log.markUsedInStory();
+            wrongAnswerLogRepository.save(log);
 
-            var wrongLog = wrongAnswerLogRepository.findById(wrongWordId)
-                    .orElse(null);
-            if (wrongLog == null) continue;
-
-            Long wordId = wrongLog.getWord().getWordId();
-
+            Long wordId = log.getWord().getWordId();  // WORD_ID 추출 (이미 FETCH JOIN됨)
             StoryWordList mapping = StoryWordList.create(
                     story.getStoryId(),
-                    wordId,
-                    wrongWordId  // optional
+                    wordId,        // WORD_ID (히스토리 보존)
+                    log.getWrongWordId()    // WRONG_WORD_ID (오답 추적)
             );
-
             storyWordListRepository.save(mapping);
-        
-
         }
 
-        return result;
+        // 배치 flush (모든 변경사항을 한 번에 DB에 반영)
+        wrongAnswerLogRepository.flush();
+
+        // storyId를 결과에 포함
+        return StoryResult.builder()
+                .success(result.isSuccess())
+                .title(result.getTitle())  // AI 생성 제목 포함
+                .storyEn(result.getStoryEn())
+                .storyKo(result.getStoryKo())
+                .usedWords(result.getUsedWords())
+                .storyId(story.getStoryId())
+                .build();
     }
 
 
-    /** ==========================================================
-     *   DeepSeek 주고받는 원래 스토리 생성 기능 — 그대로 유지
-     * ========================================================== */
+    /**
+     * DeepSeek API를 통한 스토리 생성
+     */
     public StoryResult generateStory(String[] words, String difficulty, String style) {
 
         String prompt = buildPrompt(Arrays.asList(words), difficulty, style);
@@ -146,10 +154,6 @@ public class AIStoryService {
                 Response response = client.newCall(request).execute();
                 String responseJson = response.body().string();
 
-                System.out.println("\n================ RAW DEEPSEEK RESPONSE ================");
-                System.out.println(responseJson);
-                System.out.println("=======================================================\n");
-
                 JSONObject jsonObj = new JSONObject(responseJson);
 
                 String rawContent = jsonObj
@@ -158,8 +162,9 @@ public class AIStoryService {
                         .getJSONObject("message")
                         .getString("content");
 
-                String storyEn = extract(rawContent, "[EN]", "[KO]").trim();
-                String storyKo = extract(rawContent, "[KO]", null).trim();
+                String title = extract(rawContent, "[TITLE]", "[EN]").trim();
+                String storyEn = extract(rawContent, "[EN]", "[KO]").trim().replace("**", "");
+                String storyKo = extract(rawContent, "[KO]", null).trim().replace("**", "");
 
                 List<String> usedWords = new ArrayList<>();
                 String storyLower = storyEn.toLowerCase();
@@ -176,6 +181,7 @@ public class AIStoryService {
                 if (allUsed) {
                     return StoryResult.builder()
                             .success(true)
+                            .title(title.isEmpty() ? "AI Generated Story" : title)  // 제목이 없으면 기본값
                             .storyEn(storyEn)
                             .storyKo(storyKo)
                             .usedWords(usedWords)
@@ -183,12 +189,13 @@ public class AIStoryService {
                 }
 
             } catch (Exception e) {
-                System.out.println("❌ DeepSeek 에러: " + e.getMessage());
+                // DeepSeek API 호출 실패 시 재시도
             }
         }
 
         return StoryResult.builder()
                 .success(false)
+                .title("AI 스토리 생성 실패")
                 .storyEn("AI 스토리 생성 실패")
                 .storyKo("AI 스토리 생성 실패")
                 .usedWords(List.of())
@@ -206,8 +213,9 @@ public class AIStoryService {
                 Style: %s
 
                 Output format:
-                [EN] English version
-                [KO] Korean translation
+                [TITLE] Story title (in English, creative and engaging)
+                [EN] English version of the story
+                [KO] Korean translation of the story
                 """.formatted(String.join(", ", words), difficulty, style);
     }
 
@@ -229,8 +237,10 @@ public class AIStoryService {
     @Builder
     public static class StoryResult {
         private boolean success;
+        private String title;  // AI 생성 제목
         private String storyEn;
         private String storyKo;
         private List<String> usedWords;
+        private Long storyId;  // 생성된 스토리 ID
     }
 }

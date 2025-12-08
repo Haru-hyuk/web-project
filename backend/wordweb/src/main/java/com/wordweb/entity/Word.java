@@ -40,7 +40,7 @@ public class Word {
 
     @Column(name = "WORD_LEVEL")
     private Integer level;
-
+    
     @Lob
     @Column(name = "EMBEDDING")
     private String embedding;

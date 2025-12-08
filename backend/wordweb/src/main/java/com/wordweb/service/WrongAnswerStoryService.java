@@ -25,7 +25,7 @@ public class WrongAnswerStoryService {
                 .orElseThrow(() -> new RuntimeException("로그인 유저를 찾을 수 없습니다."));
     }
 
-    /** AI 스토리 생성 후 저장 */
+    /** AI 스토리 생성 후 저장 (최종 엔티티 생성) */
     @Transactional
     public WrongAnswerStory createStory(String title, String storyEn, String storyKo, List<Long> wrongLogIds) {
 
@@ -35,26 +35,23 @@ public class WrongAnswerStoryService {
         WrongAnswerStory story = WrongAnswerStory.create(user, title, storyEn, storyKo);
         wrongAnswerStoryRepository.save(story);
 
-        // 2) StoryWordList 저장 (NEW 구조 대응)
+        // 2) StoryWordList 연관 엔티티 저장 (WORD_ID + WRONG_WORD_ID 둘 다 저장)
         for (Long wrongLogId : wrongLogIds) {
-
-            WrongAnswerLog wrongLog = wrongAnswerLogRepository.findById(wrongLogId)
-                    .orElseThrow(() -> new RuntimeException("오답 로그가 존재하지 않습니다. ID=" + wrongLogId));
-
-            Long wordId = wrongLog.getWord().getWordId();   // 실제 단어의 PK 가져오기
-
-            StoryWordList relation = StoryWordList.create(
-                    story.getStoryId(),
-                    wordId,
-                    wrongLogId
-            );
-
-            storyWordListRepository.save(relation);
+            wrongAnswerLogRepository.findById(wrongLogId)
+                    .ifPresent(log -> {
+                        Long wordId = log.getWord().getWordId();  // WORD_ID 추출
+                        StoryWordList relation = StoryWordList.create(
+                                story.getStoryId(),
+                                wordId,        // WORD_ID (히스토리 보존)
+                                wrongLogId     // WRONG_WORD_ID (오답 추적)
+                        );
+                        storyWordListRepository.save(relation);
+                    });
         }
 
-        // 3) WrongAnswerLog 사용 표시 업데이트
+        // 3) WrongAnswerLog = isUsedInStory = true 업데이트
         wrongAnswerLogRepository.findAllById(wrongLogIds)
-                .forEach(WrongAnswerLog::markUsedInStory);
+                .forEach(log -> log.markUsedInStory());
 
         return story;
     }
@@ -71,8 +68,10 @@ public class WrongAnswerStoryService {
                 .orElseThrow(() -> new RuntimeException("스토리를 찾을 수 없습니다."));
     }
 
-    /** 스토리에 사용된 오답 목록 조회 */
+    /** 스토리에 사용된 오답 목록 조회 (Word 엔티티 함께 로딩) */
+    @Transactional(readOnly = true)
     public List<StoryWordList> getWrongWordsInStory(Long storyId) {
-        return storyWordListRepository.findByStoryId(storyId);
+        // FETCH JOIN을 사용하여 Word 엔티티를 함께 로딩 (LAZY 로딩 문제 해결)
+        return storyWordListRepository.findByStoryIdWithWord(storyId);
     }
 }

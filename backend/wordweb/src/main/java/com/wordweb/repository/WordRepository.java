@@ -4,6 +4,8 @@ import com.wordweb.entity.Word;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,15 +46,20 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     /** 정확한 단어 매칭 */
     Optional<Word> findByWord(String word);
 
-
-    /* ===========================================================
-         ⭐ 퀴즈 오답 보기용 
-         (페이징 없이 전체 pool 가져오고 shuffle → 3개 뽑기)
-       =========================================================== */
-
     /** 같은 품사 + 같은 레벨 */
     List<Word> findByPartOfSpeechAndLevel(String partOfSpeech, Integer level);
 
     /** 같은 품사 */
     List<Word> findByPartOfSpeech(String partOfSpeech);
+
+    /** 카테고리로 필터링 (List 반환) - 퀴즈/플래시카드용 */
+    List<Word> findByCategory(String category);
+
+    /** 레벨 범위로 필터링 (List 반환) - 퀴즈 최적화용 */
+    @Query("SELECT w FROM Word w WHERE w.level IN :levels")
+    List<Word> findByLevelIn(@Param("levels") List<Integer> levels);
+
+    /** 카테고리 + 레벨 범위로 필터링 (List 반환) - 퀴즈 최적화용 */
+    @Query("SELECT w FROM Word w WHERE w.category = :category AND w.level IN :levels")
+    List<Word> findByCategoryAndLevelIn(@Param("category") String category, @Param("levels") List<Integer> levels);
 }

@@ -25,9 +25,9 @@ public class AIStoryController {
     @PostMapping("/story")
     public ResponseEntity<AIStoryResponse> generateStory(@RequestBody AIStoryRequest request) {
 
-        // wrongWordIds 기반으로 스토리 생성 + 저장
+        // wrongWordIds 기반으로 스토리 생성 + 저장 
     	StoryResult result = aiStoryService.generateAndSaveStory(
-    	        Arrays.asList(request.getWrongWordIds()),  // ← 변환
+    	        Arrays.asList(request.getWrongAnswerLogIds()),  // WRONG_ANSWER_LOG의 PK 목록
     	        request.getDifficulty(),
     	        request.getStyle()
     	);
@@ -38,21 +38,25 @@ public class AIStoryController {
                     new AIStoryResponse(
                             false,
                             "AI 스토리 생성 실패",
+                            "AI 스토리 생성 실패",  // title
                             "",
                             "",
-                            null
+                            null,
+                            null  // storyId는 실패 시 null
                     )
             );
         }
 
         return ResponseEntity.ok(
-                new AIStoryResponse(
-                        true,
-                        "스토리 생성 성공",
-                        result.getStoryEn(),
-                        result.getStoryKo(),
-                        result.getUsedWords()
-                )
+                AIStoryResponse.builder()
+                        .success(true)
+                        .message("스토리 생성 성공")
+                        .title(result.getTitle())  // AI 생성 제목 포함
+                        .storyEn(result.getStoryEn())
+                        .storyKo(result.getStoryKo())
+                        .usedWords(result.getUsedWords())
+                        .storyId(result.getStoryId())
+                        .build()
         );
     }
 }

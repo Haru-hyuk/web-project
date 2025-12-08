@@ -5,7 +5,15 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "CLUSTER_WORD")
+@Table(
+    name = "CLUSTER_WORD",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "UK_CLUSTER_WORD_USER_CENTER_RELATED",
+            columnNames = {"USER_ID", "CENTER_WORD_ID", "RELATED_WORD_ID"}
+        )
+    }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -33,11 +41,12 @@ public class ClusterWord {
     private Double score;
 
     @Column(name = "RELATION_TYPE")
-    private String relationType;
+    private String relationType;   // 예: synonym, antonym, related
 
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
+    /** 클러스터 데이터 생성 */
     public static ClusterWord create(User user, Word center, Word related, double score, String relationType) {
         return ClusterWord.builder()
                 .user(user)
