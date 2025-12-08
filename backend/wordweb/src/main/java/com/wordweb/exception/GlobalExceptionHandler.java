@@ -1,6 +1,7 @@
 package com.wordweb.exception;
 
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import com.wordweb.dto.common.ErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -25,6 +26,8 @@ public class GlobalExceptionHandler {
      * ============================ */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
+        System.err.println("IllegalArgumentException 발생: " + e.getMessage());
+        e.printStackTrace();
         return buildResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
     
@@ -33,12 +36,25 @@ public class GlobalExceptionHandler {
         String msg = e.getBindingResult().getFieldError().getDefaultMessage();
         return buildResponse(HttpStatus.BAD_REQUEST, msg);
     }
+    
+    /** ============================
+     *   JSON 파싱 오류 (잘못된 요청 형식)
+     * ============================ */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        String msg = "요청 데이터 형식이 올바르지 않습니다. JSON 형식을 확인해주세요.";
+        System.err.println("JSON 파싱 오류: " + e.getMessage());
+        e.printStackTrace();
+        return buildResponse(HttpStatus.BAD_REQUEST, msg);
+    }
 
     /** ============================
      *   RuntimeException
      * ============================ */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException e) {
+        System.err.println("RuntimeException 발생: " + e.getMessage());
+        e.printStackTrace();
         return buildResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 

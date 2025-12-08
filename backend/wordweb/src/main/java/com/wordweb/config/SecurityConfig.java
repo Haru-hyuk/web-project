@@ -70,6 +70,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/words/**").permitAll()
+                        .requestMatchers("/api/flashcard/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

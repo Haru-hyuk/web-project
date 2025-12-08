@@ -10,8 +10,14 @@ public class SecurityUtil {
     public static String getLoginUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("현재 로그인한 사용자가 없습니다.");
+        if (authentication == null) {
+            System.err.println("[SecurityUtil] Authentication이 null입니다.");
+            throw new RuntimeException("현재 로그인한 사용자가 없습니다. (Authentication is null)");
+        }
+
+        if (!authentication.isAuthenticated()) {
+            System.err.println("[SecurityUtil] Authentication이 인증되지 않았습니다. Principal: " + authentication.getPrincipal());
+            throw new RuntimeException("현재 로그인한 사용자가 없습니다. (Not authenticated)");
         }
 
         Object principal = authentication.getPrincipal();
@@ -26,7 +32,8 @@ public class SecurityUtil {
             return email;
         }
 
-        throw new RuntimeException("인증 정보를 가져올 수 없습니다.");
+        System.err.println("[SecurityUtil] 알 수 없는 Principal 타입: " + (principal != null ? principal.getClass().getName() : "null"));
+        throw new RuntimeException("인증 정보를 가져올 수 없습니다. Principal type: " + (principal != null ? principal.getClass().getName() : "null"));
     }
 
     // Dashboard 등에서 사용하는 Wrapper 메소드
