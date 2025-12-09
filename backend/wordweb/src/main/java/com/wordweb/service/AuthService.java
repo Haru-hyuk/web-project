@@ -145,6 +145,7 @@ public class AuthService {
         // updatedAt 자동 반영됨 (@PreUpdate)
         // userRepository.save(user); // 필요 없음 (dirty checking)
     }
+
     public boolean checkEmailDuplicate(String email) {
         return userRepository.existsByEmail(email);
     }
@@ -152,5 +153,4 @@ public class AuthService {
     public boolean checkNicknameDuplicate(String nickname) {
         return userRepository.existsByNickname(nickname);
     }
-
 }

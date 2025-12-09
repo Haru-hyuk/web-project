@@ -1,5 +1,4 @@
 package com.wordweb.service;
-import org.springframework.mail.SimpleMailMessage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
