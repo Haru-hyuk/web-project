@@ -20,6 +20,10 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
     /** 유저의 모든 학습 기록 */
     List<StudyLog> findByUser(User user);
 
+    /** 유저의 모든 학습 기록 (Word 엔티티 함께 로딩 - LAZY 로딩 문제 해결) */
+    @Query("SELECT sl FROM StudyLog sl JOIN FETCH sl.word WHERE sl.user = :user")
+    List<StudyLog> findByUserWithWord(@Param("user") User user);
+
     /** 특정 단어의 학습 기록 전체 */
     List<StudyLog> findByWord(Word word);
 

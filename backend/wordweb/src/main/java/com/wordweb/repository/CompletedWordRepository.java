@@ -4,6 +4,8 @@ import com.wordweb.entity.CompletedWord;
 import com.wordweb.entity.User;
 import com.wordweb.entity.Word;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,4 +25,13 @@ public interface CompletedWordRepository extends JpaRepository<CompletedWord, Lo
     Optional<CompletedWord> findByUserAndWord(User user, Word word);
 
     long countByUser(User user);
+
+    /** 오늘 학습 완료 수 (COMPLETED_AT이 오늘인 레코드 수) */
+    @Query(value = """
+        SELECT COUNT(*) 
+        FROM COMPLETED_WORD 
+        WHERE USER_ID = :userId
+          AND DATE(COMPLETED_AT) = CURDATE()
+    """, nativeQuery = true)
+    int countTodayCompleted(@Param("userId") Long userId);
 }

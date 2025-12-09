@@ -1,12 +1,8 @@
 package com.wordweb.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "WRONG_ANSWER_STORY")
@@ -40,16 +36,7 @@ public class WrongAnswerStory {
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
-    /** Jackson 순환참조 방지 */
-    @JsonManagedReference
-    @OneToMany(
-            mappedBy = "story",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<StoryWordList> storyWordLists = new ArrayList<>();
-
-
+    /** 스토리 생성 팩토리 */
     public static WrongAnswerStory create(User user, String title, String storyEn, String storyKo) {
         return WrongAnswerStory.builder()
                 .user(user)
@@ -60,6 +47,7 @@ public class WrongAnswerStory {
                 .build();
     }
 
+    /** 제목을 나중에 수정해야 한다면(선택) */
     public void updateTitle(String newTitle) {
         this.title = newTitle;
     }

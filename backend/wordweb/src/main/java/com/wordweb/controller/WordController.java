@@ -10,6 +10,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/words")
 @RequiredArgsConstructor
@@ -30,12 +32,18 @@ public class WordController {
         return ResponseEntity.ok(wordService.getTodayWord());
     }
 
-    /** 전체 단어 목록 */
+    /** 전체 단어 목록 (페이징) */
     @GetMapping
     public ResponseEntity<Page<WordResponse>> getWordList(
             @PageableDefault(size = 20) Pageable pageable
     ) {
         return ResponseEntity.ok(wordService.getWordList(pageable));
+    }
+
+    /** 전체 단어 목록 (모든 단어 한 번에 조회 - 단어장용) */
+    @GetMapping("/all")
+    public ResponseEntity<List<WordResponse>> getAllWords() {
+        return ResponseEntity.ok(wordService.getAllWords());
     }
 
     /** 검색 (keyword) */

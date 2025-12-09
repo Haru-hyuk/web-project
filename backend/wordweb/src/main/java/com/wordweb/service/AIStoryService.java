@@ -23,12 +23,14 @@ import com.wordweb.repository.WrongAnswerLogRepository;
 import com.wordweb.repository.WrongAnswerStoryRepository;
 import com.wordweb.security.SecurityUtil;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -48,29 +50,20 @@ public class AIStoryService {
     private final WordRepository wordRepository;
     private final UserRepository userRepository;
 
-    // 중복 생성 방지를 위한 동시성 제어
     private final ConcurrentHashMap<String, Boolean> generatingLocks = new ConcurrentHashMap<>();
 
-    /**
-     * 스토리 생성 및 DB 저장
-     * @return StoryResult with storyId
-     */
     @Transactional
-    public StoryResult generateAndSaveStory(List<Long> wrongWordIds, String difficulty, String style) {
-
-        // 현재 로그인 사용자
+    public StoryResult generateAndSaveStory(List<Long> wrongWordIds) {
         String email = SecurityUtil.getLoginUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 중복 생성 방지: 동일한 유저 + wrongWordIds 조합으로 이미 생성 중이면 대기
         String sortedIds = wrongWordIds.stream()
                 .sorted()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
         String lockKey = user.getUserId() + "_" + sortedIds;
 
-        // 이미 생성 중이면 실패 응답 반환
         if (generatingLocks.putIfAbsent(lockKey, Boolean.TRUE) != null) {
             return StoryResult.builder()
                     .success(false)
@@ -82,98 +75,103 @@ public class AIStoryService {
         }
 
         try {
-            // 오답 로그에서 실제 단어 목록 추출 (FETCH JOIN으로 N+1 문제 해결)
-            List<WrongAnswerLog> wrongLogs = wrongAnswerLogRepository.findAllByIdWithWord(wrongWordIds);
+            // 단순화: 한 번에 조회하고 필터링
+            List<WrongAnswerLog> wrongLogs = wrongAnswerLogRepository.findAllByIdWithWord(wrongWordIds)
+                    .stream()
+                    .filter(log -> log != null)
+                    .filter(log -> !Boolean.TRUE.equals(log.getIsUsedInStory()))
+                    .filter(log -> log.getWord() != null)
+                    .filter(log -> log.getWord().getWord() != null)
+                    .filter(log -> !log.getWord().getWord().trim().isEmpty())
+                    .collect(Collectors.toList());
 
-            // wrongLogs가 비어있거나 개수가 부족하면, wordId로 간주하고 조회/생성
-            if (wrongLogs.isEmpty() || wrongLogs.size() < wrongWordIds.size()) {
-                wrongLogs = new ArrayList<>();
-                for (Long id : wrongWordIds) {
-                    // 먼저 wrongWordId로 조회 시도
-                    Optional<WrongAnswerLog> existingLog = wrongAnswerLogRepository.findById(id);
-                    if (existingLog.isPresent()) {
-                        wrongLogs.add(existingLog.get());
-                        continue;
-                    }
-
-                    // 없으면 wordId로 간주하고 wrong_answer_log 찾기/생성
-                    Optional<Word> wordOpt = wordRepository.findById(id);
-                    if (wordOpt.isPresent()) {
-                        Word word = wordOpt.get();
-                        // 해당 유저의 이 단어에 대한 오답 로그 찾기
-                        Optional<WrongAnswerLog> logOpt = wrongAnswerLogRepository.findByUserAndWord(user, word);
-                        if (logOpt.isPresent()) {
-                            wrongLogs.add(logOpt.get());
-                        } else {
-                            // 없으면 새로 생성
-                            WrongAnswerLog newLog = WrongAnswerLog.create(user, word);
-                            wrongLogs.add(wrongAnswerLogRepository.save(newLog));
-                        }
-                    }
-                }
+            if (wrongLogs.isEmpty()) {
+                return StoryResult.builder()
+                        .success(false)
+                        .title("유효한 단어를 찾을 수 없습니다")
+                        .storyEn("선택한 단어 중 유효한 단어를 찾을 수 없습니다.")
+                        .storyKo("선택한 단어 중 유효한 단어를 찾을 수 없습니다.")
+                        .usedWords(List.of())
+                        .build();
             }
 
             List<String> words = wrongLogs.stream()
-                    .map(log -> log.getWord().getWord())
-                    .toList();
+                    .map(log -> log.getWord().getWord().trim())
+                    .filter(word -> !word.isEmpty())
+                    .distinct()
+                    .collect(Collectors.toList());
 
-            // AI 스토리 생성
-            StoryResult result = generateStory(words.toArray(new String[0]), difficulty, style);
+            if (words.isEmpty()) {
+                return StoryResult.builder()
+                        .success(false)
+                        .title("단어 목록이 비어있습니다")
+                        .storyEn("스토리 생성에 사용할 단어가 없습니다.")
+                        .storyKo("스토리 생성에 사용할 단어가 없습니다.")
+                        .usedWords(List.of())
+                        .build();
+            }
+
+            StoryResult result = generateStory(words.toArray(new String[0]));
             if (!result.isSuccess()) {
                 return result;
             }
 
-            // WrongAnswerStory 저장 (AI 생성 제목 사용)
             WrongAnswerStory story = wrongAnswerStoryRepository.save(
                     WrongAnswerStory.create(
                             user,
-                            result.getTitle(),  // AI가 생성한 제목 사용
+                            result.getTitle(),
                             result.getStoryEn(),
                             result.getStoryKo()
                     )
             );
 
-            // STORY_WORD_LIST 저장 (WORD_ID + WRONG_WORD_ID 둘 다 저장)
-            // 이미 조회한 wrongLogs를 재사용 (추가 DB 조회 없음)
+            List<WrongAnswerLog> logsToUpdate = new ArrayList<>();
+            List<StoryWordList> mappingsToSave = new ArrayList<>();
+            
             for (WrongAnswerLog log : wrongLogs) {
-                // IS_USED_IN_STORY = true 업데이트
-                log.markUsedInStory();
-                wrongAnswerLogRepository.save(log);
+                if (log == null || log.getWord() == null || log.getWord().getWordId() == null) {
+                    continue;
+                }
 
-                Long wordId = log.getWord().getWordId();  // WORD_ID 추출 (이미 FETCH JOIN됨)
+                log.markUsedInStory();
+                logsToUpdate.add(log);
+
+                Long wordId = log.getWord().getWordId();
                 StoryWordList mapping = StoryWordList.create(
                         story.getStoryId(),
-                        wordId,        // WORD_ID (히스토리 보존)
-                        log.getWrongWordId()    // WRONG_WORD_ID (오답 추적)
+                        wordId,
+                        log.getWrongWordId()
                 );
-                storyWordListRepository.save(mapping);
+                mappingsToSave.add(mapping);
             }
 
-            // 배치 flush (모든 변경사항을 한 번에 DB에 반영)
-            wrongAnswerLogRepository.flush();
+            if (!logsToUpdate.isEmpty()) {
+                wrongAnswerLogRepository.saveAll(logsToUpdate);
+            }
+            if (!mappingsToSave.isEmpty()) {
+                storyWordListRepository.saveAll(mappingsToSave);
+            }
 
-            // storyId를 결과에 포함
+            wrongAnswerLogRepository.flush();
+            storyWordListRepository.flush();
+
             return StoryResult.builder()
                     .success(result.isSuccess())
-                    .title(result.getTitle())  // AI 생성 제목 포함
+                    .title(result.getTitle())
                     .storyEn(result.getStoryEn())
                     .storyKo(result.getStoryKo())
                     .usedWords(result.getUsedWords())
                     .storyId(story.getStoryId())
                     .build();
         } finally {
-            // 락 해제
             generatingLocks.remove(lockKey);
         }
     }
 
 
-    /**
-     * DeepSeek API를 통한 스토리 생성
-     */
-    public StoryResult generateStory(String[] words, String difficulty, String style) {
+    public StoryResult generateStory(String[] words) {
 
-        String prompt = buildPrompt(Arrays.asList(words), difficulty, style);
+        String prompt = buildPrompt(Arrays.asList(words));
 
         int maxAttempts = 3;
         int attempt = 0;
@@ -183,10 +181,10 @@ public class AIStoryService {
 
             try {
                 OkHttpClient client = new OkHttpClient.Builder()
-                        .connectTimeout(30, TimeUnit.SECONDS)
-                        .writeTimeout(60, TimeUnit.SECONDS)
-                        .readTimeout(90, TimeUnit.SECONDS)
-                        .callTimeout(120, TimeUnit.SECONDS)
+                        .connectTimeout(15, TimeUnit.SECONDS)
+                        .writeTimeout(30, TimeUnit.SECONDS)
+                        .readTimeout(45, TimeUnit.SECONDS)
+                        .callTimeout(60, TimeUnit.SECONDS)
                         .build();
 
                 JSONObject userMessage = new JSONObject();
@@ -227,34 +225,15 @@ public class AIStoryService {
                 String storyEn = extract(rawContent, "[EN]", "[KO]").trim().replace("**", "");
                 String storyKo = extract(rawContent, "[KO]", null).trim().replace("**", "");
 
-                List<String> usedWords = new ArrayList<>();
-                String storyLower = storyEn.toLowerCase()
-                        .replaceAll("[^a-z\\s]", " "); // 구두점 제거
-
-                boolean allUsed = true;
-                for (String w : words) {
-                    String wordLower = w.toLowerCase();
-                    // 단어 경계를 고려한 검색 (단어의 변형도 고려)
-                    String pattern = "\\b" + wordLower;
-                    if (storyLower.matches(".*" + pattern + ".*")) {
-                        usedWords.add(w);
-                    } else {
-                        allUsed = false;
-                    }
-                }
-
-                if (allUsed) {
-                    return StoryResult.builder()
-                            .success(true)
-                            .title(title.isEmpty() ? "AI Generated Story" : title)  // 제목이 없으면 기본값
-                            .storyEn(storyEn)
-                            .storyKo(storyKo)
-                            .usedWords(usedWords)
-                            .build();
-                }
+                return StoryResult.builder()
+                        .success(true)
+                        .title(title.isEmpty() ? "AI Generated Story" : title)
+                        .storyEn(storyEn)
+                        .storyKo(storyKo)
+                        .usedWords(Arrays.asList(words))
+                        .build();
 
             } catch (Exception e) {
-                // DeepSeek API 호출 실패 시 재시도
             }
         }
 
@@ -268,20 +247,14 @@ public class AIStoryService {
     }
 
 
-    /** ================================================ */
-    private String buildPrompt(List<String> words, String difficulty, String style) {
+    private String buildPrompt(List<String> words) {
         return """
-                Create a short bilingual story using ALL of the following words:
-                %s
-
-                Difficulty: %s
-                Style: %s
-
-                Output format:
-                [TITLE] Story title (in English, creative and engaging)
-                [EN] English version of the story
-                [KO] Korean translation of the story
-                """.formatted(String.join(", ", words), difficulty, style);
+                Create a bilingual story using ALL words: %s
+                Format:
+                [TITLE]Title
+                [EN]English story
+                [KO]Korean translation
+                """.formatted(String.join(", ", words));
     }
 
     private String extract(String text, String start, String end) {
@@ -295,17 +268,16 @@ public class AIStoryService {
         return text.substring(s, e).trim();
     }
 
-    /** 결과 DTO */
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
     public static class StoryResult {
         private boolean success;
-        private String title;  // AI 생성 제목
+        private String title;
         private String storyEn;
         private String storyKo;
         private List<String> usedWords;
-        private Long storyId;  // 생성된 스토리 ID
+        private Long storyId;
     }
 }

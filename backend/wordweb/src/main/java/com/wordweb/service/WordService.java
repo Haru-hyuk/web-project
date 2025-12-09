@@ -1,6 +1,8 @@
 package com.wordweb.service;
 
 import com.wordweb.dto.word.WordResponse;
+import com.wordweb.entity.FavoriteWord;
+import com.wordweb.entity.StudyLog;
 import com.wordweb.entity.User;
 import com.wordweb.entity.Word;
 import com.wordweb.repository.FavoriteWordRepository;
@@ -13,7 +15,10 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -85,6 +90,46 @@ public class WordService {
 
         return wordRepository.findAll(pageable)
                 .map(word -> toResponse(user, word));
+    }
+
+    /** 전체 단어 리스트 (모든 단어 한 번에 조회 - 단어장용, N+1 최적화) */
+    public List<WordResponse> getAllWords() {
+        User user = getLoginUser();
+
+        // 모든 단어 한 번에 조회
+        List<Word> allWords = wordRepository.findAll();
+
+        if (user == null) {
+            // 로그인하지 않은 경우 즐겨찾기/학습 상태 없이 반환
+            return allWords.stream()
+                    .map(word -> WordResponse.from(word, false, "NONE"))
+                    .toList();
+        }
+
+        // 사용자의 모든 즐겨찾기 단어 ID를 한 번에 조회 (N+1 방지, LAZY 로딩 문제 해결)
+        List<FavoriteWord> favoriteWords = favoriteWordRepository.findByUserWithWord(user);
+        Set<Long> favoriteWordIds = favoriteWords.stream()
+                .map(fw -> fw.getWord().getWordId())
+                .collect(Collectors.toSet());
+
+        // 사용자의 모든 학습 로그를 한 번에 조회 (N+1 방지, LAZY 로딩 문제 해결)
+        List<StudyLog> studyLogs = studyLogRepository.findByUserWithWord(user);
+        Map<Long, String> wordStatusMap = studyLogs.stream()
+                .collect(Collectors.toMap(
+                        log -> log.getWord().getWordId(),
+                        StudyLog::getStatus,
+                        (existing, replacement) -> existing // 중복 시 기존 값 유지
+                ));
+
+        // 메모리에서 매칭하여 WordResponse 생성
+        return allWords.stream()
+                .map(word -> {
+                    Long wordId = word.getWordId();
+                    boolean isFav = favoriteWordIds.contains(wordId);
+                    String status = wordStatusMap.getOrDefault(wordId, "NONE");
+                    return WordResponse.from(word, isFav, status);
+                })
+                .toList();
     }
 
     /** 검색 (keyword + pageable) */

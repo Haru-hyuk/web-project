@@ -77,8 +77,9 @@ public class FlashcardService {
             basePool = wordRepository.findAll();
         }
 
+        // 빈 결과는 빈 배열 반환 (400 에러 방지)
         if (basePool.isEmpty()) {
-            throw new RuntimeException("조건에 맞는 단어가 없습니다.");
+            return new ArrayList<>();
         }
 
         // 랜덤하게 섞기

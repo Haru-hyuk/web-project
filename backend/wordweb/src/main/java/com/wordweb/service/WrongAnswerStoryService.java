@@ -1,15 +1,8 @@
 package com.wordweb.service;
 
-import com.wordweb.entity.StoryWordList;
-import com.wordweb.entity.User;
-import com.wordweb.entity.WrongAnswerLog;
-import com.wordweb.entity.WrongAnswerStory;
-import com.wordweb.repository.StoryWordListRepository;
-import com.wordweb.repository.UserRepository;
-import com.wordweb.repository.WrongAnswerLogRepository;
-import com.wordweb.repository.WrongAnswerStoryRepository;
+import com.wordweb.entity.*;
+import com.wordweb.repository.*;
 import com.wordweb.security.SecurityUtil;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,38 +18,40 @@ public class WrongAnswerStoryService {
     private final StoryWordListRepository storyWordListRepository;
     private final UserRepository userRepository;
 
-    /** 로그인 유저 조회 */
+    /** 로그인 유저 */
     private User getLoginUser() {
         String email = SecurityUtil.getCurrentUserEmail();
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("로그인 유저를 찾을 수 없습니다."));
     }
 
-    /** AI 스토리 생성 */
+    /** AI 스토리 생성 후 저장 (최종 엔티티 생성) */
     @Transactional
     public WrongAnswerStory createStory(String title, String storyEn, String storyKo, List<Long> wrongLogIds) {
 
         User user = getLoginUser();
 
+        // 1) WrongAnswerStory 저장
         WrongAnswerStory story = WrongAnswerStory.create(user, title, storyEn, storyKo);
         wrongAnswerStoryRepository.save(story);
 
-        // StoryWordList 저장
+        // 2) StoryWordList 연관 엔티티 저장 (WORD_ID + WRONG_WORD_ID 둘 다 저장)
         for (Long wrongLogId : wrongLogIds) {
-            wrongAnswerLogRepository.findById(wrongLogId).ifPresent(log -> {
-                Long wordId = log.getWord().getWordId();
-                StoryWordList relation = StoryWordList.create(
-                        story.getStoryId(),
-                        wordId,
-                        wrongLogId
-                );
-                storyWordListRepository.save(relation);
-            });
+            wrongAnswerLogRepository.findById(wrongLogId)
+                    .ifPresent(log -> {
+                        Long wordId = log.getWord().getWordId();  // WORD_ID 추출
+                        StoryWordList relation = StoryWordList.create(
+                                story.getStoryId(),
+                                wordId,        // WORD_ID (히스토리 보존)
+                                wrongLogId     // WRONG_WORD_ID (오답 추적)
+                        );
+                        storyWordListRepository.save(relation);
+                    });
         }
 
-        // WrongAnswerLog 업데이트
+        // 3) WrongAnswerLog = isUsedInStory = true 업데이트
         wrongAnswerLogRepository.findAllById(wrongLogIds)
-                .forEach(WrongAnswerLog::markUsedInStory);
+                .forEach(log -> log.markUsedInStory());
 
         return story;
     }
@@ -73,12 +68,13 @@ public class WrongAnswerStoryService {
                 .orElseThrow(() -> new RuntimeException("스토리를 찾을 수 없습니다."));
     }
 
-    /** 스토리에 사용된 단어 조회 */
+    /** 스토리에 사용된 오답 목록 조회 (Word 엔티티 함께 로딩) */
     @Transactional(readOnly = true)
     public List<StoryWordList> getWrongWordsInStory(Long storyId) {
+        // FETCH JOIN을 사용하여 Word 엔티티를 함께 로딩 (LAZY 로딩 문제 해결)
         return storyWordListRepository.findByStoryIdWithWord(storyId);
     }
-
+    
     /** ⭐ 스토리 삭제 */
     @Transactional
     public void deleteStory(Long storyId) {

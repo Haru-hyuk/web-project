@@ -1,6 +1,5 @@
 package com.wordweb.service;
 
-import com.wordweb.dto.dashboard.DashboardResponse;
 import com.wordweb.entity.User;
 import com.wordweb.repository.*;
 import com.wordweb.security.SecurityUtil;
@@ -30,39 +29,21 @@ public class DashboardService {
                 .orElseThrow(() -> new RuntimeException("로그인 유저를 찾을 수 없습니다."));
     }
 
-    /** 대시보드 메인 API */
-    public DashboardResponse getDashboard() {
-        User user = getLoginUser();
-
-        int dailyGoal = user.getDailyWordGoal();
-        int completedToday = studyLogRepository.countTodayCompleted(user.getUserId());
-        int percentage = (int) ((completedToday / (double) dailyGoal) * 100);
-        int streak = getStreak();
-
-        return DashboardResponse.builder()
-                .nickname(user.getNickname())
-                .dailyGoal(dailyGoal)
-                .todayProgress(completedToday)
-                .percentage(percentage)
-                .streak(streak)
-                .build();
-    }
-
     /** 1) 오늘 목표 API */
     public Map<String, Object> getDailyGoal() {
         User user = getLoginUser();
 
         int goal = user.getDailyWordGoal();  
-        int completedToday = studyLogRepository.countTodayCompleted(user.getUserId());
+        int completedToday = completedWordRepository.countTodayCompleted(user.getUserId());
         int progressRate = (int) ((completedToday / (double) goal) * 100);
 
         Map<String, Object> result = new HashMap<>();
         result.put("nickname", user.getNickname());
         result.put("dailyGoal", goal);
         result.put("completedToday", completedToday);
-        result.put("todayProgress", completedToday); // 프론트엔드 호환성
+        result.put("todayProgress", completedToday); 
         result.put("progressRate", progressRate);
-        result.put("percentage", progressRate); // 프론트엔드 호환성
+        result.put("percentage", progressRate); 
         return result;
     }
 

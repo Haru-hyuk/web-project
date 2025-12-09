@@ -286,19 +286,39 @@ public class QuizService {
                                 if (Boolean.TRUE.equals(log.getIsUsedInStory())) {
                                     log.setIsUsedInStory(false);
                                     wrongAnswerLogRepository.save(log);
+                                    // 즉시 DB에 반영하여 다른 트랜잭션에서도 변경사항을 볼 수 있도록 함
+                                    wrongAnswerLogRepository.flush();
                                 }
                                 // 기존 오답 로그의 wrongWordId 추가
                                 wrongWordIds.add(log.getWrongWordId());
                             });
                 } else {
                     // 실전 퀴즈 풀기 모드: 오답이면 WRONG_ANSWER_LOG 저장
-                    try {
-                        Long wrongWordId = wrongAnswerLogService.addWrongAnswerAndReturnId(wordId);
-                        if (wrongWordId != null) {
-                            wrongWordIds.add(wrongWordId);
+                    User user = getLoginUser();
+                    Word word = wordRepository.findById(wordId)
+                            .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
+                    
+                    // 기존 오답 로그가 있는지 확인
+                    Optional<WrongAnswerLog> existingLog = wrongAnswerLogRepository.findByUserAndWord(user, word);
+                    if (existingLog.isPresent()) {
+                        WrongAnswerLog log = existingLog.get();
+                        // is_used_in_story = true인 경우 false로 변경 (오답 플래시카드에서 온 경우 대비)
+                        if (Boolean.TRUE.equals(log.getIsUsedInStory())) {
+                            log.setIsUsedInStory(false);
+                            wrongAnswerLogRepository.save(log);
+                            wrongAnswerLogRepository.flush();
                         }
-                    } catch (Exception e) {
-                        // 오답 기록 저장 실패 시 무시
+                        wrongWordIds.add(log.getWrongWordId());
+                    } else {
+                        // 새로 생성
+                        try {
+                            Long wrongWordId = wrongAnswerLogService.addWrongAnswerAndReturnId(wordId);
+                            if (wrongWordId != null) {
+                                wrongWordIds.add(wrongWordId);
+                            }
+                        } catch (Exception e) {
+                            // 오답 기록 저장 실패 시 무시
+                        }
                     }
                     
                     // COMPLETED_WORD에 있으면 삭제 (완료된 단어를 틀렸으므로 완료 상태 취소)

@@ -16,7 +16,11 @@ public class WrongAnswerStoryController {
 
     private final WrongAnswerStoryService wrongAnswerStoryService;
 
-    /** AI 스토리 저장 */
+    /**
+     * AI 스토리 저장
+     * POST /api/story
+     * body: { "title": "...", "storyEn": "...", "storyKo": "...", "wrongLogIds": [1,2,3] }
+     */
     @PostMapping
     public ResponseEntity<WrongAnswerStory> createStory(@RequestBody CreateStoryRequest request) {
         WrongAnswerStory saved = wrongAnswerStoryService.createStory(
@@ -25,10 +29,11 @@ public class WrongAnswerStoryController {
                 request.getStoryKo(),
                 request.getWrongLogIds()
         );
+
         return ResponseEntity.ok(saved);
     }
 
-    /** DTO */
+    /** DTO (요청용) */
     public static class CreateStoryRequest {
         private String title;
         private String storyEn;
@@ -41,28 +46,39 @@ public class WrongAnswerStoryController {
         public List<Long> getWrongLogIds() { return wrongLogIds; }
     }
 
-    /** 내 스토리 목록 */
+    /**
+     * 내 스토리 목록 조회
+     * GET /api/story
+     */
     @GetMapping
     public ResponseEntity<List<WrongAnswerStory>> getMyStories() {
         return ResponseEntity.ok(wrongAnswerStoryService.getMyStories());
     }
 
-    /** 스토리 상세 조회 */
+    /**
+     * 스토리 상세 조회
+     * GET /api/story/{storyId}
+     */
     @GetMapping("/{storyId}")
     public ResponseEntity<WrongAnswerStory> getStoryDetail(@PathVariable Long storyId) {
         return ResponseEntity.ok(wrongAnswerStoryService.getStoryDetail(storyId));
     }
 
-    /** 스토리에 사용된 단어 조회 */
+    /**
+     * 스토리에 사용된 오답 단어 목록 조회
+     * GET /api/story/{storyId}/words
+     */
     @GetMapping("/{storyId}/words")
     public ResponseEntity<List<StoryWordList>> getWrongWordsInStory(@PathVariable Long storyId) {
         return ResponseEntity.ok(wrongAnswerStoryService.getWrongWordsInStory(storyId));
     }
-
+    
     /** ⭐ 스토리 삭제 */
     @DeleteMapping("/{storyId}")
     public ResponseEntity<Void> deleteStory(@PathVariable Long storyId) {
         wrongAnswerStoryService.deleteStory(storyId);
         return ResponseEntity.noContent().build();
     }
+
+
 }
