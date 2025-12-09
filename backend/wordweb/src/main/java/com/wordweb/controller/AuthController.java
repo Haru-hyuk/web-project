@@ -53,4 +53,30 @@ public class AuthController {
         authService.resetPassword(req);
         return ResponseEntity.ok(Map.of("message", "임시 비밀번호가 이메일로 발송되었습니다."));
     }
+    /** 이메일 중복 확인 */
+    @PostMapping("/check-email")
+    public ResponseEntity<?> checkEmail(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+
+        boolean exists = authService.checkEmailDuplicate(email);
+
+        return ResponseEntity.ok(Map.of(
+                "exists", exists,
+                "message", exists ? "이미 사용 중인 이메일입니다." : "사용 가능한 이메일입니다."
+        ));
+    }
+
+    /** 닉네임 중복 확인 */
+    @PostMapping("/check-nickname")
+    public ResponseEntity<?> checkNickname(@RequestBody Map<String, String> body) {
+        String nickname = body.get("nickname");
+
+        boolean exists = authService.checkNicknameDuplicate(nickname);
+
+        return ResponseEntity.ok(Map.of(
+                "exists", exists,
+                "message", exists ? "이미 사용 중인 닉네임입니다." : "사용 가능한 닉네임입니다."
+        ));
+    }
+
 }

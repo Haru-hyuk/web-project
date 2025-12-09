@@ -2,6 +2,7 @@ package com.wordweb.controller;
 
 import com.wordweb.dto.learn.QuizQuestionResponse;
 import com.wordweb.dto.learn.QuizResultRequest;
+import com.wordweb.dto.learn.QuizResultResponse;
 import com.wordweb.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class QuizController {
 
     /** 퀴즈 결과 저장 */
     @PostMapping("/result")
-    public ResponseEntity<String> saveResult(@RequestBody QuizResultRequest request) {
+    public ResponseEntity<QuizResultResponse> saveResult(@RequestBody QuizResultRequest request) {
         // 요청 데이터 검증
         if (request == null) {
             throw new IllegalArgumentException("요청 데이터가 null입니다.");
@@ -51,7 +52,13 @@ public class QuizController {
             throw new IllegalArgumentException("답안 목록이 비어있습니다.");
         }
         
-        quizService.saveResult(request);
-        return ResponseEntity.ok("퀴즈 결과 저장 완료");
+        List<Long> wrongWordIds = quizService.saveResult(request);
+        
+        QuizResultResponse response = new QuizResultResponse();
+        response.setSuccess(true);
+        response.setMessage("퀴즈 결과 저장 완료");
+        response.setWrongWordIds(wrongWordIds);
+        
+        return ResponseEntity.ok(response);
     }
 }

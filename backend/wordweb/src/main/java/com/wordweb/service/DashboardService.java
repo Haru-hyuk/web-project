@@ -54,12 +54,15 @@ public class DashboardService {
 
         int goal = user.getDailyWordGoal();  
         int completedToday = studyLogRepository.countTodayCompleted(user.getUserId());
+        int progressRate = (int) ((completedToday / (double) goal) * 100);
 
         Map<String, Object> result = new HashMap<>();
         result.put("nickname", user.getNickname());
         result.put("dailyGoal", goal);
         result.put("completedToday", completedToday);
-        result.put("progressRate", (int) ((completedToday / (double) goal) * 100));
+        result.put("todayProgress", completedToday); // 프론트엔드 호환성
+        result.put("progressRate", progressRate);
+        result.put("percentage", progressRate); // 프론트엔드 호환성
         return result;
     }
 
@@ -71,13 +74,16 @@ public class DashboardService {
         long favorites = favoriteWordRepository.countByUser(user);
         long completed = completedWordRepository.countByUser(user);
         long wrongAnswers = wrongAnswerLogRepository.countByUser(user);
+        int streak = getStreak();
 
-        return Map.of(
-                "totalWords", totalWords,
-                "favoriteWords", favorites,
-                "completedWords", completed,
-                "wrongAnswers", wrongAnswers
-        );
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalWords", totalWords);
+        result.put("favoriteWords", favorites);
+        result.put("completedWords", completed);
+        result.put("wrongAnswers", wrongAnswers);
+        result.put("totalLearnedWords", completed); // 프론트엔드 호환성
+        result.put("streakDays", streak);
+        return result;
     }
 
     /** 3) 최근 7일 학습량 API */
@@ -90,12 +96,14 @@ public class DashboardService {
         for (int i = 6; i >= 0; i--) {
             LocalDate target = today.minusDays(i);
 
-            int count = studyLogRepository.countByUserAndDate(user.getUserId(), target);
+            int learnedCount = studyLogRepository.countLearnedByUserAndDate(user.getUserId(), target);
+            int wrongCount = studyLogRepository.sumWrongByUserAndDate(user.getUserId(), target);
 
-            result.add(Map.of(
-                    "date", target.toString(),
-                    "count", count
-            ));
+            Map<String, Object> dayData = new HashMap<>();
+            dayData.put("date", target.toString());
+            dayData.put("learnedCount", learnedCount);
+            dayData.put("wrongCount", wrongCount);
+            result.add(dayData);
         }
 
         return result;

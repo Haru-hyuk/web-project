@@ -230,9 +230,11 @@ public class QuizService {
      * 오답 다시 풀기 (mode=wrong):
      * - 정답: WRONG_ANSWER_LOG 삭제 + COMPLETED_WORD 저장 + STUDY_LOG 정답 횟수 증가
      * - 오답: WRONG_ANSWER_LOG 유지 + IS_USED_IN_STORY가 true면 false로 변경 + STUDY_LOG 오답 횟수 증가
+     * 
+     * @return 틀린 문제의 wrongWordId 목록
      */
     @org.springframework.transaction.annotation.Transactional
-    public void saveResult(QuizResultRequest request) {
+    public List<Long> saveResult(QuizResultRequest request) {
         // 요청 데이터 검증
         if (request == null) {
             throw new IllegalArgumentException("퀴즈 결과 요청이 null입니다.");
@@ -246,6 +248,8 @@ public class QuizService {
         boolean isWrongMode = "wrong".equalsIgnoreCase(mode);
 
         int validAnswerCount = 0;
+        List<Long> wrongWordIds = new ArrayList<>(); // 틀린 문제의 wrongWordId 목록
+
         for (QuizResultRequest.Answer ans : request.getAnswers()) {
             if (ans == null) {
                 continue; // 답안이 null이면 스킵
@@ -283,11 +287,16 @@ public class QuizService {
                                     log.setIsUsedInStory(false);
                                     wrongAnswerLogRepository.save(log);
                                 }
+                                // 기존 오답 로그의 wrongWordId 추가
+                                wrongWordIds.add(log.getWrongWordId());
                             });
                 } else {
                     // 실전 퀴즈 풀기 모드: 오답이면 WRONG_ANSWER_LOG 저장
                     try {
-                        wrongAnswerLogService.addWrongAnswer(wordId);
+                        Long wrongWordId = wrongAnswerLogService.addWrongAnswerAndReturnId(wordId);
+                        if (wrongWordId != null) {
+                            wrongWordIds.add(wrongWordId);
+                        }
                     } catch (Exception e) {
                         // 오답 기록 저장 실패 시 무시
                     }
@@ -307,5 +316,7 @@ public class QuizService {
         if (validAnswerCount == 0) {
             throw new IllegalArgumentException("유효한 답안이 없습니다. 모든 답안의 wordId가 null이거나 유효하지 않습니다.");
         }
+        
+        return wrongWordIds;
     }
 }

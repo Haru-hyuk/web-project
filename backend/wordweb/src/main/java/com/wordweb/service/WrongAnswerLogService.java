@@ -48,6 +48,28 @@ public class WrongAnswerLogService {
         }
     }
 
+    /** 오답 기록 추가 (wrongWordId 반환) */
+    @org.springframework.transaction.annotation.Transactional
+    public Long addWrongAnswerAndReturnId(Long wordId) {
+        User user = getLoginUser();
+
+        Word word = wordRepository.findById(wordId)
+                .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
+
+        // 이미 존재하는 오답 기록이 있는지 확인
+        Optional<WrongAnswerLog> existingLog = wrongAnswerLogRepository.findByUserAndWord(user, word);
+
+        if (existingLog.isPresent()) {
+            // 이미 존재하면 기존 wrongWordId 반환
+            return existingLog.get().getWrongWordId();
+        } else {
+            // 존재하지 않으면 새로 생성
+            WrongAnswerLog log = WrongAnswerLog.create(user, word);
+            WrongAnswerLog saved = wrongAnswerLogRepository.save(log);
+            return saved.getWrongWordId();
+        }
+    }
+
     /** 유저의 오답 기록 조회 (Word 엔티티 함께 로딩 - LAZY 로딩 문제 해결) */
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<WrongAnswerLog> getMyWrongLogs() {

@@ -60,5 +60,10 @@ public class WordController {
         );
     }
 
+    /** 전체 단어 개수 */
+    @GetMapping("/test-count")
+    public ResponseEntity<Long> getWordCount() {
+        return ResponseEntity.ok(wordRepository.count());
+    }
 
 }

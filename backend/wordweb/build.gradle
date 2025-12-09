@@ -33,9 +33,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-
-	implementation 'com.mysql:mysql-connector-j:8.0.33'
-
+    implementation 'com.mysql:mysql-connector-j:8.0.33'
 
     implementation 'org.json:json:20210307'
 
@@ -61,4 +59,7 @@ dependencies {
 
 tasks.withType(Test) {
     enabled = false
+}
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-parameters']
 }

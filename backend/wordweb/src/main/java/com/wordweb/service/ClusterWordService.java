@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -38,6 +39,9 @@ public class ClusterWordService {
     private final WordRepository wordRepository;
     private final EmbeddingService embeddingService;
 
+    // 중복 생성 방지를 위한 동시성 제어 (userId_wordId 조합으로 락)
+    private final ConcurrentHashMap<String, Boolean> creatingLocks = new ConcurrentHashMap<>();
+
     /** 로그인 유저 가져오기 */
     private User getLoginUser() {
         String email = SecurityUtil.getCurrentUserEmail();
@@ -54,94 +58,123 @@ public class ClusterWordService {
         Word centerWord = wordRepository.findById(centerWordId)
                 .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다"));
 
-        // 기존 클러스터가 있으면 먼저 삭제하여 중복 방지
-        List<ClusterWord> existingClusters = clusterWordRepository.findByUserAndCenterWord(user, centerWord);
-        if (!existingClusters.isEmpty()) {
-            clusterWordRepository.deleteAll(existingClusters);
-            clusterWordRepository.flush(); // 즉시 삭제 반영
+        // 중복 생성 방지: 동일한 유저 + 단어 조합으로 이미 생성 중이면 대기
+        String lockKey = user.getUserId() + "_" + centerWordId;
+
+        // 이미 생성 중이면 기존 결과 반환
+        if (creatingLocks.putIfAbsent(lockKey, Boolean.TRUE) != null) {
+            // 이미 다른 요청이 생성 중 - 기존 클러스터 반환
+            List<ClusterWord> existing = clusterWordRepository.findByUserAndCenterWord(user, centerWord);
+            if (!existing.isEmpty()) {
+                return existing;
+            }
+            // 생성 중이지만 아직 완료 안됨 - 빈 리스트 반환
+            return new ArrayList<>();
         }
 
-        List<ClusterWord> clusters = new ArrayList<>();
-        Set<Long> addedWordIds = new HashSet<>();
-        addedWordIds.add(centerWordId); // 중심 단어는 제외
-
-        int synonymCount = 0;
-        int antonymCount = 0;
-
-        // DeepSeek API로 중심 단어의 유의어/반의어 찾기 (우선 처리)
         try {
-            WordRelations relations = getWordRelationsFromDeepSeek(centerWord.getWord());
+            // 기존 클러스터가 있으면 먼저 삭제하여 중복 방지
+            List<ClusterWord> existingClusters = clusterWordRepository.findByUserAndCenterWord(user, centerWord);
+            if (!existingClusters.isEmpty()) {
+                clusterWordRepository.deleteAll(existingClusters);
+                clusterWordRepository.flush(); // 즉시 삭제 반영
+            }
 
-            // 유의어 추가 (반드시 포함되도록 우선 처리, 최대 10개 제한)
-            for (String synonym : relations.getSynonyms()) {
-                if (clusters.size() >= DEFAULT_TOP_N) break; // 최대 10개 제한
+            List<ClusterWord> clusters = new ArrayList<>();
+            Set<Long> addedWordIds = new HashSet<>();
+            addedWordIds.add(centerWordId); // 중심 단어는 제외
 
-                // 대소문자 구분 없이 검색 (소문자로 통일)
-                Word synonymWord = wordRepository.findByWord(synonym.toLowerCase()).orElse(null);
-                if (synonymWord != null && !addedWordIds.contains(synonymWord.getWordId())) {
-                    ClusterWord cluster = ClusterWord.create(user, centerWord, synonymWord, 0.9, "synonym");
-                    clusters.add(cluster);
-                    addedWordIds.add(synonymWord.getWordId());
-                    synonymCount++;
+            int synonymCount = 0;
+            int antonymCount = 0;
+
+            // DeepSeek API로 중심 단어의 유의어/반의어 찾기 (우선 처리)
+            try {
+                WordRelations relations = getWordRelationsFromDeepSeek(centerWord.getWord());
+
+                // 유의어 추가 (반드시 포함되도록 우선 처리, 최대 10개 제한)
+                for (String synonym : relations.getSynonyms()) {
+                    if (clusters.size() >= DEFAULT_TOP_N) break; // 최대 10개 제한
+
+                    // 대소문자 구분 없이 검색 (소문자로 통일)
+                    Word synonymWord = wordRepository.findByWord(synonym.toLowerCase()).orElse(null);
+                    if (synonymWord != null && !addedWordIds.contains(synonymWord.getWordId())) {
+                        ClusterWord cluster = ClusterWord.create(user, centerWord, synonymWord, 0.9, "synonym");
+                        clusters.add(cluster);
+                        addedWordIds.add(synonymWord.getWordId());
+                        synonymCount++;
+                    }
+                }
+
+                // 반의어 추가 (반드시 포함되도록 우선 처리, 최대 10개 제한)
+                for (String antonym : relations.getAntonyms()) {
+                    if (clusters.size() >= DEFAULT_TOP_N) break; // 최대 10개 제한
+
+                    // 대소문자 구분 없이 검색 (소문자로 통일)
+                    Word antonymWord = wordRepository.findByWord(antonym.toLowerCase()).orElse(null);
+                    if (antonymWord != null && !addedWordIds.contains(antonymWord.getWordId())) {
+                        ClusterWord cluster = ClusterWord.create(user, centerWord, antonymWord, 0.7, "antonym");
+                        clusters.add(cluster);
+                        addedWordIds.add(antonymWord.getWordId());
+                        antonymCount++;
+                    }
+                }
+
+            } catch (Exception e) {
+                System.err.println("DeepSeek API 호출 실패 (유의어/반의어 조회): " + e.getMessage());
+            }
+
+            // 유사도 기반 단어 추가 (임베딩이 있는 경우에만)
+            int similarityCount = 0;
+            if (centerWord.getEmbedding() != null) {
+                double[] centerEmbedding = embeddingService.parseEmbedding(centerWord.getEmbedding());
+                List<ClusterWord> similarityClusters = new ArrayList<>();
+
+                // 모든 단어와 유사도 계산
+                wordRepository.findAll().forEach(word -> {
+                    if (addedWordIds.contains(word.getWordId()) || word.getEmbedding() == null) {
+                        return;
+                    }
+
+                    double[] embedding = embeddingService.parseEmbedding(word.getEmbedding());
+                    double similarity = embeddingService.cosineSimilarity(centerEmbedding, embedding);
+
+                    if (similarity >= DEFAULT_THRESHOLD) {
+                        ClusterWord cluster = ClusterWord.create(user, centerWord, word, similarity, "similarity");
+                        similarityClusters.add(cluster);
+                        addedWordIds.add(word.getWordId());
+                    }
+                });
+
+                // 유사도 순으로 정렬
+                similarityClusters.sort(Comparator.comparingDouble(ClusterWord::getScore).reversed());
+
+                // 남은 공간만큼만 추가 (최대 10개 유지)
+                int remainingSlots = DEFAULT_TOP_N - clusters.size();
+                if (remainingSlots > 0) {
+                    int limit = Math.min(remainingSlots, similarityClusters.size());
+                    clusters.addAll(similarityClusters.subList(0, limit));
+                    similarityCount = limit;
                 }
             }
 
-            // 반의어 추가 (반드시 포함되도록 우선 처리, 최대 10개 제한)
-            for (String antonym : relations.getAntonyms()) {
-                if (clusters.size() >= DEFAULT_TOP_N) break; // 최대 10개 제한
-
-                // 대소문자 구분 없이 검색 (소문자로 통일)
-                Word antonymWord = wordRepository.findByWord(antonym.toLowerCase()).orElse(null);
-                if (antonymWord != null && !addedWordIds.contains(antonymWord.getWordId())) {
-                    ClusterWord cluster = ClusterWord.create(user, centerWord, antonymWord, 0.7, "antonym");
-                    clusters.add(cluster);
-                    addedWordIds.add(antonymWord.getWordId());
-                    antonymCount++;
+            // 저장 전 중복 체크 강화 (DB 레벨 중복 방지)
+            List<ClusterWord> clustersToSave = new ArrayList<>();
+            for (ClusterWord cluster : clusters) {
+                // DB에 이미 존재하는지 확인
+                if (!clusterWordRepository.existsByUserAndCenterWordAndRelatedWord(
+                        user, centerWord, cluster.getRelatedWord())) {
+                    clustersToSave.add(cluster);
                 }
             }
 
-        } catch (Exception e) {
-            System.err.println("DeepSeek API 호출 실패 (유의어/반의어 조회): " + e.getMessage());
+            // 중복이 제거된 클러스터만 저장
+            List<ClusterWord> savedClusters = clusterWordRepository.saveAll(clustersToSave);
+
+            return savedClusters;
+        } finally {
+            // 락 해제
+            creatingLocks.remove(lockKey);
         }
-
-        // 유사도 기반 단어 추가 (임베딩이 있는 경우에만)
-        int similarityCount = 0;
-        if (centerWord.getEmbedding() != null) {
-            double[] centerEmbedding = embeddingService.parseEmbedding(centerWord.getEmbedding());
-            List<ClusterWord> similarityClusters = new ArrayList<>();
-
-            // 모든 단어와 유사도 계산
-            wordRepository.findAll().forEach(word -> {
-                if (addedWordIds.contains(word.getWordId()) || word.getEmbedding() == null) {
-                    return;
-                }
-
-                double[] embedding = embeddingService.parseEmbedding(word.getEmbedding());
-                double similarity = embeddingService.cosineSimilarity(centerEmbedding, embedding);
-
-                if (similarity >= DEFAULT_THRESHOLD) {
-                    ClusterWord cluster = ClusterWord.create(user, centerWord, word, similarity, "similarity");
-                    similarityClusters.add(cluster);
-                    addedWordIds.add(word.getWordId());
-                }
-            });
-
-            // 유사도 순으로 정렬
-            similarityClusters.sort(Comparator.comparingDouble(ClusterWord::getScore).reversed());
-
-            // 남은 공간만큼만 추가 (최대 10개 유지)
-            int remainingSlots = DEFAULT_TOP_N - clusters.size();
-            if (remainingSlots > 0) {
-                int limit = Math.min(remainingSlots, similarityClusters.size());
-                clusters.addAll(similarityClusters.subList(0, limit));
-                similarityCount = limit;
-            }
-        }
-
-        // 모든 클러스터 저장
-        List<ClusterWord> savedClusters = clusterWordRepository.saveAll(clusters);
-
-        return savedClusters;
     }
 
 

@@ -53,6 +53,31 @@ public interface StudyLogRepository extends JpaRepository<StudyLog, Long> {
     	        @Param("targetDate") LocalDate targetDate
     	);
 
+    /** 특정 날짜 학습 완료 수 (learned 상태) */
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM STUDY_LOG
+            WHERE USER_ID = :userId
+              AND DATE(LAST_STUDY_AT) = DATE(:targetDate)
+              AND STATUS = 'learned'
+        """, nativeQuery = true)
+    int countLearnedByUserAndDate(
+            @Param("userId") Long userId,
+            @Param("targetDate") LocalDate targetDate
+    );
+
+    /** 특정 날짜 오답 총합 */
+    @Query(value = """
+            SELECT COALESCE(SUM(TOTAL_WRONG), 0)
+            FROM STUDY_LOG
+            WHERE USER_ID = :userId
+              AND DATE(LAST_STUDY_AT) = DATE(:targetDate)
+        """, nativeQuery = true)
+    int sumWrongByUserAndDate(
+            @Param("userId") Long userId,
+            @Param("targetDate") LocalDate targetDate
+    );
+
     /** 이번 주 날짜 리스트 */
     @Query(value = """
             SELECT DISTINCT DATE(LAST_STUDY_AT)
