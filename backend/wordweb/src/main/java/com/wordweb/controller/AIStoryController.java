@@ -7,6 +7,7 @@ import com.wordweb.service.AIStoryService.StoryResult;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,24 +26,28 @@ public class AIStoryController {
     @PostMapping("/story")
     public ResponseEntity<AIStoryResponse> generateStory(@RequestBody AIStoryRequest request) {
 
-        // wrongWordIds 기반으로 스토리 생성 + 저장 
-    	StoryResult result = aiStoryService.generateAndSaveStory(
-    	        Arrays.asList(request.getWrongAnswerLogIds()),  // WRONG_ANSWER_LOG의 PK 목록
-    	        request.getDifficulty(),
-    	        request.getStyle()
-    	);
+        // 🔥 Null-safe: wrongAnswerLogIds가 null이어도 빈 리스트로 처리
+        List<Long> wrongIds = request.getWrongAnswerLogIds() != null
+                ? Arrays.asList(request.getWrongAnswerLogIds())
+                : List.of();
 
+        // AI + 저장
+        StoryResult result = aiStoryService.generateAndSaveStory(
+                wrongIds,
+                request.getDifficulty(),
+                request.getStyle()
+        );
 
         if (!result.isSuccess()) {
             return ResponseEntity.status(500).body(
                     new AIStoryResponse(
                             false,
                             "AI 스토리 생성 실패",
-                            "AI 스토리 생성 실패",  // title
+                            "AI 스토리 생성 실패",
                             "",
                             "",
                             null,
-                            null  // storyId는 실패 시 null
+                            null
                     )
             );
         }
@@ -51,7 +56,7 @@ public class AIStoryController {
                 AIStoryResponse.builder()
                         .success(true)
                         .message("스토리 생성 성공")
-                        .title(result.getTitle())  // AI 생성 제목 포함
+                        .title(result.getTitle())
                         .storyEn(result.getStoryEn())
                         .storyKo(result.getStoryKo())
                         .usedWords(result.getUsedWords())
