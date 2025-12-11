@@ -57,16 +57,6 @@ public class StudyLogService {
         return StudyLogResponse.from(log);
     }
 
-    public String getStatus(Long wordId) {
-        User user = getLoginUser();
-        Word word = wordRepository.findById(wordId)
-                .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
-
-        return studyLogRepository.findByUserAndWord(user, word)
-                .map(StudyLog::getStatus)
-                .orElse("pending");
-    }
-
     /** 수동 완료: pending → learned (정답/오답 횟수 변경 안함) */
     @Transactional
     public void updateStatusToLearned(Long wordId) {

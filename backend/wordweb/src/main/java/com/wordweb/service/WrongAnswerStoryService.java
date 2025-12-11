@@ -1,5 +1,6 @@
 package com.wordweb.service;
 
+import com.wordweb.dto.story.StoryListResponse;
 import com.wordweb.entity.*;
 import com.wordweb.repository.*;
 import com.wordweb.security.SecurityUtil;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,10 +58,30 @@ public class WrongAnswerStoryService {
         return story;
     }
 
-    /** 스토리 목록 */
-    public List<WrongAnswerStory> getMyStories() {
+    /** 스토리 목록 (keywords 포함) */
+    @Transactional(readOnly = true)
+    public List<StoryListResponse> getMyStories() {
         User user = getLoginUser();
-        return wrongAnswerStoryRepository.findByUser(user);
+        List<WrongAnswerStory> stories = wrongAnswerStoryRepository.findByUser(user);
+        
+        return stories.stream()
+                .map(story -> {
+                    List<String> keywords = storyWordListRepository.findByStoryIdWithWord(story.getStoryId())
+                            .stream()
+                            .map(swl -> swl.getWord().getWord())
+                            .filter(word -> word != null && !word.trim().isEmpty())
+                            .collect(Collectors.toList());
+                    
+                    return StoryListResponse.builder()
+                            .storyId(story.getStoryId())
+                            .title(story.getTitle())
+                            .storyEn(story.getStoryEn())
+                            .storyKo(story.getStoryKo())
+                            .createdAt(story.getCreatedAt())
+                            .keywords(keywords)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
     /** 스토리 상세 조회 */
@@ -74,7 +96,6 @@ public class WrongAnswerStoryService {
         // FETCH JOIN을 사용하여 Word 엔티티를 함께 로딩 (LAZY 로딩 문제 해결)
         return storyWordListRepository.findByStoryIdWithWord(storyId);
     }
-    
     /** ⭐ 스토리 삭제 */
     @Transactional
     public void deleteStory(Long storyId) {

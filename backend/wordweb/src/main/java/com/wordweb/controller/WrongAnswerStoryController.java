@@ -1,5 +1,6 @@
 package com.wordweb.controller;
 
+import com.wordweb.dto.story.StoryListResponse;
 import com.wordweb.entity.StoryWordList;
 import com.wordweb.entity.WrongAnswerStory;
 import com.wordweb.service.WrongAnswerStoryService;
@@ -51,7 +52,7 @@ public class WrongAnswerStoryController {
      * GET /api/story
      */
     @GetMapping
-    public ResponseEntity<List<WrongAnswerStory>> getMyStories() {
+    public ResponseEntity<List<StoryListResponse>> getMyStories() {
         return ResponseEntity.ok(wrongAnswerStoryService.getMyStories());
     }
 
@@ -72,13 +73,10 @@ public class WrongAnswerStoryController {
     public ResponseEntity<List<StoryWordList>> getWrongWordsInStory(@PathVariable Long storyId) {
         return ResponseEntity.ok(wrongAnswerStoryService.getWrongWordsInStory(storyId));
     }
-    
-    /** ⭐ 스토리 삭제 */
-    @DeleteMapping("/{storyId}")
-    public ResponseEntity<Void> deleteStory(@PathVariable Long storyId) {
-        wrongAnswerStoryService.deleteStory(storyId);
-        return ResponseEntity.noContent().build();
-    }
-
-
+       /** ⭐ 스토리 삭제 */
+       @DeleteMapping("/{storyId}")
+       public ResponseEntity<Void> deleteStory(@PathVariable Long storyId) {
+           wrongAnswerStoryService.deleteStory(storyId);
+           return ResponseEntity.noContent().build();
+       }
 }

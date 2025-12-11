@@ -42,14 +42,4 @@ public class CompletedWordController {
     public ResponseEntity<Boolean> isCompleted(@PathVariable Long wordId) {
         return ResponseEntity.ok(completedWordService.isCompleted(wordId));
     }
-
-    /**
-     * 학습 완료 취소 (삭제)
-     * DELETE /api/completed/{wordId}
-     */
-    @DeleteMapping("/{wordId}")
-    public ResponseEntity<String> unmarkCompleted(@PathVariable Long wordId) {
-        completedWordService.unmarkCompleted(wordId);
-        return ResponseEntity.ok("학습 완료가 취소되었습니다.");
-    }
 }

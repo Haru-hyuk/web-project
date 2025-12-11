@@ -42,20 +42,4 @@ public class DashboardController {
             throw e;
         }
     }
-
-    @GetMapping("/wrong/review")
-    public ResponseEntity<?> getWrongReview(
-            @RequestParam(defaultValue = "10") int limit
-    ) {
-        return ResponseEntity.ok(dashboardService.getWrongReview(limit));
-    }
-
-    @GetMapping("/week-study")
-    public ResponseEntity<?> getWeeklyStudyStatus() {
-        List<Boolean> weekly = dashboardService.getWeeklyStudyStatus();
-        return ResponseEntity.ok(Map.of(
-                "week", List.of("S","M","T","W","T","F","S"), // 일요일부터 시작
-                "checked", weekly
-        ));
-    }
 }

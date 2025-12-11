@@ -1,13 +1,11 @@
 package com.wordweb.repository;
 
 import com.wordweb.entity.*;
-
-import jakarta.transaction.Transactional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,10 +31,10 @@ public interface StoryWordListRepository extends JpaRepository<StoryWordList, St
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE StoryWordList swl SET swl.wrongWordId = NULL WHERE swl.wrongWordId = :wrongWordId")
     int updateWrongWordIdToNull(@Param("wrongWordId") Long wrongWordId);
-    
-    /** ⭐ 스토리 삭제 시 StoryWordList 전체 삭제 */
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM StoryWordList sw WHERE sw.storyId = :storyId")
-    void deleteByStoryId(@Param("storyId") Long storyId);
+
+     /** ⭐ 스토리 삭제 시 StoryWordList 전체 삭제 */
+     @Modifying
+     @Transactional
+     @Query("DELETE FROM StoryWordList sw WHERE sw.storyId = :storyId")
+     void deleteByStoryId(@Param("storyId") Long storyId);
 }

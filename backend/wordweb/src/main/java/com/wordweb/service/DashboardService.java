@@ -4,7 +4,6 @@ import com.wordweb.entity.User;
 import com.wordweb.repository.*;
 import com.wordweb.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -56,13 +55,16 @@ public class DashboardService {
         long completed = completedWordRepository.countByUser(user);
         long wrongAnswers = wrongAnswerLogRepository.countByUser(user);
         int streak = getStreak();
+        
+        // 누적학습 통계: STUDY_LOG 테이블의 오늘 날짜 기준 레코드 수
+        int todayStudyCount = studyLogRepository.countTodayCompleted(user.getUserId());
 
         Map<String, Object> result = new HashMap<>();
         result.put("totalWords", totalWords);
         result.put("favoriteWords", favorites);
         result.put("completedWords", completed);
         result.put("wrongAnswers", wrongAnswers);
-        result.put("totalLearnedWords", completed); // 프론트엔드 호환성
+        result.put("totalLearnedWords", todayStudyCount); // STUDY_LOG 오늘 기준 레코드 수
         result.put("streakDays", streak);
         return result;
     }
@@ -93,11 +95,17 @@ public class DashboardService {
         User user = getLoginUser();
         Long userId = user.getUserId();
 
-        int streak = 0;
         LocalDate today = LocalDate.now();
 
+        // 오늘 학습했는지 확인
+        int todayCount = studyLogRepository.countByUserAndDate(userId, today);
+
+        // 오늘 학습했으면 오늘부터, 안 했으면 어제부터 시작
+        LocalDate startDate = todayCount > 0 ? today : today.minusDays(1);
+
+        int streak = 0;
         while (true) {
-            LocalDate target = today.minusDays(streak);
+            LocalDate target = startDate.minusDays(streak);
             int count = studyLogRepository.countByUserAndDate(userId, target);
 
             if (count > 0) {
@@ -127,50 +135,5 @@ public class DashboardService {
                     return map;
                 })
                 .collect(Collectors.toList());
-    }
-
-    /** 오답 복습 리스트 */
-    public List<Map<String,Object>> getWrongReview(int limit) {
-        User user = getLoginUser();
-
-        return wrongAnswerLogRepository
-                .findByUserOrderByWrongAtDesc(user, PageRequest.of(0, limit))
-                .stream()
-                .map(log -> {
-                    Map<String,Object> map = new HashMap<>();
-                    map.put("wordId", log.getWord().getWordId());
-                    map.put("word", log.getWord().getWord());
-                    map.put("meaning", log.getWord().getMeaning());
-                    return map;
-                })
-                .collect(Collectors.toList());
-    }
-
-    /** 이번 주 요일별 학습 여부 - 일요일부터 시작 */
-    public List<Boolean> getWeeklyStudyStatus() {
-        User user = getLoginUser();
-
-        LocalDate today = LocalDate.now();
-        // 이번 주 일요일 구하기 (오늘이 일요일이면 오늘, 아니면 이전 일요일)
-        int dayOfWeek = today.getDayOfWeek().getValue(); // Monday=1, Sunday=7
-        int daysFromSunday = (dayOfWeek == 7) ? 0 : dayOfWeek; // Sunday=0, Monday=1, ..., Saturday=6
-        LocalDate startOfWeek = today.minusDays(daysFromSunday);
-        // 이번 주 토요일까지
-        LocalDate endOfWeek = startOfWeek.plusDays(6);
-
-        List<LocalDate> studyDates = studyLogRepository.findStudyDatesBetween(
-                user.getUserId(),
-                startOfWeek.atStartOfDay(),
-                endOfWeek.atTime(23,59,59)
-        );
-
-        List<Boolean> week = new ArrayList<>();
-        // 일요일(0)부터 토요일(6)까지
-        for (int i = 0; i < 7; i++) {
-            LocalDate d = startOfWeek.plusDays(i);
-            week.add(studyDates.contains(d));
-        }
-
-        return week;
     }
 }

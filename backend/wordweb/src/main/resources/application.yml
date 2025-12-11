@@ -14,7 +14,7 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true  
+        format_sql: true
         default_batch_fetch_size: 100
         use_sql_comments: true
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -22,8 +22,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME}        
-    password: ${MAIL_PASSWORD}          
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
