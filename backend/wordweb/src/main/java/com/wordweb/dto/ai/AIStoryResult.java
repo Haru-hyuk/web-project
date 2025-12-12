@@ -1,27 +1,26 @@
 package com.wordweb.dto.ai;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class AIStoryResponse {
+public class AIStoryResult {
 
     private boolean success;
-    private String message;
 
-    private String title;
-    private String titleKo;
+    // 제목
+    private String title;   // 영어 제목
+    private String titleKo;   // ✅ 생성 시 함께 세팅
 
+    // 본문
     private String storyEn;
     private String storyKo;
 
     private List<String> usedWords;
+
+    // DB 저장 후
     private Long storyId;
 }

@@ -20,12 +20,22 @@ public class WrongAnswerStoryController {
     /**
      * AI 스토리 저장
      * POST /api/story
-     * body: { "title": "...", "storyEn": "...", "storyKo": "...", "wrongLogIds": [1,2,3] }
+     * body:
+     * {
+     *   "title": "The Lord's Unspoken Shelter",
+     *   "titleKo": "주님의 말없는 피난처",
+     *   "storyEn": "...",
+     *   "storyKo": "...",
+     *   "wrongLogIds": [1,2,3]
+     * }
      */
     @PostMapping
-    public ResponseEntity<WrongAnswerStory> createStory(@RequestBody CreateStoryRequest request) {
+    public ResponseEntity<WrongAnswerStory> createStory(
+            @RequestBody CreateStoryRequest request
+    ) {
         WrongAnswerStory saved = wrongAnswerStoryService.createStory(
-                request.getTitle(),
+                request.getTitle(),     // ✅ 영어 제목
+                request.getTitleKo(),   // ✅ 한글 제목
                 request.getStoryEn(),
                 request.getStoryKo(),
                 request.getWrongLogIds()
@@ -34,17 +44,36 @@ public class WrongAnswerStoryController {
         return ResponseEntity.ok(saved);
     }
 
-    /** DTO (요청용) */
+    /**
+     * 스토리 생성 요청 DTO
+     */
     public static class CreateStoryRequest {
-        private String title;
+
+        private String title;      // 영어 제목
+        private String titleKo;    // 한글 제목
         private String storyEn;
         private String storyKo;
         private List<Long> wrongLogIds;
 
-        public String getTitle() { return title; }
-        public String getStoryEn() { return storyEn; }
-        public String getStoryKo() { return storyKo; }
-        public List<Long> getWrongLogIds() { return wrongLogIds; }
+        public String getTitle() {
+            return title;
+        }
+
+        public String getTitleKo() {
+            return titleKo;
+        }
+
+        public String getStoryEn() {
+            return storyEn;
+        }
+
+        public String getStoryKo() {
+            return storyKo;
+        }
+
+        public List<Long> getWrongLogIds() {
+            return wrongLogIds;
+        }
     }
 
     /**
@@ -53,7 +82,9 @@ public class WrongAnswerStoryController {
      */
     @GetMapping
     public ResponseEntity<List<StoryListResponse>> getMyStories() {
-        return ResponseEntity.ok(wrongAnswerStoryService.getMyStories());
+        return ResponseEntity.ok(
+                wrongAnswerStoryService.getMyStories()
+        );
     }
 
     /**
@@ -61,8 +92,12 @@ public class WrongAnswerStoryController {
      * GET /api/story/{storyId}
      */
     @GetMapping("/{storyId}")
-    public ResponseEntity<WrongAnswerStory> getStoryDetail(@PathVariable Long storyId) {
-        return ResponseEntity.ok(wrongAnswerStoryService.getStoryDetail(storyId));
+    public ResponseEntity<StoryListResponse> getStoryDetail(
+            @PathVariable Long storyId
+    ) {
+        return ResponseEntity.ok(
+                wrongAnswerStoryService.getStoryDetail(storyId)
+        );
     }
 
     /**
@@ -70,13 +105,23 @@ public class WrongAnswerStoryController {
      * GET /api/story/{storyId}/words
      */
     @GetMapping("/{storyId}/words")
-    public ResponseEntity<List<StoryWordList>> getWrongWordsInStory(@PathVariable Long storyId) {
-        return ResponseEntity.ok(wrongAnswerStoryService.getWrongWordsInStory(storyId));
+    public ResponseEntity<List<StoryWordList>> getWrongWordsInStory(
+            @PathVariable Long storyId
+    ) {
+        return ResponseEntity.ok(
+                wrongAnswerStoryService.getWrongWordsInStory(storyId)
+        );
     }
-       /** ⭐ 스토리 삭제 */
-       @DeleteMapping("/{storyId}")
-       public ResponseEntity<Void> deleteStory(@PathVariable Long storyId) {
-           wrongAnswerStoryService.deleteStory(storyId);
-           return ResponseEntity.noContent().build();
-       }
+
+    /**
+     * 스토리 삭제
+     * DELETE /api/story/{storyId}
+     */
+    @DeleteMapping("/{storyId}")
+    public ResponseEntity<Void> deleteStory(
+            @PathVariable Long storyId
+    ) {
+        wrongAnswerStoryService.deleteStory(storyId);
+        return ResponseEntity.noContent().build();
+    }
 }

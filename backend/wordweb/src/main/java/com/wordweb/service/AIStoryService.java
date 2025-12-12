@@ -1,36 +1,18 @@
 package com.wordweb.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.wordweb.dto.ai.AIStoryResult;
+import com.wordweb.entity.*;
+import com.wordweb.repository.*;
+import com.wordweb.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import com.wordweb.entity.StoryWordList;
-import com.wordweb.entity.User;
-import com.wordweb.entity.Word;
-import com.wordweb.entity.WrongAnswerLog;
-import com.wordweb.entity.WrongAnswerStory;
-import com.wordweb.repository.StoryWordListRepository;
-import com.wordweb.repository.UserRepository;
-import com.wordweb.repository.WordRepository;
-import com.wordweb.repository.WrongAnswerLogRepository;
-import com.wordweb.repository.WrongAnswerStoryRepository;
-import com.wordweb.security.SecurityUtil;
-
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -47,237 +29,156 @@ public class AIStoryService {
     private final WrongAnswerStoryRepository wrongAnswerStoryRepository;
     private final StoryWordListRepository storyWordListRepository;
     private final WrongAnswerLogRepository wrongAnswerLogRepository;
-    private final WordRepository wordRepository;
     private final UserRepository userRepository;
 
     private final ConcurrentHashMap<String, Boolean> generatingLocks = new ConcurrentHashMap<>();
 
+    /* ===========================
+       스토리 생성 + 저장 (최종)
+       =========================== */
     @Transactional
-    public StoryResult generateAndSaveStory(List<Long> wrongWordIds) {
-        String email = SecurityUtil.getLoginUserEmail();
-        User user = userRepository.findByEmail(email)
+    public AIStoryResult generateAndSaveStory(List<Long> wrongWordIds) {
+
+        User user = userRepository.findByEmail(SecurityUtil.getLoginUserEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String sortedIds = wrongWordIds.stream()
-                .sorted()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
-        String lockKey = user.getUserId() + "_" + sortedIds;
+        String lockKey = user.getUserId() + "_" +
+                wrongWordIds.stream().sorted().map(String::valueOf).collect(Collectors.joining(","));
 
-        if (generatingLocks.putIfAbsent(lockKey, Boolean.TRUE) != null) {
-            return StoryResult.builder()
+        if (generatingLocks.putIfAbsent(lockKey, true) != null) {
+            return AIStoryResult.builder()
                     .success(false)
-                    .title("스토리 생성 중")
-                    .storyEn("이미 스토리를 생성하고 있습니다.")
-                    .storyKo("이미 스토리를 생성하고 있습니다.")
+                    .title("Generating...")
+                    .storyEn("이미 생성 중입니다.")
+                    .storyKo("이미 생성 중입니다.")
                     .usedWords(List.of())
                     .build();
         }
 
         try {
-            // 단순화: 한 번에 조회하고 필터링
-            List<WrongAnswerLog> wrongLogs = wrongAnswerLogRepository.findAllByIdWithWord(wrongWordIds)
-                    .stream()
-                    .filter(log -> log != null)
-                    .filter(log -> !Boolean.TRUE.equals(log.getIsUsedInStory()))
-                    .filter(log -> log.getWord() != null)
-                    .filter(log -> log.getWord().getWord() != null)
-                    .filter(log -> !log.getWord().getWord().trim().isEmpty())
-                    .collect(Collectors.toList());
+            List<WrongAnswerLog> logs =
+                    wrongAnswerLogRepository.findAllByIdWithWord(wrongWordIds)
+                            .stream()
+                            .filter(l -> !Boolean.TRUE.equals(l.getIsUsedInStory()))
+                            .toList();
 
-            if (wrongLogs.isEmpty()) {
-                return StoryResult.builder()
-                        .success(false)
-                        .title("유효한 단어를 찾을 수 없습니다")
-                        .storyEn("선택한 단어 중 유효한 단어를 찾을 수 없습니다.")
-                        .storyKo("선택한 단어 중 유효한 단어를 찾을 수 없습니다.")
-                        .usedWords(List.of())
-                        .build();
-            }
-
-            List<String> words = wrongLogs.stream()
-                    .map(log -> log.getWord().getWord().trim())
-                    .filter(word -> !word.isEmpty())
+            List<String> words = logs.stream()
+                    .map(l -> l.getWord().getWord())
                     .distinct()
-                    .collect(Collectors.toList());
+                    .toList();
 
-            if (words.isEmpty()) {
-                return StoryResult.builder()
-                        .success(false)
-                        .title("단어 목록이 비어있습니다")
-                        .storyEn("스토리 생성에 사용할 단어가 없습니다.")
-                        .storyKo("스토리 생성에 사용할 단어가 없습니다.")
-                        .usedWords(List.of())
-                        .build();
-            }
-
-            StoryResult result = generateStory(words.toArray(new String[0]));
-            if (!result.isSuccess()) {
-                return result;
-            }
+            AIStoryResult result = generateStory(words.toArray(new String[0]));
+            if (!result.isSuccess()) return result;
 
             WrongAnswerStory story = wrongAnswerStoryRepository.save(
                     WrongAnswerStory.create(
                             user,
-                            result.getTitle(),
+                            result.getTitle(),   // 영어 제목
+                            result.getTitleKo(),   // ⭐ 한글 제목
                             result.getStoryEn(),
                             result.getStoryKo()
                     )
             );
 
-            List<WrongAnswerLog> logsToUpdate = new ArrayList<>();
-            List<StoryWordList> mappingsToSave = new ArrayList<>();
-            
-            for (WrongAnswerLog log : wrongLogs) {
-                if (log == null || log.getWord() == null || log.getWord().getWordId() == null) {
-                    continue;
-                }
-
+            for (WrongAnswerLog log : logs) {
                 log.markUsedInStory();
-                logsToUpdate.add(log);
-
-                Long wordId = log.getWord().getWordId();
-                StoryWordList mapping = StoryWordList.create(
-                        story.getStoryId(),
-                        wordId,
-                        log.getWrongWordId()
+                storyWordListRepository.save(
+                        StoryWordList.create(
+                                story.getStoryId(),
+                                log.getWord().getWordId(),
+                                log.getWrongWordId()
+                        )
                 );
-                mappingsToSave.add(mapping);
             }
 
-            if (!logsToUpdate.isEmpty()) {
-                wrongAnswerLogRepository.saveAll(logsToUpdate);
-            }
-            if (!mappingsToSave.isEmpty()) {
-                storyWordListRepository.saveAll(mappingsToSave);
-            }
-
-            wrongAnswerLogRepository.flush();
-            storyWordListRepository.flush();
-
-            return StoryResult.builder()
-                    .success(result.isSuccess())
+            return AIStoryResult.builder()
+                    .success(true)
+                    .storyId(story.getStoryId())
                     .title(result.getTitle())
+                    .titleKo(result.getTitleKo())
                     .storyEn(result.getStoryEn())
                     .storyKo(result.getStoryKo())
                     .usedWords(result.getUsedWords())
-                    .storyId(story.getStoryId())
                     .build();
+
         } finally {
             generatingLocks.remove(lockKey);
         }
     }
 
+    /* ===========================
+       AI 호출 (제목/본문 동시 생성)
+       =========================== */
+    public AIStoryResult generateStory(String[] words) {
 
-    public StoryResult generateStory(String[] words) {
+        String prompt = """
+            Create a bilingual story using ALL words: %s
 
-        String prompt = buildPrompt(Arrays.asList(words));
+            Rules:
+            - The English title must be natural and concise.
+            - The Korean title must be a natural translation of the English title.
 
-        int maxAttempts = 3;
-        int attempt = 0;
+            Format (STRICT):
+            [TITLE_EN]
+            English title
 
-        while (attempt < maxAttempts) {
-            attempt++;
+            [TITLE_KO]
+            Korean title
 
-            try {
-                OkHttpClient client = new OkHttpClient.Builder()
-                        .connectTimeout(15, TimeUnit.SECONDS)
-                        .writeTimeout(30, TimeUnit.SECONDS)
-                        .readTimeout(45, TimeUnit.SECONDS)
-                        .callTimeout(60, TimeUnit.SECONDS)
-                        .build();
+            [EN]
+            English story
 
-                JSONObject userMessage = new JSONObject();
-                userMessage.put("role", "user");
-                userMessage.put("content", prompt);
+            [KO]
+            Korean translation
+            """.formatted(String.join(", ", words));
 
-                JSONArray messages = new JSONArray();
-                messages.put(userMessage);
+        try {
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .readTimeout(120, TimeUnit.SECONDS)
+                    .build();
 
-                JSONObject requestBodyJson = new JSONObject();
-                requestBodyJson.put("model", "deepseek-chat");
-                requestBodyJson.put("messages", messages);
-                requestBodyJson.put("temperature", 0.7);
+            JSONObject body = new JSONObject()
+                    .put("model", "deepseek-chat")
+                    .put("messages", new JSONArray()
+                            .put(new JSONObject()
+                                    .put("role", "user")
+                                    .put("content", prompt)));
 
-                RequestBody body = RequestBody.create(
-                        MediaType.parse("application/json"),
-                        requestBodyJson.toString()
-                );
+            Request request = new Request.Builder()
+                    .url(DEEPSEEK_URL)
+                    .addHeader("Authorization", "Bearer " + apiKey)
+                    .post(RequestBody.create(
+                            MediaType.parse("application/json"),
+                            body.toString()))
+                    .build();
 
-                Request request = new Request.Builder()
-                        .url(DEEPSEEK_URL)
-                        .addHeader("Authorization", "Bearer " + apiKey)
-                        .post(body)
-                        .build();
+            Response response = client.newCall(request).execute();
+            String content = new JSONObject(response.body().string())
+                    .getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content");
 
-                Response response = client.newCall(request).execute();
-                String responseJson = response.body().string();
+            return AIStoryResult.builder()
+                    .success(true)
+                    .title(extract(content, "[TITLE_EN]", "[TITLE_KO]"))
+                    .titleKo(extract(content, "[TITLE_KO]", "[EN]"))
+                    .storyEn(extract(content, "[EN]", "[KO]"))
+                    .storyKo(extract(content, "[KO]", null))
+                    .usedWords(Arrays.asList(words))
+                    .build();
 
-                JSONObject jsonObj = new JSONObject(responseJson);
-
-                String rawContent = jsonObj
-                        .getJSONArray("choices")
-                        .getJSONObject(0)
-                        .getJSONObject("message")
-                        .getString("content");
-
-                String title = extract(rawContent, "[TITLE]", "[EN]").trim();
-                String storyEn = extract(rawContent, "[EN]", "[KO]").trim().replace("**", "");
-                String storyKo = extract(rawContent, "[KO]", null).trim().replace("**", "");
-
-                return StoryResult.builder()
-                        .success(true)
-                        .title(title.isEmpty() ? "AI Generated Story" : title)
-                        .storyEn(storyEn)
-                        .storyKo(storyKo)
-                        .usedWords(Arrays.asList(words))
-                        .build();
-
-            } catch (Exception e) {
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AIStoryResult.builder().success(false).build();
         }
-
-        return StoryResult.builder()
-                .success(false)
-                .title("AI 스토리 생성 실패")
-                .storyEn("AI 스토리 생성 실패")
-                .storyKo("AI 스토리 생성 실패")
-                .usedWords(List.of())
-                .build();
-    }
-
-
-    private String buildPrompt(List<String> words) {
-        return """
-                Create a bilingual story using ALL words: %s
-                Format:
-                [TITLE]Title
-                [EN]English story
-                [KO]Korean translation
-                """.formatted(String.join(", ", words));
     }
 
     private String extract(String text, String start, String end) {
         int s = text.indexOf(start);
         if (s == -1) return "";
         s += start.length();
-
-        int e = (end != null) ? text.indexOf(end, s) : text.length();
-        if (e == -1) e = text.length();
-
-        return text.substring(s, e).trim();
-    }
-
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class StoryResult {
-        private boolean success;
-        private String title;
-        private String storyEn;
-        private String storyKo;
-        private List<String> usedWords;
-        private Long storyId;
+        int e = end != null ? text.indexOf(end, s) : text.length();
+        return text.substring(s, e == -1 ? text.length() : e).trim();
     }
 }
