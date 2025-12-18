@@ -62,4 +62,8 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     /** 카테고리 + 레벨 범위로 필터링 (List 반환) - 퀴즈 최적화용 */
     @Query("SELECT w FROM Word w WHERE w.category = :category AND w.level IN :levels")
     List<Word> findByCategoryAndLevelIn(@Param("category") String category, @Param("levels") List<Integer> levels);
+
+    /** 임베딩이 있는 단어만 조회 - 클러스터링 최적화용 */
+    @Query("SELECT w FROM Word w WHERE w.embedding IS NOT NULL AND w.embedding != ''")
+    List<Word> findAllWithEmbedding();
 }

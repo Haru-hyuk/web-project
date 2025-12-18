@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -120,6 +121,14 @@ public class WordService {
                         StudyLog::getStatus,
                         (existing, replacement) -> existing // 중복 시 기존 값 유지
                 ));
+        
+        Map<Long, LocalDateTime> wordLastStudyMap = studyLogs.stream()
+                .collect(Collectors.toMap(
+                        log -> log.getWord().getWordId(),
+                        StudyLog::getLastStudyAt,
+                        (existing, replacement) -> existing != null && (replacement == null || existing.isAfter(replacement)) 
+                            ? existing : replacement // 더 최근 날짜 유지
+                ));
 
         // 메모리에서 매칭하여 WordResponse 생성
         return allWords.stream()
@@ -127,7 +136,8 @@ public class WordService {
                     Long wordId = word.getWordId();
                     boolean isFav = favoriteWordIds.contains(wordId);
                     String status = wordStatusMap.getOrDefault(wordId, "NONE");
-                    return WordResponse.from(word, isFav, status);
+                    LocalDateTime lastStudyAt = wordLastStudyMap.get(wordId);
+                    return WordResponse.from(word, isFav, status, lastStudyAt);
                 })
                 .toList();
     }

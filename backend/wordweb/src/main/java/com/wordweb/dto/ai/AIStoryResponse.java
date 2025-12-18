@@ -8,20 +8,16 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Getter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AIStoryResponse {
-
     private boolean success;
     private String message;
-
-    private String title;
-    private String titleKo;
-
+    private String title;  // AI 생성 제목 (영어)
+    private String titleKo;  // AI 생성 제목 (한글)
     private String storyEn;
     private String storyKo;
-
     private List<String> usedWords;
-    private Long storyId;
+    private Long storyId;  // 생성된 스토리 ID
 }

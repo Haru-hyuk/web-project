@@ -4,6 +4,8 @@ import com.wordweb.entity.Word;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 public class WordResponse {
@@ -21,6 +23,7 @@ public class WordResponse {
 
     private boolean favorite;
     private String learningStatus;
+    private LocalDateTime lastStudyAt;  // 마지막 학습 날짜
 
     public static WordResponse from(Word word, boolean favorite, String learningStatus) {
         return WordResponse.builder()
@@ -34,6 +37,23 @@ public class WordResponse {
                 .level(word.getLevel())  // ✔ level로 변경
                 .favorite(favorite)
                 .learningStatus(learningStatus)
+                .lastStudyAt(null)  // 기본값 null
+                .build();
+    }
+
+    public static WordResponse from(Word word, boolean favorite, String learningStatus, LocalDateTime lastStudyAt) {
+        return WordResponse.builder()
+                .wordId(word.getWordId())
+                .word(word.getWord())
+                .meaning(word.getMeaning())
+                .partOfSpeech(word.getPartOfSpeech())
+                .exampleSentenceEn(word.getExampleSentenceEn())
+                .exampleSentenceKo(word.getExampleSentenceKo())
+                .category(word.getCategory())
+                .level(word.getLevel())
+                .favorite(favorite)
+                .learningStatus(learningStatus)
+                .lastStudyAt(lastStudyAt)
                 .build();
     }
 }

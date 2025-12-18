@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
     name = "CLUSTER_WORD",
     uniqueConstraints = {
         @UniqueConstraint(
-            name = "UK_CLUSTER_WORD_USER_CENTER_RELATED",
-            columnNames = {"USER_ID", "CENTER_WORD_ID", "RELATED_WORD_ID"}
+            name = "UK_CLUSTER_WORD_CENTER_RELATED",
+            columnNames = {"CENTER_WORD_ID", "RELATED_WORD_ID"}
         )
     }
 )
@@ -24,10 +24,6 @@ public class ClusterWord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CLUSTER_ID")
     private Long clusterId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID", nullable = false)
-    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CENTER_WORD_ID", nullable = false)
@@ -47,9 +43,8 @@ public class ClusterWord {
     private LocalDateTime createdAt;
 
     /** 클러스터 데이터 생성 */
-    public static ClusterWord create(User user, Word center, Word related, double score, String relationType) {
+    public static ClusterWord create(Word center, Word related, double score, String relationType) {
         return ClusterWord.builder()
-                .user(user)
                 .centerWord(center)
                 .relatedWord(related)
                 .score(score)

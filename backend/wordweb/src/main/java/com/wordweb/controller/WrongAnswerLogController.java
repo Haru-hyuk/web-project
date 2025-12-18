@@ -1,5 +1,6 @@
 package com.wordweb.controller;
 
+import com.wordweb.dto.wrong.WrongAnswerLogResponse;
 import com.wordweb.entity.WrongAnswerLog;
 import com.wordweb.service.WrongAnswerLogService;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,8 @@ public class WrongAnswerLogController {
 
     /** 오답 목록 조회 */
     @GetMapping
-    public ResponseEntity<List<WrongAnswerLog>> getMyWrongLogs() {
-        return ResponseEntity.ok(wrongAnswerLogService.getMyWrongLogs());
+    public ResponseEntity<List<WrongAnswerLogResponse>> getMyWrongLogs() {
+        return ResponseEntity.ok(wrongAnswerLogService.getMyWrongLogsWithTotalWrong());
     }
 
     /** 스토리에 사용되지 않은 오답 목록 */

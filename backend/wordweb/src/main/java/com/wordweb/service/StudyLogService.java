@@ -89,4 +89,24 @@ public class StudyLogService {
         }
     }
 
+    /** 단어별 학습 통계 조회 */
+    @Transactional(readOnly = true)
+    public StudyLogResponse getStudyLog(Long wordId) {
+        User user = getLoginUser();
+        Word word = wordRepository.findById(wordId)
+                .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다."));
+
+        StudyLog log = studyLogRepository.findByUserAndWord(user, word)
+                .orElse(null);
+
+        if (log == null) {
+            return StudyLogResponse.empty(wordId);
+        }
+
+        // LAZY 로딩 문제 방지를 위해 Word 엔티티 접근 (트랜잭션 내에서)
+        log.getWord().getWordId();
+
+        return StudyLogResponse.from(log);
+    }
+
 }

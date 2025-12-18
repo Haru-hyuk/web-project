@@ -26,10 +26,26 @@ public class FlashcardService {
      * 플래시카드용 단어 목록 가져오기
      * - 퀴즈와 동일한 필터링 로직 사용
      * - 랜덤하게 섞어서 반환
+     * @param wordIds 특정 단어 ID 목록 (null이면 일반 로직)
+     *   - wordIds가 있으면 count, level, category 모두 무시하고 해당 단어들만 반환
      */
-    public List<WordResponse> getFlashcardWords(Integer count, String level, String category) {
+    public List<WordResponse> getFlashcardWords(Integer count, String level, String category, List<Long> wordIds) {
 
         List<Word> basePool;
+
+        // 특정 단어 ID로 플래시카드 생성 (단어 상세 페이지 → 카드 학습 플로우)
+        boolean isWordIdsMode = wordIds != null && !wordIds.isEmpty();
+        if (isWordIdsMode) {
+            basePool = wordRepository.findAllById(wordIds);
+            if (basePool.isEmpty()) {
+                return new ArrayList<>();
+            }
+            // wordIds 모드에서는 랜덤 섞기만 하고 count 무시 (요청한 단어들 모두 반환)
+            Collections.shuffle(basePool);
+            return basePool.stream()
+                    .map(this::toWordResponse)
+                    .collect(Collectors.toList());
+        }
 
         // 난이도 그룹 처리: beginner(1,2), intermediate(3,4), advanced(5,6)
         List<Integer> levelRange = null;

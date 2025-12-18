@@ -17,15 +17,16 @@ public class FlashcardController {
 
     /**
      * 플래시카드용 단어 목록 가져오기
-     * GET /api/flashcard?count=20&level=beginner&category=Daily Life
+     * GET /api/flashcard?count=20&level=beginner&category=Daily Life&wordIds=1,2,3
      */
     @GetMapping
     public ResponseEntity<List<WordResponse>> getFlashcardWords(
             @RequestParam(required = false, defaultValue = "10") Integer count,
             @RequestParam(required = false) String level,
-            @RequestParam(required = false) String category
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) List<Long> wordIds
     ) {
-        return ResponseEntity.ok(flashcardService.getFlashcardWords(count, level, category));
+        return ResponseEntity.ok(flashcardService.getFlashcardWords(count, level, category, wordIds));
     }
 
     /**

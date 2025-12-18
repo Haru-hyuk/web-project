@@ -28,17 +28,18 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // ✅ OAuth2 (구글 로그인 필수)
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     implementation 'com.mysql:mysql-connector-j:8.0.33'
-
     implementation 'org.json:json:20210307'
 
-    // OPENAI / DeepSeek API Client
+    // OPENAI / DeepSeek
     implementation 'com.theokanning.openai-gpt3-java:client:0.16.0'
 
     // JWT
@@ -46,19 +47,12 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    // 테스트 제외
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    
     implementation 'org.springframework.boot:spring-boot-starter-mail'
-    
-    
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 }
+
 
 tasks.withType(Test) {
     enabled = false
 }
-tasks.withType(JavaCompile) { options.compilerArgs += ['-parameters'] }

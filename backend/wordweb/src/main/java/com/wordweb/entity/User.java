@@ -12,10 +12,6 @@ import java.time.LocalDateTime;
 @Builder
 public class User {
 
-    /* ============================
-         PK & 기본 정보
-       ============================ */
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID")
@@ -24,7 +20,7 @@ public class User {
     @Column(name = "EMAIL", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "USER_PW", nullable = false)
+    @Column(name = "USER_PW", nullable = true)
     private String password;
 
     @Column(name = "NICKNAME", nullable = false, unique = true)
@@ -33,13 +29,12 @@ public class User {
     @Column(name = "USER_NAME", nullable = false)
     private String userName;
 
-    @Column(name = "USER_BIRTH", nullable = false)
+    @Column(name = "USER_BIRTH", nullable = true)
     private String userBirth;
 
-
-    /* ============================
-         프로필 설정
-       ============================ */
+    // ✅ 추가
+    @Column(name = "OAUTH_PROVIDER", nullable = false)
+    private String oauthProvider; // LOCAL, GOOGLE
 
     @Column(name = "PREFERENCE")
     private String preference;
@@ -50,21 +45,11 @@ public class User {
     @Column(name = "DAILY_WORD_GOAL")
     private Integer dailyWordGoal;
 
-
-    /* ============================
-         생성/수정 시간
-       ============================ */
-
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
-
-
-    /* ============================
-         JPA 라이프사이클
-       ============================ */
 
     @PrePersist
     protected void onCreate() {
@@ -77,29 +62,22 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
+    /* ---------- 도메인 메서드 ---------- */
 
-    /* ============================
-         도메인 기능 (변경 메서드)
-       ============================ */
-
-    /** 비밀번호 변경 */
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
 
-    /** 닉네임 변경 */
     public void changeNickname(String nickname) {
         this.nickname = nickname;
     }
 
-    /** 프로필 변경 (취향, 목표, 단어 학습 목표) */
     public void updateProfile(String preference, String goal, Integer dailyWordGoal) {
         if (preference != null) this.preference = preference;
         if (goal != null) this.goal = goal;
         if (dailyWordGoal != null) this.dailyWordGoal = dailyWordGoal;
     }
 
-    /** 생년월일 변경 */
     public void changeBirth(String userBirth) {
         this.userBirth = userBirth;
     }

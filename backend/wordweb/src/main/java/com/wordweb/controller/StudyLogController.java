@@ -24,5 +24,11 @@ public class StudyLogController {
     public ResponseEntity<StudyLogResponse> markWrong(@PathVariable Long wordId) {
         return ResponseEntity.ok(studyLogService.markWrong(wordId));
     }
+
+    /** 단어별 학습 통계 조회 */
+    @GetMapping("/{wordId}")
+    public ResponseEntity<StudyLogResponse> getStudyLog(@PathVariable Long wordId) {
+        return ResponseEntity.ok(studyLogService.getStudyLog(wordId));
+    }
 }
 	

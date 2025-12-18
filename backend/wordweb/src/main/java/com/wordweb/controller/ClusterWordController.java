@@ -19,17 +19,22 @@ public class ClusterWordController {
 
     /**
      * 클러스터 생성
-     * POST /api/cluster/create?wordId=1
+     * POST /api/cluster/create?wordId=1&forceRegenerate=false
+     * @param wordId 중심 단어 ID
+     * @param forceRegenerate 기존 클러스터가 있어도 강제 재생성 여부 (기본값: false)
      */
     @PostMapping("/create")
-    public ResponseEntity<?> createCluster(@RequestParam("wordId") Long wordId) {
+    public ResponseEntity<?> createCluster(
+            @RequestParam("wordId") Long wordId,
+            @RequestParam(value = "forceRegenerate", defaultValue = "false") boolean forceRegenerate) {
         try {
-            List<ClusterWord> clusters = clusterWordService.createCluster(wordId);
+            List<ClusterWord> clusters = clusterWordService.createCluster(wordId, forceRegenerate);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("count", clusters.size());
-            response.put("message", "클러스터 생성 완료");
+            response.put("message", forceRegenerate ? "클러스터 재생성 완료" : "클러스터 생성 완료");
+            response.put("isNew", forceRegenerate);
 
             return ResponseEntity.ok(response);
 
@@ -67,24 +72,7 @@ public class ClusterWordController {
     }
 
     /**
-     * 모든 클러스터 조회
-     * GET /api/cluster/all
-     */
-    @GetMapping("/all")
-    public ResponseEntity<?> getAllClusters() {
-        try {
-            List<ClusterWord> clusters = clusterWordService.getMyClusters();
-            return ResponseEntity.ok(clusters);
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
-
-    /**
-     * 특정 중심 단어의 클러스터 삭제
+     * 특정 중심 단어의 클러스터 삭제 (관리자 전용)
      * DELETE /api/cluster?wordId=1
      */
     @DeleteMapping
@@ -94,26 +82,6 @@ public class ClusterWordController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "클러스터가 삭제되었습니다.");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
-        }
-    }
-
-    /**
-     * 사용자의 모든 클러스터 삭제
-     * DELETE /api/cluster/all
-     */
-    @DeleteMapping("/all")
-    public ResponseEntity<?> deleteAllClusters() {
-        try {
-            clusterWordService.deleteAllClusters();
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "모든 클러스터가 삭제되었습니다.");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();

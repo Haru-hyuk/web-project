@@ -21,7 +21,6 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    /** Request Header에서 JWT 꺼내기 */
     public String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {
@@ -30,7 +29,6 @@ public class JwtTokenProvider {
         return null;
     }
 
-    /** Access Token 생성 */
     public String generateAccessToken(String email) {
         Date now = new Date();
 
@@ -42,7 +40,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    /** Refresh Token 생성 */
     public String generateRefreshToken(String email) {
         Date now = new Date();
 
@@ -54,7 +51,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    /** Claims 파싱 내부 함수 */
     private Claims parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -63,12 +59,10 @@ public class JwtTokenProvider {
                 .getBody();
     }
 
-    /** 토큰에서 email 추출 */
     public String getEmailFromToken(String token) {
         return parseClaims(token).getSubject();
     }
 
-    /** 토큰 유효성 검사 */
     public void validateTokenOrThrow(String token) {
         Jwts.parserBuilder()
                 .setSigningKey(key)

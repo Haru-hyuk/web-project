@@ -61,9 +61,15 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("이메일 또는 비밀번호가 올바르지 않습니다."));
 
+// 🔥 OAuth 계정 일반 로그인 차단 (여기)
+        if (!"LOCAL".equals(user.getOauthProvider())) {
+            throw new RuntimeException("소셜 로그인 계정입니다. 구글 로그인을 이용해주세요.");
+        }
+
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
+
 
         String access = jwtTokenProvider.generateAccessToken(user.getEmail());
         String refresh = jwtTokenProvider.generateRefreshToken(user.getEmail());

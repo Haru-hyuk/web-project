@@ -1,8 +1,11 @@
 package com.wordweb.service;
 
+import com.wordweb.dto.wrong.WrongAnswerLogResponse;
+import com.wordweb.entity.StudyLog;
 import com.wordweb.entity.User;
 import com.wordweb.entity.Word;
 import com.wordweb.entity.WrongAnswerLog;
+import com.wordweb.repository.StudyLogRepository;
 import com.wordweb.repository.UserRepository;
 import com.wordweb.repository.WordRepository;
 import com.wordweb.repository.WrongAnswerLogRepository;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class WrongAnswerLogService {
     private final UserRepository userRepository;
     private final WordRepository wordRepository;
     private final StoryWordListRepository storyWordListRepository;
+    private final StudyLogRepository studyLogRepository;
 
     /** 로그인 유저 가져오기 */
     private User getLoginUser() {
@@ -76,6 +81,35 @@ public class WrongAnswerLogService {
         User user = getLoginUser();
         // FETCH JOIN을 사용하여 Word 엔티티를 함께 로딩
         return wrongAnswerLogRepository.findByUserWithWord(user);
+    }
+
+    /** 유저의 오답 기록 조회 (DTO 반환 - totalWrong 포함) */
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<WrongAnswerLogResponse> getMyWrongLogsWithTotalWrong() {
+        User user = getLoginUser();
+        List<WrongAnswerLog> wrongLogs = wrongAnswerLogRepository.findByUserWithWord(user);
+        
+        return wrongLogs.stream().map(log -> {
+            Word word = log.getWord();
+            
+            // StudyLog에서 totalWrong 조회
+            Integer totalWrong = 0;
+            Optional<StudyLog> studyLogOpt = studyLogRepository.findByUserAndWord(user, word);
+            if (studyLogOpt.isPresent()) {
+                totalWrong = studyLogOpt.get().getTotalWrong() != null ? studyLogOpt.get().getTotalWrong() : 0;
+            }
+            
+            return WrongAnswerLogResponse.builder()
+                    .wrongWordId(log.getWrongWordId())
+                    .wordId(word.getWordId())
+                    .word(word.getWord())
+                    .meaning(word.getMeaning())
+                    .level(word.getLevel())
+                    .wrongAt(log.getWrongAt())
+                    .isUsedInStory(log.getIsUsedInStory())
+                    .totalWrong(totalWrong)
+                    .build();
+        }).collect(Collectors.toList());
     }
 
     /** 스토리에 아직 사용되지 않은 오답 조회 (Word 엔티티 함께 로딩) */

@@ -69,15 +69,26 @@ public class DashboardService {
         return result;
     }
 
-    /** 3) 최근 7일 학습량 API */
+    /** 3) 이번 주 학습량 API (월요일 ~ 일요일) */
     public List<Map<String, Object>> getWeeklyStats() {
         User user = getLoginUser();
 
         List<Map<String, Object>> result = new ArrayList<>();
         LocalDate today = LocalDate.now();
 
-        for (int i = 6; i >= 0; i--) {
-            LocalDate target = today.minusDays(i);
+        // 이번 주 월요일 계산
+        java.time.DayOfWeek dayOfWeek = today.getDayOfWeek();
+        int daysFromMonday = dayOfWeek.getValue() - 1; // 월요일=1, 일요일=7
+        LocalDate thisMonday = today.minusDays(daysFromMonday);
+
+        // 월요일부터 오늘까지 (최대 일요일까지)
+        for (int i = 0; i <= 6; i++) {
+            LocalDate target = thisMonday.plusDays(i);
+
+            // 미래 날짜는 제외
+            if (target.isAfter(today)) {
+                break;
+            }
 
             int learnedCount = studyLogRepository.countLearnedByUserAndDate(user.getUserId(), target);
             int wrongCount = studyLogRepository.sumWrongByUserAndDate(user.getUserId(), target);

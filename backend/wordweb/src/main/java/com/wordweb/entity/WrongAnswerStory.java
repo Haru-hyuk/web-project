@@ -2,7 +2,6 @@ package com.wordweb.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,33 +21,26 @@ public class WrongAnswerStory {
     @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
 
-    /** 영어 제목 */
-    @Column(name = "TITLE", nullable = false)
+    @Lob
+    @Column(name = "TITLE")
     private String title;
 
-    /** ⭐ 한글 제목 */
     @Column(name = "TITLE_KO")
     private String titleKo;
 
     @Lob
-    @Column(name = "STORY_EN", nullable = false)
+    @Column(name = "STORY_EN")
     private String storyEn;
 
     @Lob
-    @Column(name = "STORY_KO", nullable = false)
+    @Column(name = "STORY_KO")
     private String storyKo;
 
-    @Column(name = "CREATED_AT", nullable = false)
+    @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 
-    /** ✅ 스토리 생성 팩토리 (최종) */
-    public static WrongAnswerStory create(
-            User user,
-            String title,
-            String titleKo,
-            String storyEn,
-            String storyKo
-    ) {
+    /** 스토리 생성 팩토리 */
+    public static WrongAnswerStory create(User user, String title, String titleKo, String storyEn, String storyKo) {
         return WrongAnswerStory.builder()
                 .user(user)
                 .title(title)
@@ -59,13 +51,8 @@ public class WrongAnswerStory {
                 .build();
     }
 
-    /** (선택) 영어 제목 수정 */
+    /** 제목을 나중에 수정해야 한다면(선택) */
     public void updateTitle(String newTitle) {
         this.title = newTitle;
-    }
-
-    /** (선택) 한글 제목 수정 */
-    public void updateTitleKo(String newTitleKo) {
-        this.titleKo = newTitleKo;
     }
 }

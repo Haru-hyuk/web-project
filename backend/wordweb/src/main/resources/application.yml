@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/wordweb?serverTimezone=UTC&characterEncoding=UTF-8}
+    url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -11,29 +11,26 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         default_batch_fetch_size: 100
-        use_sql_comments: true
-    database-platform: org.hibernate.dialect.MySQLDialect
 
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+              - openid
 
 jwt:
   secret: ${JWT_SECRET}
 
-deepseek:
-  api-key: ${DEEPSEEK_API_KEY}
-  url: https://api.deepseek.com/v1/chat/completions
+frontend:
+  redirect-url: https://storylex.kro.kr/oauth/callback

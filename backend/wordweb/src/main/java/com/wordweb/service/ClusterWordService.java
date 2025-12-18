@@ -1,12 +1,9 @@
 package com.wordweb.service;
 
 import com.wordweb.entity.ClusterWord;
-import com.wordweb.entity.User;
 import com.wordweb.entity.Word;
 import com.wordweb.repository.ClusterWordRepository;
-import com.wordweb.repository.UserRepository;
 import com.wordweb.repository.WordRepository;
-import com.wordweb.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import okhttp3.*;
 import org.json.JSONArray;
@@ -21,6 +18,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -35,47 +35,49 @@ public class ClusterWordService {
     private static final double DEFAULT_THRESHOLD = 0.5;
 
     private final ClusterWordRepository clusterWordRepository;
-    private final UserRepository userRepository;
     private final WordRepository wordRepository;
     private final EmbeddingService embeddingService;
 
-    // 중복 생성 방지를 위한 동시성 제어 (userId_wordId 조합으로 락)
-    private final ConcurrentHashMap<String, Boolean> creatingLocks = new ConcurrentHashMap<>();
+    // 중복 생성 방지를 위한 동시성 제어 (wordId로 락)
+    private final ConcurrentHashMap<Long, Boolean> creatingLocks = new ConcurrentHashMap<>();
 
-    /** 로그인 유저 가져오기 */
-    private User getLoginUser() {
-        String email = SecurityUtil.getCurrentUserEmail();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("로그인 유저 정보를 찾을 수 없습니다."));
-    }
+    // 비동기 처리를 위한 스레드 풀
+    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
 
     /**
      * 특정 단어와 유사한 단어 찾기 (유사도 기반)
+     * @param centerWordId 중심 단어 ID
+     * @param forceRegenerate 기존 클러스터가 있어도 강제 재생성 여부 (기본값: false)
      */
     @Transactional
-    public List<ClusterWord> createCluster(Long centerWordId) {
-        User user = getLoginUser();
+    public List<ClusterWord> createCluster(Long centerWordId, boolean forceRegenerate) {
         Word centerWord = wordRepository.findById(centerWordId)
                 .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다"));
 
-        // 중복 생성 방지: 동일한 유저 + 단어 조합으로 이미 생성 중이면 대기
-        String lockKey = user.getUserId() + "_" + centerWordId;
+        // 기존 클러스터 확인 (모든 사용자가 공유)
+        List<ClusterWord> existingClusters = clusterWordRepository.findByCenterWord(centerWord);
+
+        // 기존 클러스터가 있고 강제 재생성이 아니면 기존 데이터 반환 (성능 최적화)
+        if (!existingClusters.isEmpty() && !forceRegenerate) {
+            return existingClusters;
+        }
+
+        // 중복 생성 방지: 동일한 단어로 이미 생성 중이면 대기
+        Long lockKey = centerWordId;
 
         // 이미 생성 중이면 기존 결과 반환
         if (creatingLocks.putIfAbsent(lockKey, Boolean.TRUE) != null) {
             // 이미 다른 요청이 생성 중 - 기존 클러스터 반환
-            List<ClusterWord> existing = clusterWordRepository.findByUserAndCenterWord(user, centerWord);
-            if (!existing.isEmpty()) {
-                return existing;
+            if (!existingClusters.isEmpty()) {
+                return existingClusters;
             }
             // 생성 중이지만 아직 완료 안됨 - 빈 리스트 반환
             return new ArrayList<>();
         }
 
         try {
-            // 기존 클러스터가 있으면 먼저 삭제하여 중복 방지
-            List<ClusterWord> existingClusters = clusterWordRepository.findByUserAndCenterWord(user, centerWord);
-            if (!existingClusters.isEmpty()) {
+            // 강제 재생성인 경우에만 기존 클러스터 삭제
+            if (forceRegenerate && !existingClusters.isEmpty()) {
                 clusterWordRepository.deleteAll(existingClusters);
                 clusterWordRepository.flush(); // 즉시 삭제 반영
             }
@@ -98,7 +100,7 @@ public class ClusterWordService {
                     // 대소문자 구분 없이 검색 (소문자로 통일)
                     Word synonymWord = wordRepository.findByWord(synonym.toLowerCase()).orElse(null);
                     if (synonymWord != null && !addedWordIds.contains(synonymWord.getWordId())) {
-                        ClusterWord cluster = ClusterWord.create(user, centerWord, synonymWord, 0.9, "synonym");
+                        ClusterWord cluster = ClusterWord.create(centerWord, synonymWord, 0.9, "synonym");
                         clusters.add(cluster);
                         addedWordIds.add(synonymWord.getWordId());
                         synonymCount++;
@@ -112,7 +114,7 @@ public class ClusterWordService {
                     // 대소문자 구분 없이 검색 (소문자로 통일)
                     Word antonymWord = wordRepository.findByWord(antonym.toLowerCase()).orElse(null);
                     if (antonymWord != null && !addedWordIds.contains(antonymWord.getWordId())) {
-                        ClusterWord cluster = ClusterWord.create(user, centerWord, antonymWord, 0.7, "antonym");
+                        ClusterWord cluster = ClusterWord.create(centerWord, antonymWord, 0.7, "antonym");
                         clusters.add(cluster);
                         addedWordIds.add(antonymWord.getWordId());
                         antonymCount++;
@@ -129,9 +131,9 @@ public class ClusterWordService {
                 double[] centerEmbedding = embeddingService.parseEmbedding(centerWord.getEmbedding());
                 List<ClusterWord> similarityClusters = new ArrayList<>();
 
-                // 모든 단어와 유사도 계산
-                wordRepository.findAll().forEach(word -> {
-                    if (addedWordIds.contains(word.getWordId()) || word.getEmbedding() == null) {
+                // 임베딩이 있는 단어만 조회하여 성능 최적화 (기존: findAll() -> 개선: findAllWithEmbedding())
+                wordRepository.findAllWithEmbedding().forEach(word -> {
+                    if (addedWordIds.contains(word.getWordId())) {
                         return;
                     }
 
@@ -139,7 +141,7 @@ public class ClusterWordService {
                     double similarity = embeddingService.cosineSimilarity(centerEmbedding, embedding);
 
                     if (similarity >= DEFAULT_THRESHOLD) {
-                        ClusterWord cluster = ClusterWord.create(user, centerWord, word, similarity, "similarity");
+                        ClusterWord cluster = ClusterWord.create(centerWord, word, similarity, "similarity");
                         similarityClusters.add(cluster);
                         addedWordIds.add(word.getWordId());
                     }
@@ -161,8 +163,8 @@ public class ClusterWordService {
             List<ClusterWord> clustersToSave = new ArrayList<>();
             for (ClusterWord cluster : clusters) {
                 // DB에 이미 존재하는지 확인
-                if (!clusterWordRepository.existsByUserAndCenterWordAndRelatedWord(
-                        user, centerWord, cluster.getRelatedWord())) {
+                if (!clusterWordRepository.existsByCenterWordAndRelatedWord(
+                        centerWord, cluster.getRelatedWord())) {
                     clustersToSave.add(cluster);
                 }
             }
@@ -178,10 +180,43 @@ public class ClusterWordService {
     }
 
 
+    /**
+     * 특정 단어와 유사한 단어 찾기 (유사도 기반) - 기본 메서드 (재생성 안함)
+     */
+    @Transactional
+    public List<ClusterWord> createCluster(Long centerWordId) {
+        return createCluster(centerWordId, false);
+    }
+
+    /**
+     * 비동기로 클러스터 생성 (백그라운드 처리)
+     * 기존 클러스터가 있으면 즉시 반환하고, 없으면 백그라운드에서 생성
+     */
+    public CompletableFuture<List<ClusterWord>> createClusterAsync(Long centerWordId) {
+        Word centerWord = wordRepository.findById(centerWordId)
+                .orElseThrow(() -> new RuntimeException("단어를 찾을 수 없습니다"));
+
+        // 기존 클러스터 확인 (모든 사용자가 공유)
+        List<ClusterWord> existingClusters = clusterWordRepository.findByCenterWord(centerWord);
+
+        // 기존 클러스터가 있으면 즉시 반환
+        if (!existingClusters.isEmpty()) {
+            return CompletableFuture.completedFuture(existingClusters);
+        }
+
+        // 없으면 백그라운드에서 생성
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return createCluster(centerWordId, false);
+            } catch (Exception e) {
+                System.err.println("비동기 클러스터 생성 실패: " + e.getMessage());
+                return new ArrayList<>();
+            }
+        }, executorService);
+    }
+
     /** 특정 중심 단어에 대한 클러스터 추가 */
     public void addCluster(Long centerWordId, Long relatedWordId, Double score, String type) {
-        User user = getLoginUser();
-
         Word centerWord = wordRepository.findById(centerWordId)
                 .orElseThrow(() -> new RuntimeException("기준 단어를 찾을 수 없습니다."));
 
@@ -189,14 +224,14 @@ public class ClusterWordService {
                 .orElseThrow(() -> new RuntimeException("연관 단어를 찾을 수 없습니다."));
 
         // 중복 방지
-        if (clusterWordRepository.existsByUserAndCenterWordAndRelatedWord(user, centerWord, relatedWord)) {
+        if (clusterWordRepository.existsByCenterWordAndRelatedWord(centerWord, relatedWord)) {
             return; // 이미 존재하면 아무것도 안 함 (idempotent)
         }
 
-        clusterWordRepository.save(ClusterWord.create(user, centerWord, relatedWord, score, type));
+        clusterWordRepository.save(ClusterWord.create(centerWord, relatedWord, score, type));
     }
 
-    /** 특정 중심 단어의 모든 클러스터 조회 */
+    /** 특정 중심 단어의 모든 클러스터 조회 (모든 사용자가 공유) */
     public List<ClusterWord> getCluster(Long centerWordId) {
         Word centerWord = wordRepository.findById(centerWordId)
                 .orElseThrow(() -> new RuntimeException("기준 단어를 찾을 수 없습니다."));
@@ -204,34 +239,19 @@ public class ClusterWordService {
         return clusterWordRepository.findByCenterWord(centerWord);
     }
 
-    /** 유저가 가진 전체 클러스터 조회 */
-    public List<ClusterWord> getMyClusters() {
-        User user = getLoginUser();
-        return clusterWordRepository.findByUser(user);
-    }
-
-    /** 특정 중심 단어의 클러스터를 유저 기준으로 조회 */
+    /** 특정 중심 단어의 클러스터 조회 (모든 사용자가 공유) */
     public List<ClusterWord> getMyClustersByCenter(Long centerWordId) {
-        User user = getLoginUser();
         Word centerWord = wordRepository.findById(centerWordId)
                 .orElseThrow(() -> new RuntimeException("기준 단어를 찾을 수 없습니다."));
-        return clusterWordRepository.findByUserAndCenterWord(user, centerWord);
+        return clusterWordRepository.findByCenterWord(centerWord);
     }
 
-    /** 특정 중심 단어의 클러스터 전체 삭제 (사용자 기준) */
+    /** 특정 중심 단어의 클러스터 전체 삭제 (관리자 전용) */
     @Transactional
     public void deleteCluster(Long centerWordId) {
-        User user = getLoginUser();
         Word centerWord = wordRepository.findById(centerWordId)
                 .orElseThrow(() -> new RuntimeException("기준 단어를 찾을 수 없습니다."));
-        clusterWordRepository.deleteByUserAndCenterWord(user, centerWord);
-    }
-
-    /** 사용자의 모든 클러스터 삭제 */
-    @Transactional
-    public void deleteAllClusters() {
-        User user = getLoginUser();
-        clusterWordRepository.deleteByUser(user);
+        clusterWordRepository.deleteByCenterWord(centerWord);
     }
 
 
