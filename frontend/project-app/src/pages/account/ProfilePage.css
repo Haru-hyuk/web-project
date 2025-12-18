@@ -1,0 +1,201 @@
+/* src/pages/account/ProfilePage.css */
+
+/* 1. 헤더 영역 스타일 */
+.profile-header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.profile-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin-bottom: var(--space-2);
+}
+
+.profile-header p {
+  color: var(--neutral-500);
+  font-size: 1rem;
+}
+
+/* 2. 전체 레이아웃 (Grid) */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;   /* 🔥 왼쪽 / 오른쪽 */
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* 태블릿 & 모바일: 세로 스택 */
+@media (max-width: 1024px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* 2-1. 카드 공통 스타일 (약간 더 입체감) */
+.profile-card,
+.password-card {
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-soft, 0 14px 35px rgba(15, 23, 42, 0.06));
+}
+
+/* 3. 카드 내부 타이틀 */
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--neutral-800);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* 3-1. 섹션 구분 (기본 정보 / 학습 설정) */
+.profile-section {
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.profile-section:last-of-type {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.profile-section-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--neutral-500);
+  margin-bottom: var(--space-4);
+}
+
+/* 4. 폼 내부 2열 배치용 (닉네임/생년월일, 목표/관심 분야 등) */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+/* 태블릿(768px) 이상에서 가로 2열 배치 */
+@media (min-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 5. 개별 필드 여백/정렬 */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--neutral-700);
+}
+
+/* 아이콘이 들어가는 필드 (생년월일) */
+.form-field--with-icon .input-wrapper {
+  position: relative;
+}
+
+/* 6. 버튼 우측 정렬 */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-6);
+}
+
+/* 하루 목표 단어 수 슬라이더 */
+.daily-goal-slider {
+  --track-h: 8px;
+  --thumb: 18px;
+
+  width: 100%;
+  height: var(--thumb);          /* ✅ thumb 높이만큼 확보 */
+  background: transparent;       /* ✅ 배경은 트랙에 줄 거라 투명 */
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+/* WebKit track (Chrome/Edge/Safari) */
+.daily-goal-slider::-webkit-slider-runnable-track {
+  height: var(--track-h);
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--primary-500) 0%,
+    var(--primary-500) var(--percent),
+    var(--neutral-200) var(--percent),
+    var(--neutral-200) 100%
+  );
+}
+
+/* WebKit thumb */
+.daily-goal-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: var(--thumb);
+  height: var(--thumb);
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--primary-500);
+
+  /* ✅ 중앙 정렬 핵심: (트랙높이 - thumb)/2 만큼 위로 */
+  margin-top: calc((var(--track-h) - var(--thumb)) / 2);
+}
+
+/* Firefox track */
+.daily-goal-slider::-moz-range-track {
+  height: var(--track-h);
+  border-radius: 999px;
+  background: var(--neutral-200);
+}
+
+/* Firefox progress (채워지는 부분) */
+.daily-goal-slider::-moz-range-progress {
+  height: var(--track-h);
+  border-radius: 999px;
+  background: var(--primary-500);
+}
+
+/* Firefox thumb */
+.daily-goal-slider::-moz-range-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--primary-500);
+}
+
+/* 하단 힌트 */
+.daily-goal-hint {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+}
+
+
+
+/* 7. 반응형 약간 보완 */
+@media (max-width: 768px) {
+  .profile-card {
+  margin-inline: auto;
+  width: 100%;
+}
+
+  .profile-header {
+    margin-bottom: var(--space-6);
+  }
+}

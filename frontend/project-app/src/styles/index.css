@@ -1,0 +1,127 @@
+/* src/styles/index.css */
+@import "./reset.css";
+@import "./tokens.css";
+@import "tailwindcss";
+
+/* ----------------------------------------- */
+/* 전역 레이아웃용 헤더 높이 토큰            */
+/* ----------------------------------------- */
+:root {
+  /* PC 기준 헤더 기본 높이 (Header.css와 맞춤) */
+  --layout-header-offset: 76px;
+}
+
+/* ----------------------------------------- */
+/* Sticky Footer를 위한 전역 높이/레이아웃    */
+/* ----------------------------------------- */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ✅ root를 flex column으로 만들어 footer를 바닥으로 내림 */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ✅ Header가 fixed라면, 본문(main)에만 offset을 준다 (body에 주지 말 것) */
+.app-main {
+  flex: 1;
+  padding-top: var(--layout-header-offset);
+}
+
+/* footer는 줄어들지 않게 */
+.lp-footer {
+  flex-shrink: 0;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* ----------------------------------------- */
+/* 페이지 컨테이너 (헤더/본문 공통)          */
+/* ----------------------------------------- */
+/* 원칙:
+   - 항상 중앙 정렬
+   - 모바일/태블릿: 양쪽 padding = outer-margin-*
+   - Web 이상: container-width + “디자인 기준” outer-margin 구조를 유지
+*/
+.page-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--outer-margin-mobile);
+  padding-right: var(--outer-margin-mobile);
+}
+
+/* Tablet (>= 768px) */
+@media (min-width: 768px) {
+  .page-container {
+    padding-left: var(--outer-margin-tablet);
+    padding-right: var(--outer-margin-tablet);
+    /* tablet은 굳이 고정 container 없이 fluid로 사용 */
+  }
+}
+
+/* Web (>= 1280px) */
+/* 1280px: container 1120 + margin 80 기준 */
+@media (min-width: 1280px) {
+  .page-container {
+    max-width: calc(var(--container-web-width) + var(--outer-margin-web) * 2);
+    padding-left: var(--outer-margin-web);
+    padding-right: var(--outer-margin-web);
+  }
+}
+
+/* Wide Web (>= 1440px) */
+/* 1440px: container 1200 + margin 120 기준 */
+@media (min-width: 1440px) {
+  .page-container {
+    max-width: calc(
+      var(--container-web-wide-width) + var(--outer-margin-web-wide) * 2
+    );
+    padding-left: var(--outer-margin-web-wide);
+    padding-right: var(--outer-margin-web-wide);
+  }
+}
+
+/* ----------------------------------------- */
+/* 선택 불가 유틸리티 (필요한 곳에만 사용)  */
+/* ----------------------------------------- */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none; /* Safari/Chrome */
+}
+
+/* ----------------------------------------- */
+/* Utility Spacing                           */
+/* ----------------------------------------- */
+.mt-12 {
+  margin-top: 12px;
+}
+
+.mt-24 {
+  margin-top: 24px;
+}
+
+/* ----------------------------------------- */
+/* 반응형에서 헤더 높이 맞춰 offset 보정     */
+/* ----------------------------------------- */
+@media (max-width: 1024px) {
+  :root {
+    --layout-header-offset: 64px;
+  }
+}

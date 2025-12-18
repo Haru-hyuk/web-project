@@ -1,0 +1,128 @@
+/* ================================
+   전체 배경 (예시 디자인 스타일)
+================================ */
+.find-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;   
+  padding-top: 80px;         
+  background-color: #fafafa;
+
+  background-image:
+    radial-gradient(circle at 20% 40%, rgba(108, 92, 231, 0.15), transparent 40%),
+    radial-gradient(circle at 80% 60%, rgba(167, 139, 250, 0.15), transparent 40%);
+}
+
+/* ================================
+   중앙 카드
+================================ */
+.find-card-center {
+  width: 100%;
+  max-width: 480px;
+
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+
+  border-radius: 30px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+
+  padding: 50px 40px;
+  text-align: center;
+}
+
+/* ================================
+   로고 (원형 제거 + 로고만 크게)
+================================ */
+.find-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.find-logo-large {
+  width: 70px;       /* 로고 크기 조절 가능 */
+  height: auto;
+  display: block;
+}
+
+/* ================================
+   제목 / 설명
+================================ */
+.find-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.find-subtitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+/* ================================
+   탭 (아이디 찾기 / 비밀번호 찾기)
+================================ */
+.find-tabs-center {
+  display: flex;
+  background: #eee7ff;
+  padding: 6px;
+  border-radius: 30px;
+  margin-bottom: 30px;
+}
+
+.find-tabs-center button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: transparent;
+  border-radius: 25px;
+  cursor: pointer;
+
+  font-size: 14px;
+  color: #666;
+  font-weight: 600;
+
+  transition: 0.25s;
+}
+
+.find-tabs-center button.active {
+  background: white;
+  color: #6c5ce7;
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.15);
+}
+
+/* ================================
+   입력 필드
+================================ */
+.find-field {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.find-field label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+/* ================================
+   뒤로가기 링크
+================================ */
+.find-back {
+  margin-top: 25px;
+  font-size: 14px;
+}
+
+.find-back a {
+  color: #6c5ce7;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.find-back a:hover {
+  color: #4e3cc8;
+}

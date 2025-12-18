@@ -1,0 +1,246 @@
+/* src/pages/learning/CardLearningPage.css */
+
+/* 페이지 컨테이너 */
+.card-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  color: var(--color-text);
+}
+
+/* 로딩/에러 카드 */
+.card-page--loading,
+.card-page--error {
+  max-width: 760px;
+  margin: 40px auto;
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--color-text-muted);
+  background: var(--surface-1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+/* 오답 모드 토큰 */
+.card-page--wrong {
+  --theme-color: var(--warning-500);
+  --theme-bg-subtle: var(--warning-50);
+}
+
+/* 진행 / 결과 섹션 공통 */
+.card-learning,
+.card-learning-result {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* 결과 섹션 상단 여백 */
+.card-learning-result {
+  margin-top: var(--space-6);
+}
+
+/* 결과 헤더 (타이틀/서브타이틀) */
+.cl-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  gap: var(--space-2);
+}
+
+.cl-title {
+  font-size: var(--font-size-page-title);
+  color: var(--neutral-900);
+  font-weight: 700;
+  margin: 0;
+}
+
+.cl-subtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* 플래시카드 + OX 영역 */
+.cl-main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* OX 버튼 영역 */
+.cl-actions.actions-ox,
+.actions-ox {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 12px;
+}
+
+.actions-ox button {
+  width: 82px;
+  height: 48px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-width: 2px;
+  border-style: solid;
+  background: var(--surface-1);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+/* ❌ 모르겠다 */
+.actions-ox .btn-unknown {
+  border-color: var(--danger-200);
+  background-color: var(--danger-50);
+}
+
+.actions-ox .btn-unknown svg {
+  color: var(--danger-600);
+}
+
+.actions-ox .btn-unknown:hover {
+  background-color: var(--danger-100);
+  transform: translateY(-2px);
+}
+
+.actions-ox .btn-unknown:active {
+  transform: scale(0.96);
+}
+
+/* ⭕ 알겠다 */
+.actions-ox .btn-known {
+  border-color: var(--success-200);
+  background-color: var(--success-50);
+}
+
+.actions-ox .btn-known svg {
+  color: var(--success-600);
+}
+
+.actions-ox .btn-known:hover {
+  background-color: var(--success-100);
+  transform: translateY(-2px);
+}
+
+.actions-ox .btn-known:active {
+  transform: scale(0.96);
+}
+
+/* 결과 ProgressBar (통계 카드 막대) */
+.stat-progress {
+  margin-top: 4px;
+}
+
+/* 결과 버튼 영역 */
+.result-buttons {
+  margin-top: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* 데스크톱에서는 오른쪽 정렬 */
+@media (min-width: 768px) {
+  .result-buttons--inline {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+/* 결과 버튼 공통 스타일 */
+.result-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    border-color 0.15s ease;
+}
+
+/* Primary: 보라 (오답 모드에서는 아래에서 오버라이드) */
+.result-btn.primary {
+  background: var(--primary-500);
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(108, 92, 231, 0.25);
+}
+
+.result-btn.primary:hover {
+  background: var(--primary-600);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(108, 92, 231, 0.35);
+}
+
+/* Secondary: 학습 홈 버튼 */
+.result-btn.secondary {
+  background: var(--surface-1);
+  color: var(--neutral-800);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+.result-btn.secondary:hover {
+  background: var(--neutral-50);
+  border-color: var(--primary-200);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+}
+
+/* 오답 모드 Primary 버튼 주황 */
+.card-page--wrong .result-btn.primary {
+  background: var(--warning-500);
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(251, 146, 60, 0.35);
+}
+
+.card-page--wrong .result-btn.primary:hover {
+  background: var(--warning-600);
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.45);
+  transform: translateY(-2px);
+}
+
+/* 오답 모드에서도 진행 헤더 텍스트 색은 기본 유지 */
+.card-page--wrong .cl-title {
+  color: var(--neutral-900);
+}
+
+.card-page--wrong .cl-subtitle {
+  color: var(--color-text-muted);
+}
+
+/* 반응형 */
+@media (max-width: 640px) {
+  .card-page {
+    padding: var(--space-4) var(--space-3) var(--space-6);
+  }
+
+  .card-learning,
+  .card-learning-result {
+    gap: var(--space-4);
+  }
+
+  .actions-ox {
+    gap: 20px;
+  }
+}
+/* 오답 모드에서 학습 홈(Secondary) 버튼 hover는 주황 계열로 오버라이드 */
+.card-page--wrong .result-btn.secondary:hover {
+  background: var(--warning-50);
+  border-color: var(--warning-200);
+}

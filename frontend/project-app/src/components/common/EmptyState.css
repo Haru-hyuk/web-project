@@ -1,0 +1,91 @@
+/* 공통 EmptyState 레이아웃 */
+.empty-state {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  animation: emptyFadeIn 0.3s ease-in-out;
+}
+
+/* 페이지 전체 컨텐츠 비었을 때 (WordListPage의 empty-search 느낌) */
+.empty-state--page {
+  padding: 80px 0;
+  min-height: 400px;
+}
+
+/* 카드 내부에서 쓸 때 (대시보드 위젯 같은 데서) */
+.empty-state--card {
+  padding: 24px 16px;
+  min-height: 180px;
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--border-subtle);
+  background-color: var(--surface-1);
+}
+
+/* 아이콘 영역 */
+.empty-state__icon-wrap {
+  margin-bottom: 8px;
+  color: var(--neutral-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  background-color: var(--neutral-50);
+  border-radius: 50%;
+}
+
+.empty-state__icon {
+  width: 64px;
+  height: 64px;
+}
+
+/* 텍스트 */
+.empty-state__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--neutral-800);
+  margin: 0;
+}
+
+.empty-state__description {
+  font-size: 0.95rem;
+  color: var(--neutral-500);
+  margin: 0;
+}
+
+/* 액션 버튼 (필터 초기화 등) */
+.empty-state__action-btn {
+  margin-top: 8px;
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary-500);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.empty-state__action-btn:hover {
+  color: var(--primary-700);
+  background-color: var(--primary-50);
+  text-decoration: none;
+}
+
+@keyframes emptyFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

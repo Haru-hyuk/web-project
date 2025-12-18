@@ -1,0 +1,507 @@
+/* src/pages/story/StoryCreatePage.css */
+
+/* =========================================
+   1. 페이지 레이아웃 & 네비게이션 (상세와 통일)
+   ========================================= */
+.story-create-page {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-10);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 상단 네비게이션 (Detail과 동일 스타일) */
+.story-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-5);
+}
+
+.nav-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--neutral-600);
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s;
+}
+.nav-back-btn:hover {
+  color: var(--primary-600);
+}
+
+.nav-badge {
+  background-color: var(--primary-100);
+  color: var(--primary-600);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.nav-badge--small {
+  font-size: 0.8rem;
+}
+
+/* =========================================
+   2. 메인 레이아웃 (2컬럼) - 상세와 통일
+   ========================================= */
+.create-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 900px) {
+  .create-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr; /* 상세와 동일 */
+    align-items: start;
+    gap: 32px; /* 상세와 동일 */
+  }
+}
+
+/* =========================================
+   3. 좌측 패널: 오답 노트 (Sidebar)
+   ========================================= */
+.mistake-sidebar {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px; 
+  padding: 32px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.mistake-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.mistake-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.mistake-desc {
+  font-size: 0.9rem;
+  color: var(--neutral-500);
+  margin-top: 0;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+/* 리스트 영역 */
+.mistake-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+  margin: 0 -4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mistake-list::-webkit-scrollbar {
+  width: 6px;
+}
+.mistake-list::-webkit-scrollbar-thumb {
+  background-color: var(--neutral-300);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* 단어 카드 스타일 */
+.mistake-card {
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  border-radius: 16px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.mistake-card:hover:not(.disabled) {
+  background: #ffffff;
+  border-color: var(--primary-300);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.mistake-card.disabled {
+  opacity: 0.5;
+  cursor: default;
+  background: var(--neutral-100);
+}
+
+/* 선택 토글된 상태 */
+.mistake-card.is-selected {
+  border-color: var(--primary-300);
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.card-word {
+  font-weight: 700;
+  color: var(--neutral-800);
+  font-size: 1rem;
+}
+
+.card-meaning {
+  font-size: 0.9rem;
+  color: var(--neutral-500);
+}
+
+.selected-mark {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--primary-100);
+  color: var(--primary-600);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* 오답 리스트 하단: '최근 N개 + 전체 보기' */
+.mistake-footer {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.mistake-more-text {
+  color: var(--neutral-500);
+}
+
+.mistake-more-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary-600);
+  cursor: pointer;
+}
+.mistake-more-btn:hover {
+  text-decoration: underline;
+}
+
+/* =========================================
+   4. 우측 패널: 스토리 빌더 (Main)
+   ========================================= */
+.builder-main {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+
+
+  display: flex;
+  flex-direction: column;
+}
+.builder-header {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.builder-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.builder-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.builder-heading-icon {
+  color: var(--primary-500);
+}
+
+.builder-heading-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.builder-heading-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--neutral-500);
+}
+
+/* 선택 개수 뱃지 경고 상태 */
+.nav-badge--small {
+  font-size: 0.8rem;
+}
+
+.nav-badge--alert {
+  background-color: var(--danger-50);
+  color: var(--danger-600);
+}
+/* =========================================
+   5. 선택된 단어 섹션
+   ========================================= */
+/* 선택된 단어 섹션 */
+.selected-words {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+
+.selected-words-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.selected-words-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.selected-words-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--neutral-800);
+  margin: 0;
+}
+
+.selected-words-caption {
+  font-size: 0.8rem;
+  color: var(--neutral-400);
+  margin: 0;
+}
+
+/* 칩 영역 박스 */
+.chips-container {
+  flex: 1;
+  background: var(--neutral-50);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  border: 1px dashed var(--border-strong);
+}
+
+/* 칩 영역 비어 있을 때 안내 문구 */
+.chips-empty {
+  text-align: center;
+  padding: 32px 8px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--neutral-400);
+}
+
+/* 전체 해제 버튼 */
+.chips-clear-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--neutral-400);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.chips-clear-btn:hover {
+  color: var(--neutral-600);
+}
+
+/* 칩 리스트 */
+.chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* 단어 칩 */
+.word-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.word-chip.mistake {
+  color: var(--primary-600);
+  border-color: var(--primary-200);
+}
+.word-chip.custom {
+  color: var(--secondary-600);
+  border-color: var(--secondary-300);
+}
+
+.chip-remove {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--neutral-400);
+  cursor: pointer;
+  display: flex;
+}
+.chip-remove:hover {
+  color: var(--danger-500);
+}
+
+/* =========================================
+   6. 컨트롤 폼 영역
+   ========================================= */
+.control-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.builder-footer {
+  margin-top: auto;                 /* 위쪽 내용이 얼마나 길어져도 항상 맨 아래로 */
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+/* =========================================
+   7. 모바일
+   ========================================= */
+@media (max-width: 640px) {
+  .story-create-page {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .mistake-sidebar {
+    max-height: 300px;
+    padding: 20px;
+  }
+
+  .builder-main {
+    padding: 24px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================
+   8. 스토리 생성 로딩 오버레이
+   ========================================= */
+.story-generate-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-scrim); /* tokens.css: 어두운 스크림 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 110;
+}
+
+.story-generate-modal {
+  width: min(420px, 90vw);
+  background: var(--surface-1);
+  border-radius: 24px;
+  padding: 28px 32px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+  text-align: center;
+}
+
+.story-generate-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  border: 3px solid var(--primary-100);
+  border-top-color: var(--primary-500);
+  animation: story-generate-spin 0.9s linear infinite;
+}
+
+@keyframes story-generate-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.story-generate-title {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.story-generate-desc {
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  color: var(--neutral-500);
+  line-height: 1.6;
+}
+
+/* 선택된 단어 리스트 (선택된 칩들을 같이 보여주는 영역) */
+.story-generate-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.story-generate-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--primary-50);
+  color: var(--primary-600);
+  border: 1px solid var(--primary-200);
+}

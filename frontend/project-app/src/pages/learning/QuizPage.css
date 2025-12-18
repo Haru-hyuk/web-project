@@ -1,0 +1,245 @@
+/* src/pages/quiz/QuizPage.css */
+
+/* 전체 배경 */
+.quiz-page-wrapper {
+   max-width: 900px;
+     margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-10);
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+
+@media (min-width: 768px) {
+  .quiz-page-wrapper {
+    padding: var(--space-8) var(--space-6) var(--space-10);
+  }
+}
+
+/* 공통 너비 컨테이너 */
+.quiz-layout {
+  width: 100%;
+
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* 문제 카드 */
+.quiz-page {
+  width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  background: var(--surface-1);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-5) var(--space-8);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+
+  --theme-color: var(--primary-500);
+  --theme-color-hover: var(--primary-600);
+  --theme-bg-subtle: var(--primary-100);
+}
+
+.quiz-page--wrong {
+  --theme-color: var(--warning-500);
+  --theme-color-hover: var(--warning-600);
+  --theme-bg-subtle: var(--warning-50);
+}
+
+/* 에러 카드 */
+.quiz-page--error {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 200px;
+}
+
+.quiz-error-icon {
+  color: var(--danger-500);
+  margin-bottom: var(--space-3);
+}
+
+.quiz-error-actions {
+  margin-top: var(--space-2);
+}
+
+/* 진행 화면 레이아웃 */
+.quiz-learning {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* 카드 내부 (문제/보기) */
+.quiz-main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* 문제 영역: 가운데 정렬 */
+.quiz-question-box {
+  margin-top: 4px;
+}
+
+.quiz-question-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--neutral-900);
+  text-align: center;
+  word-break: keep-all;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.quiz-options-section {
+  margin-top: 4px;
+}
+
+/* 풀이 버튼 */
+.quiz-footer {
+  margin-top: var(--space-4);
+}
+
+/* 카드 안의 Primary 버튼은 테마 색상 */
+.quiz-page .btn--primary {
+  background-color: var(--theme-color);
+  border-color: var(--theme-color);
+  color: #ffffff;
+}
+
+.quiz-page .btn--primary:hover:not(:disabled) {
+  background-color: var(--theme-color-hover);
+  border-color: var(--theme-color-hover);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ───── 결과 화면 ───── */
+
+.quiz-learning-result {
+  margin-top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.quiz-result-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+}
+
+.quiz-result-title {
+  font-size: var(--font-size-page-title);
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.quiz-result-subtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* 결과 통계 ProgressBar (LearningResultSection에서 className으로 사용) */
+.quiz-stat-progress {
+  margin-top: 4px;
+}
+
+/* 결과 버튼 공통 */
+.result-buttons {
+  margin-top: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .result-buttons--inline {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+.result-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    border-color 0.15s ease;
+}
+
+/* Primary: AI 스토리 생성하기 (정규: 보라 / 오답: 주황) */
+.result-btn.primary {
+  background: var(--primary-500);
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(108, 92, 231, 0.25);
+}
+
+.result-btn.primary:hover {
+  background: var(--primary-600);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(108, 92, 231, 0.35);
+}
+
+/* Secondary: 학습 홈 버튼 */
+.result-btn.secondary {
+  background: var(--surface-1);
+  color: var(--neutral-500);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+}
+
+.result-btn.secondary:hover {
+  background: var(--primary-50);
+  border-color: var(--primary-200);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+}
+
+/* 오답 모드: Primary만 주황 테마 */
+.quiz-page-wrapper--wrong .result-btn.primary {
+  background: var(--warning-500);
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(251, 146, 60, 0.35);
+}
+
+.quiz-page-wrapper--wrong .result-btn.primary:hover {
+  background: var(--warning-600);
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.45);
+  transform: translateY(-2px);
+}
+
+/* 오답 모드에서 학습 홈 버튼 hover */
+.quiz-page-wrapper--wrong .result-btn.secondary:hover {
+  background: var(--warning-50);
+  border-color: var(--warning-200);
+}
+
+/* 모바일 패딩 조정 */
+@media (max-width: 640px) {
+  .quiz-page-wrapper {
+    padding: var(--space-4) var(--space-3) var(--space-6);
+  }
+
+  .quiz-page {
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+}

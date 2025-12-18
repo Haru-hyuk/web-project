@@ -1,0 +1,211 @@
+/* src/pages/story/StoryListPage.css */
+
+/* =========================================
+   1. 페이지 레이아웃
+   ========================================= */
+.story-list-page {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-10);
+}
+
+
+/* =========================================
+   2. 컨트롤 영역 (검색)
+   ========================================= */
+.story-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: var(--space-8);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* 검색창 */
+.search-wrapper {
+  position: relative;
+  width: 320px;
+  max-width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-400);
+  width: 18px;
+  height: 18px;
+}
+
+.search-input {
+  width: 100%;
+  height: 48px;
+  padding-left: 44px;
+  padding-right: 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  color: var(--neutral-800);
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.search-input::placeholder {
+  color: var(--neutral-400);
+}
+
+.search-input:focus {
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+  outline: none;
+}
+
+
+/* =========================================
+   3. 스토리 그리드 & 카드
+   ========================================= */
+.story-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+/* 로딩 / EmptyState가 들어올 때 그리드 전체 폭 사용 */
+.story-grid > .status-msg,
+.story-grid > .empty-state {
+  grid-column: 1 / -1;
+}
+
+/* 카드 공통 스타일 */
+.story-card {
+  background-color: var(--surface-1);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background-color 0.18s ease;
+  min-height: 220px;
+}
+
+.story-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary-200);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
+}
+
+.story-card:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 3px;
+}
+
+/* [1] 상단: 제목 & 요약 */
+.story-card-top {
+  margin-bottom: 20px;
+}
+
+.story-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0 0 10px 0;
+  line-height: 1.3;
+}
+
+.story-excerpt {
+  font-size: 0.95rem;
+  color: var(--neutral-600);
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* [2] 중단: 태그 */
+.story-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.story-tag {
+  background-color: var(--neutral-100);
+  color: var(--neutral-600);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* [3] 하단: 날짜 & 버튼 */
+.story-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 16px;
+  gap: 12px;
+}
+
+.story-date {
+  font-size: 0.85rem;
+  color: var(--neutral-400);
+}
+
+.read-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-500);
+  white-space: nowrap;
+}
+
+.story-card:hover .read-more {
+  text-decoration: underline;
+}
+
+
+/* =========================================
+   4. 반응형
+   ========================================= */
+@media (min-width: 768px) {
+  .story-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .story-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .story-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-wrapper {
+    width: 100%;
+  }
+}

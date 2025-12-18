@@ -1,0 +1,438 @@
+/* ─────────────────────────────── */
+/* 기본 인풋 스타일 (Base)        */
+/* ─────────────────────────────── */
+.input {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+
+  /* 기본 사이즈 */
+  height: 44px;
+  padding: 0 16px;
+
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+
+  color: var(--neutral-800);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-body);
+
+  outline: none;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    color 0.15s ease;
+}
+
+/* placeholder */
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ─────────────────────────────── */
+/* Interaction: hover / focus / active
+   - disabled / readonly 는 제외      */
+/* ─────────────────────────────── */
+.input:hover:not(:disabled):not(.input--readonly):not([readonly]) {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+.input:focus-visible:not(:disabled):not(.input--readonly):not([readonly]) {
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 2px var(--focus-ring-color);
+  background: var(--surface-1);
+}
+
+.input:active:not(:disabled):not(.input--readonly):not([readonly]) {
+  border-color: var(--primary-500);
+}
+
+/* ─────────────────────────────── */
+/* Disabled                        */
+/* ─────────────────────────────── */
+.input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+
+  background: var(--disabled-bg) !important;
+  color: var(--disabled-text) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+
+.input:disabled::placeholder {
+  color: var(--disabled-text) !important;
+}
+
+/* ─────────────────────────────── */
+/* Readonly                        */
+/* ─────────────────────────────── */
+.input--readonly,
+.input[readonly] {
+  background: var(--surface-1);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+/* readonly 는 hover/focus/active 에도 변화 없음 */
+.input--readonly:hover,
+.input[readonly]:hover,
+.input--readonly:focus,
+.input[readonly]:focus,
+.input--readonly:focus-visible,
+.input[readonly]:focus-visible,
+.input--readonly:active,
+.input[readonly]:active {
+  background: var(--surface-1);
+  border-color: var(--border-subtle);
+  box-shadow: none;
+}
+
+.input--readonly::placeholder,
+.input[readonly]::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ─────────────────────────────── */
+/* Form Field / Label / Messages  */
+/* ─────────────────────────────── */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--space-4);
+}
+
+.form-field:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-label);
+  color: var(--neutral-800);
+}
+
+.form-label--required::after {
+  content: " *";
+  color: var(--color-error);
+  margin-left: 2px;
+}
+
+.form-message,
+.form-helper,
+.form-error,
+.form-warning,
+.form-success,
+.form-info {
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+}
+
+.form-helper {
+  color: var(--color-text-muted);
+}
+
+.form-error {
+  color: var(--color-error);
+}
+
+.form-warning {
+  color: var(--color-warning);
+}
+
+.form-success {
+  color: var(--color-success);
+}
+
+.form-info {
+  color: var(--color-info);
+}
+
+/* Input.jsx 에서 사용하는 mt-1 / text-xs 보정용 */
+.mt-1 {
+  margin-top: 4px;
+}
+
+.text-xs {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+}
+
+/* ─────────────────────────────── */
+/* Size                            */
+/* ─────────────────────────────── */
+.input--sm {
+  height: 38px;
+  padding: 0 12px;
+  font-size: var(--font-size-sm);
+}
+
+.input--md {
+  height: 44px;
+  padding: 0 16px;
+  font-size: var(--font-size-md);
+}
+
+.input--lg {
+  height: 48px;
+  padding: 0 20px;
+  font-size: var(--font-size-md);
+}
+
+/* ─────────────────────────────── */
+/* Full Width                      */
+/* ─────────────────────────────── */
+.input--full {
+  width: 100%;
+}
+
+/* ─────────────────────────────── */
+/* Status: Error / Warning / Success / Info */
+/* ─────────────────────────────── */
+
+.input--error {
+  border-color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+.input--error:focus-visible:not(:disabled):not(.input--readonly):not([readonly]) {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 2px var(--danger-100);
+}
+
+.input--warning {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.input--warning:focus-visible:not(:disabled):not(.input--readonly):not([readonly]) {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 0 2px var(--warning-100);
+}
+
+.input--success {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.input--success:focus-visible:not(:disabled):not(.input--readonly):not([readonly]) {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 2px var(--success-100);
+}
+
+.input--info {
+  border-color: var(--color-info);
+  background: var(--color-info-bg);
+}
+
+.input--info:focus-visible:not(:disabled):not(.input--readonly):not([readonly]) {
+  border-color: var(--color-info);
+  box-shadow: 0 0 0 2px var(--info-100);
+}
+
+/* ─────────────────────────────── */
+/* Search 전용 스타일              */
+/* ─────────────────────────────── */
+.input--search {
+  background: var(--surface-1);
+  border-color: var(--border-subtle);
+}
+
+.input--search::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ─────────────────────────────── */
+/* Icon padding (좌/우 아이콘)     */
+/* ─────────────────────────────── */
+.input--with-left {
+  padding-left: 40px;
+}
+
+.input--with-right {
+  padding-right: 40px;
+}
+
+/* ─────────────────────────────── */
+/* Icon Wrapper / Icon 스타일      */
+/* ─────────────────────────────── */
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.input-icon--left {
+  left: 14px;
+}
+
+.input-icon--right {
+  right: 14px;
+}
+
+.input-icon-button {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* 래퍼 hover / focus 상태에서 아이콘 색 살짝 변경 */
+.input-wrapper:hover .input-icon {
+  color: var(--neutral-600);
+}
+
+.input-wrapper:focus-within .input-icon {
+  color: var(--primary-500);
+}
+
+/* ─────────────────────────────── */
+/* 숫자 input 스핀 버튼 제거       */
+/* ─────────────────────────────── */
+
+/* WebKit (Chrome, Safari 등) */
+.input[type="number"]::-webkit-outer-spin-button,
+.input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ─────────────────────────────── */
+/* Date input 기본 아이콘 숨기기   */
+/* ─────────────────────────────── */
+.input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+/* ─────────────────────────────── */
+/* Range Slider                    */
+/* ─────────────────────────────── */
+
+.input-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+
+  --range-progress: 0%;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* WebKit: track */
+.input-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: linear-gradient(
+    to right,
+    var(--primary-400) 0%,
+    var(--primary-400) var(--range-progress),
+    var(--surface-2) var(--range-progress),
+    var(--surface-2) 100%
+  );
+}
+
+/* WebKit: thumb */
+.input-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--primary-400);
+  box-shadow: 0 0 0 1px #fff;
+  margin-top: -6px;
+}
+
+/* Firefox: track */
+.input-range::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: linear-gradient(
+    to right,
+    var(--primary-400) 0%,
+    var(--primary-400) var(--range-progress),
+    var(--surface-2) var(--range-progress),
+    var(--surface-2) 100%
+  );
+}
+
+/* Firefox: thumb */
+.input-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--primary-400);
+  box-shadow: 0 0 0 1px #fff;
+}
+
+/* Hover / Focus */
+.input-range:hover:not(:disabled)::-webkit-slider-runnable-track,
+.input-range:hover:not(:disabled)::-moz-range-track {
+  border-color: var(--border-strong);
+}
+
+.input-range:focus-visible:not(:disabled)::-webkit-slider-thumb,
+.input-range:focus-visible:not(:disabled)::-moz-range-thumb {
+  box-shadow: 0 0 0 2px var(--focus-ring-color);
+}
+
+/* Disabled */
+.input-range:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.input-range:disabled::-webkit-slider-runnable-track,
+.input-range:disabled::-moz-range-track {
+  background: var(--disabled-bg);
+  border-color: transparent;
+}
+
+.input-range:disabled::-webkit-slider-thumb,
+.input-range:disabled::-moz-range-thumb {
+  background: var(--disabled-text);
+  border-color: var(--disabled-text);
+  box-shadow: none;
+}

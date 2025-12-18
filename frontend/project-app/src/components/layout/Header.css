@@ -1,0 +1,349 @@
+/* =========================================================
+   BASE HEADER ANIMATION
+   (Full Width -> Capsule Transformation)
+========================================================= */
+.header {
+  position: fixed;
+  z-index: 100;
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* 애니메이션 속성: 너비, 위치, 둥글기, 배경색 */
+  transition:
+    width 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    top 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.3s ease,
+    box-shadow 0.3s ease,
+    backdrop-filter 0.3s ease;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   STATE 1: INITIAL (Top of page)
+   - 화면 꽉 채움, 상단에 붙음
+   - 회원/비회원 공통으로 높이·정렬 통일
+───────────────────────────────────────────────────────────── */
+
+/* A. 랜딩 페이지 (Guest) - 투명 배경 */
+.header--landing-mode:not(.header--scrolled) {
+  top: 0;
+  width: 100%;
+  height: 76px; /* 회원/비회원 동일 높이 */
+
+  border-radius: 0;
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* B. 회원/서브 페이지 (Member/Guest 공통) - Glass 배경 */
+.header--member-mode:not(.header--scrolled) {
+  top: 0;
+  width: 100%;
+  height: 76px; /* landing 과 동일하게 맞춤 */
+  border-radius: 0;
+
+  background-color: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid var(--border-subtle);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   STATE 2: SCROLLED (Floating Capsule)
+   - 공통 스타일: 너비 줄어듦, 둥글어짐, 떠오름
+───────────────────────────────────────────────────────────── */
+.header--scrolled {
+  top: 18px;
+
+  /* 캡슐 너비: page-container(1120px)에 맞추되, 모바일 여백 고려 */
+  width: min(calc(100% - 48px), 1120px);
+
+  height: 64px;
+  border-radius: 999px;
+
+  background-color: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================================
+   INNER LAYOUT & ELEMENTS
+========================================================= */
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+
+  /* 페이지 컨테이너와 정렬 맞추기 */
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+
+/* nav 래퍼: 회원/비회원 공통 정렬 */
+.header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Logo */
+.header-logo {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.header-logo-img {
+  height: 28px;
+  width: auto;
+}
+
+/* ─ Navigation: Landing (Text Link) ─ */
+.header-nav-landing {
+  display: none;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .header-nav-landing {
+    display: flex;
+  }
+}
+
+.header-nav-landing button {
+  background: transparent;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--neutral-600);
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 999px;
+  transition: all 0.2s;
+}
+
+.header--landing-mode .header-nav-landing button:hover {
+  color: var(--primary-600);
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.header--scrolled .header-nav-landing button:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* ─ Navigation: Member (Capsule Tabs) ─ */
+/*수정*/
+.header-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  padding: 4px;
+  background-color: var(--neutral-100);
+  border-radius: 999px;
+}
+.header-tabs::-webkit-scrollbar { display: none; }
+/* 기본 탭 */
+.header-tab {
+  display: block;
+  white-space: nowrap;
+  padding: 6px 16px;
+  border-radius: 999px;
+
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+
+  color: var(--neutral-500);
+  background-color: transparent;
+  border: 1px solid transparent;
+
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+
+.header-tab:hover {
+  background-color: #ffffff;
+  color: var(--primary-600);               
+  border-color: rgba(108, 92, 231, 0.35);
+  box-shadow: 0 4px 14px rgba(108, 92, 231, 0.18);
+}
+
+
+.header-tab--active {
+  background-color: #ffffff;
+  color: var(--primary-600);               
+  font-weight: 600;
+
+  border: 1.5px solid var(--primary-500);
+  box-shadow: 0 6px 18px rgba(108, 92, 231, 0.25);
+}
+
+
+.header-tab--active:hover {
+  background-color: #ffffff;
+  color: var(--primary-600);
+  border-color: var(--primary-500);
+  box-shadow: 0 6px 18px rgba(108, 92, 231, 0.25);
+}
+/*수정*/
+/* ─ Actions ─ */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Header 안에서 쓰는 버튼 통일감 (로그인/회원가입) */
+.header .btn {
+  font-size: 0.85rem;
+  padding-inline: 14px;
+}
+
+/* Profile */
+.header-account {
+  position: relative;
+}
+
+.header-profile-btn {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.header-profile-btn:hover {
+  border-color: var(--primary-300);
+  box-shadow: 0 0 0 2px var(--primary-100);
+}
+
+.header-profile-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Dropdown */
+.header-dropdown {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: dropdown-fade 0.2s ease-out;
+}
+
+@keyframes dropdown-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-dropdown-item {
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  color: var(--neutral-700);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.header-dropdown-item:hover {
+  background-color: var(--neutral-100);
+}
+
+.header-dropdown-item--danger {
+  color: var(--danger-500);
+}
+
+.header-dropdown-item--danger:hover {
+  background-color: var(--danger-50);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 1024px) {
+  /* 태블릿/모바일: 캡슐이 너무 좁지 않게 */
+  .header--scrolled {
+    width: calc(100% - 32px);
+    top: 12px;
+    height: 60px;
+  }
+
+  .header-inner {
+    padding: 0 16px;
+  }
+
+  .header-center {
+    padding: 0 8px;
+    justify-content: flex-end;
+  }
+
+  .header-nav-landing {
+    display: none;
+  }
+
+  .header-nav-group {
+    display: flex; /*수정*/
+  }
+}
+
+/* =========================================================
+   [Util] Outline Button Style
+========================================================= */
+.btn--outline {
+  background-color: transparent;
+  border: 1px solid var(--neutral-300);
+  color: var(--neutral-700);
+}
+
+.btn--outline:hover {
+  background-color: var(--primary-50);
+  border-color: var(--primary-500);
+  color: var(--primary-600);
+}

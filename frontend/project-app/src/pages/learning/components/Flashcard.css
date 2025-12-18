@@ -1,0 +1,163 @@
+/* src/pages/learning/components/Flashcard.css */
+
+.flashcard-shell {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-2);
+  perspective: 1200px; /* 3D 공간 */
+  padding-top: 12px;
+  padding-bottom: 24px;
+}
+
+/* 카드 본체 */
+.flashcard {
+  width: 100%;          
+  max-width: 480px;     
+  min-height: 260px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12);
+  border-radius: 28px;
+  padding: 40px 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  transform-style: preserve-3d;
+  transition: transform 0.45s ease-in-out,
+              box-shadow 0.15s ease-out,
+              background-color 0.15s ease-out;
+}
+
+.flashcard:hover {
+  box-shadow:
+    0 4px 10px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(108, 92, 231, 0.05);
+}
+
+/* 플립될 때 카드 자체가 회전 */
+.flashcard--flipped {
+  transform: rotateY(180deg);
+}
+
+/* 내부 컨텐츠 공통 */
+.flashcard-inner {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  padding: 40px 32px;
+  border-radius: 28px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 앞면 */
+.flashcard-inner--front {
+  transform: rotateY(0deg);
+  background-color: var(--surface-1);
+}
+
+.flashcard-inner--front .flashcard-word {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+  letter-spacing: 0.02em;
+  word-break: keep-all;
+}
+
+.flashcard-helper {
+  margin-top: 16px;
+  font-size: 0.95rem;
+  color: var(--neutral-300);
+}
+
+/* 뒷면 */
+.flashcard-inner--back {
+  transform: rotateY(180deg);
+  background-color: var(--primary-500);
+  color: #fff;
+}
+
+.flashcard-inner--back .flashcard-meaning {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color:#fff;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+
+.flashcard-subword {
+  margin-top: 10px;
+  font-size: 1rem;
+  color: var(--neutral-200);
+}
+
+.flashcard-helper-back {
+  margin-top: 18px;
+  font-size: 0.9rem;
+  color: var(--neutral-100);
+}
+.card-page--wrong .flashcard-inner--back {
+  background-color: var(--warning-500) !important;
+}
+
+.card-page--wrong .flashcard-helper-back {
+  color: var(--warning-50) !important;
+}
+
+
+
+/* ---------------------------------------------------------
+   🔥 Vertical Flip (위↕아래로 뒤집히는 3D 모션)
+--------------------------------------------------------- */
+
+/* 카드 자체를 상하 회전시키기 위한 기본 설정 */
+.flashcard {
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+  perspective: 1000px;
+}
+
+/* 카드가 위아래로 뒤집히는 상태 */
+.flashcard--flipped {
+  transform: rotateX(180deg);
+}
+
+/* 앞면 */
+.flashcard-inner--front {
+  transform: rotateX(0deg);
+  backface-visibility: hidden;
+}
+
+/* 뒷면 */
+.flashcard-inner--back {
+  transform: rotateX(180deg);
+  backface-visibility: hidden;
+  position: absolute;
+  inset: 0;
+}
+
+
+/* 반응형 */
+@media (max-width: 640px) {
+  .flashcard {
+    padding: 28px 20px;
+    border-radius: 20px;
+    min-height: 220px;
+  }
+
+  .flashcard-inner--front .flashcard-word {
+    font-size: 2rem;
+  }
+
+  .flashcard-inner--back .flashcard-meaning {
+    font-size: 1.4rem;
+  }
+}

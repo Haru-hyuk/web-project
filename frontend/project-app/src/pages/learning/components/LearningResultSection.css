@@ -1,0 +1,158 @@
+/* src/pages/learning/components/LearningResultSection.css */
+
+/* 좌/우 결과 그리드 */
+.learning-result-grid {
+  margin-top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .learning-result-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2.3fr);
+    align-items: flex-start;
+  }
+}
+
+/* 헷갈린 단어 카드 */
+.learning-unknown-card {
+  background: var(--surface-1);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.unknown-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.unknown-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.unknown-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--neutral-500);
+}
+
+.unknown-empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--neutral-500);
+  padding-top: 6px;
+}
+
+/* 헷갈린 단어 리스트 */
+.unknown-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.unknown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background-color: var(--neutral-100);
+}
+
+.unknown-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.unknown-word {
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
+.unknown-meaning {
+  font-size: 0.85rem;
+  color: var(--neutral-600);
+}
+
+.unknown-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  margin-left: var(--space-2);
+}
+
+.unknown-tag {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  background-color: var(--neutral-200);
+  color: var(--neutral-700);
+}
+
+.unknown-more-hint {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--neutral-500);
+}
+
+/* 통계 카드 */
+.stats-card {
+  width: 100%;
+  background: var(--surface-1);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-row.simple {
+  padding-top: 6px;
+}
+
+.stat-label {
+  color: var(--neutral-700);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+/* 기본 색상: 좋은 쪽 / 나쁜 쪽 */
+.stat-known {
+  color: var(--primary-500);
+}
+
+.stat-unknown {
+  color: var(--warning-500);
+}
+
+/* ProgressBar 마진은 ProgressBar 쪽 className에서 처리 (예: .stat-progress, .quiz-stat-progress) */

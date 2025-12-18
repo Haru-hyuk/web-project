@@ -1,0 +1,568 @@
+/* 레이아웃 */
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-layout {
+    grid-template-columns: 2.2fr 1.2fr;
+    grid-template-rows: auto auto;
+  }
+}
+
+/* 카드 공통 */
+
+.dashboard-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle, #e5e5f0);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 타이틀 공통 */
+
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.section-subtitle {
+  font-size: 0.85rem;
+  color: var(--neutral-500);
+  margin-top: 4px;
+}
+
+/* 공통 카드 헤더 (status-card 제외) */
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+
+
+/* 1. 오늘의 학습 목표 */
+
+.status-card {
+  justify-content: space-between;
+}
+
+.status-body {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* 왼쪽 전체 영역 */
+
+.status-progress-area {
+  flex: 2; /* 왼쪽이 더 넓게 */
+}
+
+/* 숫자/텍스트 ↔ % 배지 한 줄 배치 */
+
+.progress-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.status-percent-area {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.percent-badge {
+  background-color: var(--primary-50, #eff6ff);
+  color: var(--primary-600);
+  font-size: 0.8rem;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 오른쪽: 누적/연속 학습 */
+
+.status-metrics {
+  flex: 1.3; /* 오른쪽은 적당히 */
+  display: flex;
+  gap: 24px;
+  padding-left: 24px;
+  border-left: 1px solid var(--neutral-200); /* 가운데 세로 라인 */
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+.big-number {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.slash {
+  color: var(--neutral-300);
+  font-weight: 400;
+  font-size: 1.2rem;
+  margin: 0 2px;
+}
+
+.goal-text {
+  font-size: 0.95rem;
+  color: var(--neutral-500);
+  font-weight: 500;
+}
+
+.remaining-text {
+  font-size: 0.85rem;
+  color: var(--neutral-500);
+  margin-top: 4px;
+}
+
+.remaining-text strong {
+  color: var(--primary-600);
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 10px;
+  background-color: var(--neutral-200);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+  border-radius: 999px;
+  transition: width 0.8s ease;
+}
+
+/* 누적/연속 학습 아이템 */
+
+.metric-item {
+  display: flex;
+  align-items: center;
+}
+
+.metric-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--neutral-50);
+  border-radius: 12px;
+  color: var(--primary-500);
+}
+
+.metric-icon.warn {
+  color: var(--warning-500, #f59e0b);
+}
+
+.metric-label {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.8rem;
+  color: var(--neutral-500);
+}
+
+.metric-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.metric-value.highlight {
+  color: var(--warning-600);
+  font-size: 1.15rem;
+}
+.action-card .action-subtitle {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--neutral-500);
+}
+
+
+/* 반응형 */
+
+@media (max-width: 768px) {
+  .status-body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  .status-metrics {
+    border-left: none;
+    border-top: 1px solid var(--neutral-200);
+    padding-left: 0;
+    padding-top: 16px;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .status-percent-area {
+    justify-content: flex-start;
+  }
+}
+
+
+/* 2. 학습 시작 카드 (이번 주 출석 현황) */
+
+.action-card {
+  justify-content: space-between;
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.action-top {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mini-calendar {
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--neutral-50);
+  padding: 8px 10px;
+  border-radius: 12px;
+}
+
+.calendar-day {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--neutral-400);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.calendar-day.checked {
+  background-color: var(--primary-500);
+  color: #fff;
+}
+
+.action-bottom {
+  margin-top: 12px;
+}
+
+/* 3. 주간 학습 분석 */
+
+.chart-legend {
+  display: flex;
+  gap: 12px;
+}
+
+.legend-item {
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.dot-learned {
+  background-color: var(--primary-500);
+}
+
+.dot-wrong {
+  background-color: var(--warning-500);
+}
+
+.chart-container {
+  width: 100%;
+  margin: 8px 0 18px;
+}
+
+/* 차트 툴팁 */
+
+.custom-tooltip {
+  background: #fff;
+  border: 1px solid var(--border-subtle, #e5e5f0);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+}
+
+.tooltip-date {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--neutral-700);
+}
+
+.tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--neutral-600);
+}
+
+/* 차트 하단 KPI 카드 */
+
+.kpi-row {
+  display: flex;
+  gap: 18px;
+  border-top: 1px solid var(--neutral-100);
+  padding-top: 14px;
+  margin-top: 4px;
+}
+
+.kpi-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kpi-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpi-icon-wrap--blue {
+  background-color: #e0e7ff;
+  color: #4f46e5;
+}
+
+.kpi-icon-wrap--yellow {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.kpi-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi-label {
+  font-size: 0.78rem;
+  color: var(--neutral-500);
+}
+
+.kpi-main-text {
+  font-size: 0.95rem;
+  color: var(--neutral-900);
+}
+
+.kpi-main-text strong {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.kpi-sub-date {
+  margin-left: 4px;
+  font-size: 0.8rem;
+  color: var(--neutral-400);
+}
+
+@media (max-width: 768px) {
+  .kpi-row {
+    flex-direction: column;
+  }
+}
+
+/* 4. 자주 틀리는 단어 */
+
+.wrong-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.wrong-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.wrong-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--neutral-100);
+}
+
+.wrong-item:last-child {
+  border-bottom: none;
+}
+
+.wrong-item--clickable {
+  cursor: pointer;
+}
+
+.wrong-item--clickable:hover {
+  background-color: var(--neutral-100);
+  border-radius: var(--radius-md);
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.rank-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background-color: var(--neutral-100);
+  color: var(--neutral-500);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rank-badge.top1 {
+  background-color: var(--warning-500);
+  color: #fff;
+}
+
+.word-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.word-en {
+  font-weight: 700;
+  color: var(--neutral-900);
+  font-size: 0.9rem;
+}
+
+.word-ko {
+  font-size: 0.8rem;
+  color: var(--neutral-500);
+}
+
+.wrong-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--warning-600);
+  background: var(--warning-50, #fffbeb);
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--neutral-400);
+  font-size: 0.9rem;
+  padding: 20px 0;
+}
+
+.empty-icon {
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+/* 관심 분야 설정 유도 카드 */
+.preference-card {
+  /* 그리드 전체 폭 사용 (2컬럼 레이아웃에서도 가로로 쭉) */
+  grid-column: 1 / -1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 16px 20px;
+  border-radius: 18px;
+
+  background: var(--warning-50);
+  border: 1px dashed var(--border-subtle);
+}
+
+/* 내용 영역 (아이콘 + 텍스트) */
+.preference-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* 아이콘 배경 (기존 KPI/메트릭 느낌 그대로 유지) */
+.preference-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-1);
+  color: var(--warning-500);
+}
+
+/* 텍스트 묶음 */
+.preference-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preference-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
+.preference-desc {
+  font-size: 0.8125rem;
+  color: var(--neutral-600);
+}
+
+/* 버튼 영역 */
+.preference-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* 태블릿 이상에서는 좌: 텍스트, 우: 버튼 형태 */
+@media (min-width: 768px) {
+  .preference-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .preference-actions {
+    justify-content: flex-end;
+  }
+}

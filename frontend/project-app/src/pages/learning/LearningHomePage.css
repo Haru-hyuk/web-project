@@ -1,0 +1,437 @@
+/* src/pages/learning/LearningHomePage.css */
+
+/* =========================================
+   1. 페이지 레이아웃
+   ========================================= */
+.learning-home-page {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-10);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* =========================================
+   2. 상단 학습 옵션 바 (문항 수 + 필터)
+   ========================================= */
+.learning-settings-bar {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0 0 24px 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.learning-settings-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.setting-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--neutral-900);
+}
+
+.setting-controls {
+  display: flex;
+  align-items: flex-end; /* 문항 수 + 필터 + 리셋 버튼 수평 하단 정렬 */
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  align-items: flex-end;
+}
+
+/* 문항 수 스테퍼: 보라색 캡슐 + 흰색 버튼 */
+/* - / + 버튼 */
+/* 문항 수 스테퍼: 드롭다운과 톤/크기 맞춤 */
+.stepper-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  /* 드롭다운 버튼과 일관된 스타일 */
+  background: var(--surface-1);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+
+  padding: 6px 12px;         /* 높이/두께 드롭다운과 비슷하게 */
+  height: 42px;              /* dropdown-btn 과 유사한 높이 */
+
+  box-sizing: border-box;
+}
+
+/* - / + 버튼: 흰색 라운드, 심플하게 */
+.stepper-input button {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+
+  background: #ffffff;
+  color: var(--neutral-500);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stepper-input button:hover:not(:disabled) {
+  background: var(--neutral-100);
+  color: var(--primary-600);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.16);
+}
+
+.stepper-input button:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 현재 문항 수 숫자 */
+.stepper-input .value {
+  min-width: 40px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--primary-600);
+}
+
+
+/* 문항 수/필터 라벨은 공통 FilterDropdown.css의
+   .filter-group / .filter-label 스타일을 그대로 사용 */
+
+/* 문항 수와 필터 사이 구분선 */
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-strong);
+  opacity: 0.3;
+}
+
+/* 필터 리셋 버튼은 WordListPage.css의 .filter-reset-btn 재사용
+   (여기서는 추가 정의 불필요) */
+
+/* =========================================
+   3. 대시보드 그리드 & 존 스타일
+   ========================================= */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: stretch;
+}
+
+/* 컬럼(정규 학습 / 오답 학습) 컨테이너 */
+.zone-column {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* 오답 존 색상 매핑 */
+.clinic-zone {
+  --primary-100: var(--warning-100);
+  --primary-200: var(--warning-200);
+  --primary-400: var(--warning-500);
+  --primary-500: var(--warning-500);
+  --primary-600: var(--warning-600);
+}
+
+.zone-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.zone-icon-bg {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-100);
+  color: var(--primary-600);
+}
+
+.zone-text h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--neutral-900);
+  margin: 0 0 4px 0;
+}
+
+.zone-text p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--neutral-500);
+}
+
+.zone-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+/* 공통 액션 카드 */
+.action-card {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+
+  background: var(--neutral-50);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+
+  transition: all 0.2s ease;
+}
+
+.action-card:hover {
+  background: #ffffff;
+  border-color: var(--primary-200);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.action-card:focus-visible {
+  outline: 2px solid var(--primary-400);
+  outline-offset: 2px;
+}
+
+/* 메인 큰 카드 */
+.action-card.primary {
+  flex: 1;
+  min-height: 220px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 보조 카드 */
+.action-card.secondary {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+}
+
+.action-card.secondary:hover {
+  background: var(--neutral-50);
+}
+
+/* 카드 안 요소들 */
+.card-badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--primary-400);
+  color: var(--neutral-50);
+  margin-bottom: 12px;
+}
+
+.clinic-zone .card-badge {
+  background: var(--warning-500) !important; /* 메인 주황 */
+  color: white !important;                   /* 글씨 흰색 */
+  border: none !important;                   /* 보라 테두리 제거 */
+  box-shadow: none !important;               /* 보라 outline 제거 */
+}
+
+.action-card h4 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  color: var(--neutral-900);
+}
+
+.action-card p {
+  margin: 0;
+  color: var(--neutral-600);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.card-visual {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  opacity: 0.1;
+  color: var(--neutral-900);
+  transition: all 0.3s ease;
+}
+
+.action-card:hover .card-visual {
+  opacity: 0.15;
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.hover-arrow {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.2s ease;
+  color: var(--primary-500);
+}
+
+.action-card:hover .hover-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 보조 카드용 아이콘 */
+.card-icon-small {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--neutral-100);
+  color: var(--neutral-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.action-card.secondary:hover .card-icon-small {
+  background: var(--primary-100);
+  color: var(--primary-600);
+}
+
+.card-text-row {
+  flex: 1;
+}
+
+.card-text-row h4 {
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.card-text-row p {
+  font-size: 0.85rem;
+}
+
+.card-chevron {
+  color: var(--neutral-300);
+  transition: all 0.2s ease;
+}
+
+.action-card.secondary:hover .card-chevron {
+  color: var(--neutral-600);
+  transform: translateX(4px);
+}
+
+/* 오답 노트 관리 링크 카드 */
+.action-card.manage-link {
+  background: linear-gradient(135deg, var(--warning-500), var(--warning-600));
+  color: #ffffff;
+  padding: 18px 24px;
+  margin-top: 8px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.15);
+}
+
+.action-card.manage-link:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, var(--warning-600), #c2410c);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+}
+
+.manage-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.manage-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.manage-content span {
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.manage-arrow {
+  color: rgba(255, 255, 255, 0.7);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.action-card.manage-link:hover .manage-arrow {
+  color: #ffffff;
+  transform: translateX(4px);
+}
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-strong);
+  opacity: 0.25;
+  align-self: center;
+  flex-shrink: 0;
+  transform: translateY(10px);   
+}
+
+/* =========================================
+   4. 반응형
+   ========================================= */
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .learning-settings-main {
+    align-items: flex-start;
+  }
+
+  .setting-controls {
+    align-items: flex-start;
+  }
+}

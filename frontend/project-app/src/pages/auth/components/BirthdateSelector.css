@@ -1,0 +1,44 @@
+/* src/pages/auth/components/BirthdateSelector.css */
+
+.birthdate-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;                 /* 상단 "생년월일" 라벨과 간격 최소화 */
+}
+
+.birthdate-row {
+  display: flex;
+  gap: 8px;
+}
+
+.birthdate-col {
+  flex: 0 0 auto;
+}
+
+/* 이 영역 안의 드롭다운은 너무 커 보이지 않게 살짝만 줄이기 */
+.birthdate-col .filter-group {
+  gap: 0;                   /* FilterDropdown 기본 gap 제거 */
+}
+
+/* 필요하면 패딩 소폭 조정 */
+.birthdate-col .dropdown-btn {
+  padding-inline: 14px;
+}
+
+/* 에러일 때 드롭다운 테두리 컬러 강조 */
+.birthdate-group--error .dropdown-btn {
+  border-color: var(--danger-300, #fecaca);
+  background: var(--danger-50, #fef2f2);
+}
+
+.birthdate-error {
+  margin-top: 2px;
+  font-size: 0.8rem;
+}
+
+/* 모바일 */
+@media (max-width: 480px) {
+  .birthdate-row {
+    gap: 8px;
+  }
+}
